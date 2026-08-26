@@ -149,10 +149,6 @@ export default async function HomePage() {
                   <p className="text-xs text-slate-300 leading-relaxed">{item.desc}</p>
                 </div>
 
-                <div className="mt-6 pt-3 border-t border-white/10 flex items-center justify-between text-xs font-mono text-slate-400">
-                  <span>Learn more</span>
-                  <ArrowRight className="w-3.5 h-3.5 text-aws-orange" />
-                </div>
               </div>
             );
           })}
