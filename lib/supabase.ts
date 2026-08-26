@@ -1,7 +1,20 @@
 import { createClient, SupabaseClient } from "@supabase/supabase-js";
 
-const supabaseUrl = (process.env.NEXT_PUBLIC_SUPABASE_URL || "").trim();
-const supabaseAnonKey = (process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "").trim();
+// Server-only on purpose. These are NOT prefixed NEXT_PUBLIC_: nothing in the
+// browser talks to Supabase directly, and that prefix would silently inline
+// both values into the client bundle the moment any client component imported
+// this module — no error, no warning, just a credential in the page source.
+const legacyUrl = (process.env.NEXT_PUBLIC_SUPABASE_URL || "").trim();
+const legacyAnonKey = (process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "").trim();
+const supabaseUrl = (process.env.SUPABASE_URL || legacyUrl).trim();
+const supabaseAnonKey = (process.env.SUPABASE_ANON_KEY || legacyAnonKey).trim();
+
+if (legacyUrl || legacyAnonKey) {
+  console.warn(
+    "[supabase] NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_ANON_KEY are deprecated. " +
+      "Rename them to SUPABASE_URL / SUPABASE_ANON_KEY so they cannot reach the browser bundle."
+  );
+}
 const supabaseServiceKey = (process.env.SUPABASE_SERVICE_ROLE_KEY || "").trim();
 
 // The placeholders shipped in .env.example must not read as configured,
@@ -49,7 +62,7 @@ export function getWriteSupabase(): SupabaseClient | null {
 // startup logs and API responses in development.
 export function supabaseStatus(): string {
   if (isSupabaseConfigured) return "connected";
-  if (!supabaseUrl) return "NEXT_PUBLIC_SUPABASE_URL is not set";
-  if (!supabaseAnonKey) return "NEXT_PUBLIC_SUPABASE_ANON_KEY is not set";
+  if (!supabaseUrl) return "SUPABASE_URL is not set";
+  if (!supabaseAnonKey) return "SUPABASE_ANON_KEY is not set";
   return "Supabase URL/key still hold placeholder values from .env.example";
 }

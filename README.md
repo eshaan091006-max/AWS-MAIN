@@ -103,8 +103,8 @@ SXC_AWS/
    Copy `.env.example` to `.env.local` and fill in the values from
    **Project Settings > API**:
    ```env
-   NEXT_PUBLIC_SUPABASE_URL="https://<your-project-ref>.supabase.co"
-   NEXT_PUBLIC_SUPABASE_ANON_KEY="<anon key>"
+   SUPABASE_URL="https://<your-project-ref>.supabase.co"
+   SUPABASE_ANON_KEY="<anon key>"
 
    # Optional: needed only to read submissions back.
    SUPABASE_SERVICE_ROLE_KEY="<service role key>"
@@ -115,9 +115,9 @@ SXC_AWS/
    NEXT_PUBLIC_SITE_URL="http://localhost:3000"
    ```
 
-   > `SUPABASE_SERVICE_ROLE_KEY` and `ADMIN_API_TOKEN` bypass all access
-   > control. Keep them server-side and never prefix them with
-   > `NEXT_PUBLIC_`, which would ship them to the browser.
+   > None of the Supabase variables carry a `NEXT_PUBLIC_` prefix, and none
+   > should. That prefix compiles a value into the browser bundle; nothing on
+   > the client talks to Supabase directly, so all four stay server-side.
 
    > **Adding a new event:** events are content in `lib/data/initialData.ts`,
    > but their seat limit is enforced in the database, so each one also needs a
