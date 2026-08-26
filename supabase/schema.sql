@@ -1,12 +1,14 @@
 -- =================================================================
 -- SXC AWS Club — Supabase schema
 --
--- Covers the two pieces of the site that write to a database:
---   1. Event registration  (components/events/RegistrationModal.tsx)
---   2. Contact form        (app/contact/page.tsx)
+-- Tables:
+--   events               event content, managed from /admin
+--   event_registrations  signups, write-only for the public key
+--   contact_messages     contact form submissions
+--   admin_users          admin credentials (scrypt hashes)
 --
--- Everything else on the site (event content, projects, team, gallery)
--- is static content in lib/data/initialData.ts and needs no tables.
+-- Projects, team and gallery are still static content in
+-- lib/data/initialData.ts and need no tables.
 --
 -- HOW TO RUN
 --   Supabase Dashboard > SQL Editor > New query > paste > Run.
@@ -145,16 +147,27 @@ insert into public.events (
 ) on conflict (id) do nothing;
 
 -- Carry over any capacity rows created by the earlier design, then retire it.
-insert into public.events (id, title, slug, description, date, time, venue, max_seats)
-select c.event_id,
-       'Untitled event (imported)',
-       'imported-' || c.event_id,
-       'Imported from event_capacity. Edit this in the admin area.',
-       now(), 'TBC', 'TBC', c.max_seats
-from public.event_capacity c
-on conflict (id) do nothing;
+--
+-- Guarded by to_regclass: a plain SELECT against public.event_capacity is a
+-- parse-time reference, so on any project where that table was never created
+-- (or was already dropped by a previous run of this file) the whole script
+-- would abort here with 42P01 before creating anything. The DO block only
+-- plans its body when the table actually exists.
+do $$
+begin
+  if to_regclass('public.event_capacity') is not null then
+    insert into public.events (id, title, slug, description, date, time, venue, max_seats)
+    select c.event_id,
+           'Untitled event (imported)',
+           'imported-' || c.event_id,
+           'Imported from event_capacity. Edit this in the admin area.',
+           now(), 'TBC', 'TBC', c.max_seats
+    from public.event_capacity c
+    on conflict (id) do nothing;
 
-drop table if exists public.event_capacity;
+    drop table public.event_capacity;
+  end if;
+end $$;
 
 
 -- =================================================================
@@ -200,7 +213,36 @@ grant  insert on public.contact_messages to anon, authenticated;
 
 
 -- =================================================================
--- 5. SEAT COUNT RPC
+-- 5. FUNCTIONS
+--
+-- Dropped by name before being recreated. CREATE OR REPLACE cannot change a
+-- function's return type or argument list — it raises 42P13, or worse, leaves
+-- an old signature behind as a second overload that PostgREST then reports as
+-- ambiguous. Clearing every overload first makes this file safe to re-run
+-- after any signature change.
+-- =================================================================
+do $$
+declare
+  fn record;
+begin
+  for fn in
+    select p.oid::regprocedure as signature
+    from pg_proc p
+    join pg_namespace n on n.oid = p.pronamespace
+    where n.nspname = 'public'
+      and p.proname in (
+        'event_seats',
+        'event_registration_count',
+        'register_for_event'
+      )
+  loop
+    execute format('drop function if exists %s', fn.signature);
+  end loop;
+end $$;
+
+
+-- =================================================================
+-- 5a. SEAT COUNT RPC
 --
 -- The site shows "X / Y seats reserved". The anon key cannot read the
 -- registrations table, but this returns only an integer — no personal
