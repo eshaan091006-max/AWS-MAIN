@@ -17,6 +17,7 @@ import {
   ExternalLink,
   Sparkles,
   RefreshCw,
+  Pencil,
 } from "lucide-react";
 import {
   INITIAL_PROJECTS,
@@ -25,6 +26,7 @@ import {
   INITIAL_CONTACT_MESSAGES,
   EventData,
 } from "@/lib/data/initialData";
+import { EventEditor } from "@/components/admin/EventEditor";
 
 export default function AdminPage() {
   const [activeTab, setActiveTab] = useState<"overview" | "events" | "projects" | "members" | "gallery" | "messages">("overview");
@@ -62,6 +64,7 @@ export default function AdminPage() {
 
   // Form modal states
   const [showAddEvent, setShowAddEvent] = useState(false);
+  const [editingEvent, setEditingEvent] = useState<EventData | null>(null);
   const [newEvent, setNewEvent] = useState({
     title: "",
     venue: "",
@@ -341,7 +344,10 @@ export default function AdminPage() {
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-bold text-white">Events & Workshop Management</h2>
               <button
-                onClick={() => setShowAddEvent(true)}
+                onClick={() => {
+                  setEditingEvent(null);
+                  setShowAddEvent(true);
+                }}
                 className="px-4 py-2 rounded-xl bg-aws-orange hover:bg-aws-orange-light text-black font-bold text-xs font-mono flex items-center gap-1.5 shadow-md"
               >
                 <Plus className="w-4 h-4" />
@@ -350,74 +356,18 @@ export default function AdminPage() {
             </div>
 
             {showAddEvent && (
-              <form onSubmit={handleAddEvent} className="p-6 rounded-2xl bg-navy-950 border border-aws-orange/40 space-y-4 animate-in fade-in">
-                <h3 className="text-sm font-bold text-aws-orange font-mono">Add New Event to Database</h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <input
-                    required
-                    placeholder="Event Title"
-                    value={newEvent.title}
-                    onChange={(e) => setNewEvent({ ...newEvent, title: e.target.value })}
-                    className="p-2.5 rounded-xl bg-navy-900 border border-white/10 text-xs text-white"
-                  />
-                  <input
-                    required
-                    placeholder="Venue (e.g. Lab 302 or Main Hall)"
-                    value={newEvent.venue}
-                    onChange={(e) => setNewEvent({ ...newEvent, venue: e.target.value })}
-                    className="p-2.5 rounded-xl bg-navy-900 border border-white/10 text-xs text-white"
-                  />
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                  <input
-                    placeholder="Time"
-                    value={newEvent.time}
-                    onChange={(e) => setNewEvent({ ...newEvent, time: e.target.value })}
-                    className="p-2.5 rounded-xl bg-navy-900 border border-white/10 text-xs text-white"
-                  />
-                  <select
-                    value={newEvent.category}
-                    onChange={(e) => setNewEvent({ ...newEvent, category: e.target.value as any })}
-                    className="p-2.5 rounded-xl bg-navy-900 border border-white/10 text-xs text-white"
-                  >
-                    <option value="WORKSHOP">WORKSHOP</option>
-                    <option value="HACKATHON">HACKATHON</option>
-                    <option value="BOOTCAMP">BOOTCAMP</option>
-                    <option value="SEMINAR">SEMINAR</option>
-                  </select>
-                  <input
-                    type="number"
-                    placeholder="Max Seats"
-                    value={newEvent.maxSeats}
-                    onChange={(e) => setNewEvent({ ...newEvent, maxSeats: Number(e.target.value) })}
-                    className="p-2.5 rounded-xl bg-navy-900 border border-white/10 text-xs text-white"
-                  />
-                </div>
-                <textarea
-                  required
-                  placeholder="Short Description & Takeaways"
-                  value={newEvent.description}
-                  onChange={(e) => setNewEvent({ ...newEvent, description: e.target.value })}
-                  className="w-full p-2.5 rounded-xl bg-navy-900 border border-white/10 text-xs text-white"
-                  rows={3}
-                />
-                <div className="flex gap-2 justify-end">
-                  <button
-                    type="button"
-                    onClick={() => setShowAddEvent(false)}
-                    className="px-4 py-1.5 rounded-xl bg-navy-800 text-slate-300 text-xs font-mono"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={saving}
-                    className="px-4 py-1.5 rounded-xl bg-aws-orange text-black font-bold text-xs font-mono disabled:opacity-50"
-                  >
-                    Save Event
-                  </button>
-                </div>
-              </form>
+              <EventEditor
+                event={editingEvent}
+                onSaved={async () => {
+                  await loadEvents();
+                  setShowAddEvent(false);
+                  setEditingEvent(null);
+                }}
+                onCancel={() => {
+                  setShowAddEvent(false);
+                  setEditingEvent(null);
+                }}
+              />
             )}
 
             <div className="overflow-x-auto">
@@ -440,11 +390,21 @@ export default function AdminPage() {
                         <span className="px-2 py-0.5 rounded bg-white/5 text-aws-orange">{e.category}</span>
                       </td>
                       <td className="p-3 text-slate-300">{e.venue}</td>
-                      <td className="p-3 text-slate-300">{e.currentRegistrations} / {e.maxSeats}</td>
+                      <td className="p-3 text-slate-300">{e.maxSeats} max</td>
                       <td className="p-3">
                         <span className="px-2 py-0.5 rounded bg-emerald-950 text-emerald-400">{e.status}</span>
                       </td>
-                      <td className="p-3 text-right">
+                      <td className="p-3 text-right space-x-1.5 whitespace-nowrap">
+                        <button
+                          onClick={() => {
+                            setEditingEvent(e);
+                            setShowAddEvent(true);
+                          }}
+                          className="p-1.5 rounded-lg bg-navy-800 hover:bg-navy-700 text-slate-300 hover:text-aws-orange transition-colors"
+                          title="Edit event, agenda, speakers and prerequisites"
+                        >
+                          <Pencil className="w-3.5 h-3.5" />
+                        </button>
                         <button
                           onClick={() => handleDeleteEvent(e.id)}
                           className="p-1.5 rounded-lg bg-red-950 hover:bg-red-900 text-red-400 transition-colors"
