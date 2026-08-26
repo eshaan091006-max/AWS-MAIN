@@ -131,7 +131,7 @@ export const teamHierarchy: TeamHierarchy = {
           role: "VCP — Marketing Department",
         },
       ],
-      coordinators: ["ABC", "PQR", "XYZ"],
+      coordinators: ["Athen Chettiar", "Naomi John", "Ananya Shah"],
     },
     {
       id: "dept-technical",
