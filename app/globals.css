@@ -221,3 +221,14 @@ html.light footer .bg-navy-950 {
   background-size: 200% 100%;
   animation: shimmer 3s infinite;
 }
+
+/*
+ * Embedded in an iframe (Google Sites and similar).
+ *
+ * Pages carry a large top padding so their content clears the fixed navbar.
+ * When framed the navbar becomes in-flow (see components/navbar/Navbar.tsx),
+ * so that padding turns into a conspicuous empty band under the header.
+ */
+html.embedded .pt-28 {
+  padding-top: 1.5rem;
+}

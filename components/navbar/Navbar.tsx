@@ -11,6 +11,7 @@ import { siteConfig } from "@/config/site";
 export function Navbar() {
   const pathname = usePathname();
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isEmbedded, setIsEmbedded] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
 
@@ -24,13 +25,32 @@ export function Navbar() {
     document.documentElement.classList.add("dark");
     document.documentElement.classList.remove("light");
 
+    // A fixed navbar pins itself to the top of the *iframe*, not the browser
+    // window. Embedded in something like Google Sites the frame is tall enough
+    // to hold the whole page, so the parent page does the scrolling and a fixed
+    // header slides out of reach and never comes back. In a frame it becomes a
+    // normal in-flow header instead, which stays reachable at the top of the
+    // content. Wrapped because reading window.top across origins can throw.
+    try {
+      if (window.self !== window.top) {
+        setIsEmbedded(true);
+        // Lets CSS collapse the top padding that only exists to clear a fixed
+        // navbar; in-flow, that padding is just a gap.
+        document.documentElement.classList.add("embedded");
+      }
+    } catch {
+      // Cross-origin access to window.top throws, which itself means framed.
+      setIsEmbedded(true);
+      document.documentElement.classList.add("embedded");
+    }
+
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   return (
     <>
       <header
-        className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 ${
+        className={`${isEmbedded ? "relative" : "fixed"} top-0 left-0 right-0 z-40 transition-all duration-300 ${
           isScrolled
             ? "bg-[#060A14]/85 backdrop-blur-xl border-b border-aws-orange/20 shadow-lg shadow-black/40 py-3"
             : "bg-transparent py-5"
