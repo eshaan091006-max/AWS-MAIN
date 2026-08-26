@@ -2,8 +2,6 @@ import React from "react";
 import Link from "next/link";
 import { Cloud, ArrowRight, ArrowUpRight, Sparkles, Terminal, Code, Users, Trophy, Cpu, Zap, Shield, Rocket, CheckCircle } from "lucide-react";
 import { siteConfig } from "@/config/site";
-import { CloudArchitectureVisualizer } from "@/components/hero/CloudArchitectureVisualizer";
-import { CloudEvolution } from "@/components/home/CloudEvolution";
 import { EventCard } from "@/components/events/EventCard";
 import { ProjectCard } from "@/components/projects/ProjectCard";
 import { db } from "@/lib/db";
@@ -55,9 +53,8 @@ export default async function HomePage() {
     <div className="relative overflow-hidden pt-28 pb-20">
       {/* 1. HERO SECTION */}
       <section className="relative max-w-[1750px] mx-auto px-4 sm:px-8 lg:px-12 xl:px-16 pt-8 pb-16">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-          {/* Left Column: Text & CTAs */}
-          <div className="lg:col-span-6 space-y-6 text-left">
+        <div className="flex justify-center">
+          <div className="w-full max-w-3xl space-y-6 text-center">
             {/* Small AWS Badge */}
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-navy-900/90 border border-aws-orange/40 text-aws-orange text-xs font-mono font-bold shadow-lg shadow-aws-orange/10">
               <span className="w-2 h-2 rounded-full bg-aws-orange animate-pulse" />
@@ -81,7 +78,7 @@ export default async function HomePage() {
             </p>
 
             {/* Action Buttons */}
-            <div className="flex flex-wrap items-center gap-3 pt-2">
+            <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
               <Link
                 href="/about"
                 className="px-6 py-3 rounded-xl bg-gradient-to-r from-aws-orange to-amber-600 hover:from-amber-500 hover:to-aws-orange text-black font-bold text-sm shadow-xl shadow-aws-orange/20 transition-all hover:scale-105 active:scale-95 flex items-center gap-2"
@@ -100,7 +97,7 @@ export default async function HomePage() {
             </div>
 
             {/* Verified Cloud Highlights */}
-            <div className="pt-4 flex flex-wrap items-center gap-4 text-xs font-mono text-slate-400">
+            <div className="pt-4 flex flex-wrap items-center justify-center gap-4 text-xs font-mono text-slate-400">
               <span className="flex items-center gap-1.5">
                 <CheckCircle className="w-3.5 h-3.5 text-aws-orange" />
                 <span>AWS Educate Partner</span>
@@ -114,11 +111,6 @@ export default async function HomePage() {
                 <span>50+ Active Builders</span>
               </span>
             </div>
-          </div>
-
-          {/* Right Column: Interactive Cloud Visualization */}
-          <div className="lg:col-span-6 flex justify-center">
-            <CloudArchitectureVisualizer />
           </div>
         </div>
       </section>
@@ -166,9 +158,6 @@ export default async function HomePage() {
           })}
         </div>
       </section>
-
-      {/* 4. CLOUD COMPUTING EVOLUTION ROADMAP */}
-      <CloudEvolution />
 
       {/* 5. FEATURED EVENTS SECTION */}
       <section className="relative max-w-[1750px] mx-auto px-4 sm:px-8 lg:px-12 xl:px-16 py-20">

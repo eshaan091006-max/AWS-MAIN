@@ -154,7 +154,7 @@ export const teamHierarchy: TeamHierarchy = {
         {
           name: "Michael Fernandes",
           role: "VCP — Technical Department",
-          coordinators: ["Ricco Marcelino", "Eshan Sinha"],
+          coordinators: ["Ricco Marcelino", "Eshaan Sinha"],
         },
       ],
     },

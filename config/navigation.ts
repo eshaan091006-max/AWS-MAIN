@@ -24,7 +24,6 @@ export const footerNavItems = {
     { title: "Photo Gallery", href: "/gallery" },
   ],
   learn: [
-    { title: "Cloud Fundamentals", href: "/#cloud-evolution" },
     { title: "AWS Foundations Workshop", href: "/events/aws-foundations" },
     { title: "Student Community Projects", href: "/projects" },
   ],
