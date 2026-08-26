@@ -20,30 +20,38 @@ export function OrganizationalTree() {
       {/* Main Tree Container */}
       <div className="w-full flex flex-col items-center">
         {/* ================= LEVEL 1: FACULTY IN CHARGE ================= */}
-        <div className="flex flex-col items-center">
-          <div className="p-4 sm:p-5 rounded-2xl bg-navy-900/90 border-2 border-amber-500/30 backdrop-blur-xl shadow-2xl text-center min-w-[280px] sm:min-w-[500px] md:min-w-[580px] relative">
-            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-amber-500/15 text-amber-400 border border-amber-500/30 mb-2">
-              <Shield className="w-3 h-3" />
-              <span>{faculty.title}</span>
-            </div>
+        <div className="flex flex-col items-center w-full">
+          {/* Badge */}
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-mono font-bold bg-amber-500/15 text-amber-400 border border-amber-500/30 mb-3 shadow-md">
+            <Shield className="w-3.5 h-3.5" />
+            <span>{faculty.title}</span>
+          </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
-              {faculty.members.map((fac, idx) => (
-                <div
-                  key={idx}
-                  className="p-2.5 sm:p-3 rounded-xl border bg-navy-950/80 border-white/5"
-                >
-                  <div className="text-xs sm:text-sm font-bold text-white tracking-tight">{fac.name}</div>
-                  <div className="text-[10px] text-slate-400 font-mono mt-0.5 leading-tight">{fac.designation}</div>
+          {/* 3 Separate Adjacent Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 w-full max-w-4xl px-2">
+            {faculty.members.map((fac, idx) => (
+              <motion.div
+                key={idx}
+                whileHover={{ scale: 1.03, y: -2 }}
+                className="p-4 sm:p-5 rounded-2xl bg-navy-900/90 border-2 border-amber-500/30 backdrop-blur-xl shadow-2xl text-center flex flex-col items-center justify-center relative hover:border-amber-500/60 hover:shadow-amber-500/10 transition-all"
+              >
+                <div className="text-sm sm:text-base font-extrabold text-white tracking-tight">
+                  {fac.name}
                 </div>
-              ))}
-            </div>
+                <div className="text-[11px] text-slate-300 font-mono mt-1 font-medium bg-amber-500/10 px-2.5 py-0.5 rounded-full border border-amber-500/20">
+                  {fac.designation}
+                </div>
+              </motion.div>
+            ))}
           </div>
 
           {/* Connection Stem 1: Faculty -> Chairperson */}
-          <div className="flex flex-col items-center text-aws-orange my-1">
-            <div className="w-0.5 h-6 bg-gradient-to-b from-amber-500 to-aws-orange" />
-            <ArrowDown className="w-4 h-4 -mt-1 text-aws-orange" />
+          <div className="w-full max-w-4xl flex flex-col items-center mt-2 mb-1">
+            <div className="hidden md:block w-[66%] h-0.5 bg-gradient-to-r from-transparent via-amber-500/60 to-transparent" />
+            <div className="flex flex-col items-center text-aws-orange">
+              <div className="w-0.5 h-6 bg-gradient-to-b from-amber-500 to-aws-orange" />
+              <ArrowDown className="w-4 h-4 -mt-1 text-aws-orange" />
+            </div>
           </div>
         </div>
 
