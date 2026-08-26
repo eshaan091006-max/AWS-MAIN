@@ -34,11 +34,19 @@ const cspDirectives = [
 
 // Who may put this site in an iframe.
 //
-// A published Google Site serves its page from sites.google.com and renders
-// embedded URLs inside a googleusercontent iframe, so both are needed. This is
-// an allowlist, not a free-for-all: any other site framing the page is still
-// refused, which is what keeps clickjacking off the table.
-const EMBED_ANCESTORS = "https://sites.google.com https://*.google.com https://*.googleusercontent.com";
+// Public pages allow any https parent. This is broader than an allowlist of
+// Google domains, and it is deliberate: Google Sites renders an embed inside a
+// sandboxed iframe, and a sandboxed frame has an opaque origin that matches no
+// frame-ancestors source at all. Naming sites.google.com therefore does not
+// work, and no longer list can fix it.
+//
+// The trade is acceptable *for these pages specifically*: they carry no
+// authenticated state. The session cookie is SameSite=Strict so it is never
+// sent cross-site, and /admin and /api are excluded below and stay
+// frame-ancestors 'none'. What remains is that someone could frame the public
+// pages — the worst case is tricking a visitor into submitting a registration,
+// not taking over an account.
+const PUBLIC_ANCESTORS = "https:";
 
 const buildCsp = (frameAncestors) =>
   [...cspDirectives, `frame-ancestors ${frameAncestors}`].join("; ");
@@ -68,13 +76,12 @@ const adminHeaders = [
   ...baseSecurityHeaders,
 ];
 
-// Public pages are embeddable by Google Sites only. X-Frame-Options is
-// deliberately omitted here: its ALLOW-FROM variant is dead in every current
-// browser, so sending DENY would override frame-ancestors and block the embed,
-// while sending SAMEORIGIN would be equally wrong. frame-ancestors is the
-// directive modern browsers honour.
+// X-Frame-Options is deliberately omitted here. It has no allowlist form that
+// any current browser honours, so sending DENY would override frame-ancestors
+// and block the embed, and SAMEORIGIN would do the same. frame-ancestors is the
+// directive that actually expresses this policy.
 const publicHeaders = [
-  { key: "Content-Security-Policy", value: buildCsp(`'self' ${EMBED_ANCESTORS}`) },
+  { key: "Content-Security-Policy", value: buildCsp(`'self' ${PUBLIC_ANCESTORS}`) },
   ...baseSecurityHeaders,
 ];
 
@@ -111,7 +118,7 @@ const nextConfig = {
         ],
       },
       {
-        // Everything else: the public site, embeddable by Google Sites.
+        // Everything else: the public site, embeddable by any https parent.
         source: "/((?!admin|api).*)",
         headers: publicHeaders,
       },

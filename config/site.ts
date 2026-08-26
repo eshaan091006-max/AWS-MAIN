@@ -3,10 +3,21 @@ export const siteConfig = {
   shortName: "SXC AWS",
   description: "Empowering students to build the future with cloud computing, AWS architecture, and modern distributed systems.",
   tagline: "BUILD. DEPLOY. SCALE.",
+  // Server-only: no NEXT_PUBLIC_ prefix. Only layout.tsx, robots.ts and
+  // sitemap.ts read this, all of which run on the server, so there is no
+  // reason to compile it into the browser bundle.
+  //
+  // NEXT_PUBLIC_SITE_URL is still accepted so an existing deployment keeps
+  // working until the variable is renamed.
+  //
   // Trailing slashes are stripped: this value is concatenated directly in
   // sitemap.ts and robots.ts, so "https://site.com/" would emit
   // "https://site.com//sitemap.xml".
-  url: (process.env.NEXT_PUBLIC_SITE_URL || "https://sxcawsclub.vercel.app").replace(/\/+$/, ""),
+  url: (
+    process.env.SITE_URL ||
+    process.env.NEXT_PUBLIC_SITE_URL ||
+    "https://sxcawsclub.vercel.app"
+  ).replace(/\/+$/, ""),
   ogImage: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=1200&auto=format&fit=crop",
   creator: "SXC AWS Student Community",
   links: {
