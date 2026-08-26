@@ -73,7 +73,7 @@ export default async function HomePage() {
             </div>
 
             {/* Supporting Text */}
-            <p className="text-base sm:text-lg text-slate-300 max-w-xl leading-relaxed">
+            <p className="text-base sm:text-lg text-slate-300 max-w-xl mx-auto leading-relaxed">
               Empowering students to build the future with cloud computing, AWS architecture, distributed systems, and generative artificial intelligence.
             </p>
 
