@@ -34,51 +34,7 @@ export function Footer() {
             </div>
 
             {/* Socials */}
-            <div className="flex items-center gap-3 pt-2">
-              <a
-                href={siteConfig.links.github}
-                target="_blank"
-                rel="noreferrer"
-                className="w-9 h-9 rounded-lg bg-navy-900 hover:bg-navy-800 border border-white/10 hover:border-aws-orange/50 flex items-center justify-center text-slate-300 hover:text-aws-orange transition-all"
-                title="GitHub"
-              >
-                <Github className="w-4 h-4" />
-              </a>
-              <a
-                href={siteConfig.links.linkedin}
-                target="_blank"
-                rel="noreferrer"
-                className="w-9 h-9 rounded-lg bg-navy-900 hover:bg-navy-800 border border-white/10 hover:border-aws-orange/50 flex items-center justify-center text-slate-300 hover:text-aws-orange transition-all"
-                title="LinkedIn"
-              >
-                <Linkedin className="w-4 h-4" />
-              </a>
-              <a
-                href={siteConfig.links.instagram}
-                target="_blank"
-                rel="noreferrer"
-                className="w-9 h-9 rounded-lg bg-navy-900 hover:bg-navy-800 border border-white/10 hover:border-aws-orange/50 flex items-center justify-center text-slate-300 hover:text-aws-orange transition-all"
-                title="Instagram"
-              >
-                <Instagram className="w-4 h-4" />
-              </a>
-              <a
-                href={siteConfig.links.discord}
-                target="_blank"
-                rel="noreferrer"
-                className="w-9 h-9 rounded-lg bg-navy-900 hover:bg-navy-800 border border-white/10 hover:border-aws-orange/50 flex items-center justify-center text-slate-300 hover:text-aws-orange transition-all"
-                title="Discord"
-              >
-                <MessageSquare className="w-4 h-4" />
-              </a>
-              <a
-                href={`mailto:${siteConfig.links.email}`}
-                className="w-9 h-9 rounded-lg bg-navy-900 hover:bg-navy-800 border border-white/10 hover:border-aws-orange/50 flex items-center justify-center text-slate-300 hover:text-aws-orange transition-all"
-                title="Email"
-              >
-                <Mail className="w-4 h-4" />
-              </a>
-            </div>
+
           </div>
 
           {/* Column 2: Explore */}
