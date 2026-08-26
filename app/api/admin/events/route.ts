@@ -14,6 +14,8 @@ const STATUSES = ["UPCOMING", "ONGOING", "COMPLETED"] as const;
 
 const MAX = { title: 200, description: 2000, venue: 200, time: 100, url: 2000 };
 const MAX_SEATS_CEILING = 10_000;
+// A single event awarding more than this is a typo, not a policy.
+const MAX_ECC = 100;
 
 function imageUrlError(url: string): string | null {
   if (!url) return null;
@@ -110,6 +112,16 @@ function parseEvent(body: any, partial: boolean): Parsed {
     out.maxSeats = Math.min(Math.floor(seats), MAX_SEATS_CEILING);
   } else if (!partial) {
     out.maxSeats = 100;
+  }
+
+  if (body.eccPoints !== undefined) {
+    const ecc = Number(body.eccPoints);
+    if (!Number.isFinite(ecc) || ecc < 0) {
+      return { error: "ECC must be zero or a positive number." };
+    }
+    out.eccPoints = Math.min(Math.floor(ecc), MAX_ECC);
+  } else if (!partial) {
+    out.eccPoints = 0;
   }
 
   if (body.isFeatured !== undefined) out.isFeatured = Boolean(body.isFeatured);

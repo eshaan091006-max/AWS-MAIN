@@ -19,6 +19,7 @@ const row: EventRow = {
   prerequisites: ["Laptop"],
   agenda: [{ time: "10:00", title: "Kickoff", description: "Welcome" }],
   max_seats: 100,
+  ecc_points: 2,
 };
 
 describe("rowToEvent", () => {
@@ -34,6 +35,14 @@ describe("rowToEvent", () => {
 
   it("defaults currentRegistrations to 0 — it is counted, not stored", () => {
     expect(rowToEvent(row).currentRegistrations).toBe(0);
+  });
+
+  it("carries ecc_points across", () => {
+    expect(rowToEvent(row).eccPoints).toBe(2);
+  });
+
+  it("treats a null ecc_points as 0, for rows predating the column", () => {
+    expect(rowToEvent({ ...row, ecc_points: null }).eccPoints).toBe(0);
   });
 
   it("survives null array and jsonb columns", () => {

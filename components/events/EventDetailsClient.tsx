@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Calendar, Clock, MapPin, Users, Sparkles, Share2, Check, Lock } from "lucide-react";
+import { Calendar, Clock, MapPin, Users, Sparkles, Share2, Check, Lock, Award } from "lucide-react";
 import { EventData } from "@/lib/data/initialData";
 import { RegistrationModal } from "@/components/events/RegistrationModal";
 import { useSeatCount } from "@/lib/hooks/useSeatCount";
@@ -62,6 +62,18 @@ export function EventDetailsClient({ event, formattedDate }: Props) {
               <div className="text-white font-sans font-semibold text-xs leading-relaxed">{event.venue}</div>
             </div>
           </div>
+
+          {event.eccPoints > 0 && (
+            <div className="flex items-start gap-3">
+              <Award className="w-4 h-4 text-violet-400 shrink-0 mt-0.5" />
+              <div>
+                <div className="text-slate-400 text-[10px]">CREDITS</div>
+                <div className="text-white font-sans font-semibold text-xs">
+                  {event.eccPoints} ECC on attendance
+                </div>
+              </div>
+            </div>
+          )}
 
           <div className="pt-2 border-t border-white/10 space-y-1.5">
             <div className="flex items-center justify-between text-[11px]">

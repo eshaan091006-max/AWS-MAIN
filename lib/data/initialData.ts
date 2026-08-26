@@ -41,6 +41,11 @@ export interface EventData {
   agenda: { time: string; title: string; description: string }[];
   maxSeats: number;
   currentRegistrations: number;
+  /**
+   * Extra Co-curricular Credits awarded for attending. 0 means the event
+   * carries none, and the badge is hidden rather than showing "0 ECC".
+   */
+  eccPoints: number;
 }
 
 export interface ProjectData {
@@ -315,6 +320,7 @@ export const INITIAL_EVENTS: EventData[] = [
     ],
     maxSeats: 100,
     currentRegistrations: 20,
+    eccPoints: 2,
   }
 ];
 

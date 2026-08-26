@@ -7,6 +7,7 @@
  */
 export const SCHEMA_MISSING_CODES = [
   "42P01", // undefined_table
+  "42703", // undefined_column — the table exists but predates a newer column
   "42883", // undefined_function
   "PGRST205", // table not found in schema cache
   "PGRST202", // function not found in schema cache

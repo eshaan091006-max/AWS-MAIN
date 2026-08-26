@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Mail, MessageSquare, MapPin, Send, CheckCircle, Sparkles, Github, Linkedin, Instagram, HelpCircle, ChevronDown, Loader2 } from "lucide-react";
+import { Mail, MessageSquare, MapPin, Send, CheckCircle, Sparkles, Github, Linkedin, Instagram, HelpCircle, ChevronDown, Loader2, CalendarDays, Cloud, ExternalLink } from "lucide-react";
 import confetti from "canvas-confetti";
 import { siteConfig } from "@/config/site";
 
@@ -209,6 +209,43 @@ export default function ContactPage() {
               <p className="text-xs text-slate-300 leading-relaxed">
                 Connect directly with our leadership team, get invited to our private Discord servers, and access exclusive AWS certification study materials.
               </p>
+
+              {/* Primary join actions. Both leave the site, so both are
+                  rel="noopener noreferrer" — without noopener the opened tab
+                  can reach back through window.opener. */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+                <a
+                  href={siteConfig.links.meetup}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group p-3.5 rounded-2xl bg-gradient-to-r from-aws-orange to-amber-600 hover:from-amber-500 hover:to-aws-orange text-black flex items-center gap-3 transition-all shadow-lg shadow-aws-orange/20"
+                >
+                  <div className="w-8 h-8 rounded-lg bg-black/15 flex items-center justify-center shrink-0">
+                    <CalendarDays className="w-4 h-4" />
+                  </div>
+                  <div className="min-w-0">
+                    <div className="text-[10px] font-mono uppercase opacity-70">Meetup Group</div>
+                    <div className="text-xs font-bold truncate">Join our Meetup</div>
+                  </div>
+                  <ExternalLink className="w-3.5 h-3.5 ml-auto shrink-0 opacity-70 group-hover:opacity-100" />
+                </a>
+
+                <a
+                  href={siteConfig.links.awsBuilder}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group p-3.5 rounded-2xl bg-navy-950/80 hover:bg-navy-800 border border-aws-orange/30 hover:border-aws-orange/60 text-white flex items-center gap-3 transition-all"
+                >
+                  <div className="w-8 h-8 rounded-lg bg-aws-orange/20 text-aws-orange flex items-center justify-center shrink-0">
+                    <Cloud className="w-4 h-4" />
+                  </div>
+                  <div className="min-w-0">
+                    <div className="text-[10px] font-mono uppercase text-slate-400">AWS Builder</div>
+                    <div className="text-xs font-bold truncate">Create your Builder ID</div>
+                  </div>
+                  <ExternalLink className="w-3.5 h-3.5 ml-auto shrink-0 text-slate-500 group-hover:text-aws-orange" />
+                </a>
+              </div>
 
               <div className="space-y-3 pt-2">
                 <div className="p-3 rounded-2xl bg-navy-950/80 border border-white/5 flex items-center gap-3">

@@ -40,6 +40,7 @@ export function EventEditor({ event, onSaved, onCancel }: Props) {
     category: event?.category ?? "WORKSHOP",
     status: event?.status ?? "UPCOMING",
     maxSeats: event?.maxSeats ?? 100,
+    eccPoints: event?.eccPoints ?? 0,
     isFeatured: event?.isFeatured ?? false,
     imageUrl: event?.imageUrl ?? "",
     bannerUrl: event?.bannerUrl ?? "",
@@ -72,6 +73,7 @@ export function EventEditor({ event, onSaved, onCancel }: Props) {
       category: form.category,
       status: form.status,
       maxSeats: Number(form.maxSeats),
+      eccPoints: Number(form.eccPoints),
       isFeatured: form.isFeatured,
       imageUrl: form.imageUrl || undefined,
       bannerUrl: form.bannerUrl || undefined,
@@ -182,6 +184,20 @@ export function EventEditor({ event, onSaved, onCancel }: Props) {
           <label className="text-xs font-medium text-slate-300">Max seats</label>
           <input type="number" min={1} value={form.maxSeats} onChange={(e) => set({ maxSeats: Number(e.target.value) })} className={`${inputClass} font-mono`} />
           <p className="text-[10px] text-slate-500 font-mono">Enforced by the database, not just here.</p>
+        </div>
+
+        <div className="space-y-1.5">
+          <label className="text-xs font-medium text-slate-300">ECC awarded</label>
+          <input
+            type="number"
+            min={0}
+            value={form.eccPoints}
+            onChange={(e) => set({ eccPoints: Number(e.target.value) })}
+            className={`${inputClass} font-mono`}
+          />
+          <p className="text-[10px] text-slate-500 font-mono">
+            Extra Co-curricular Credits. 0 hides the badge on the event card.
+          </p>
         </div>
 
         <div className="flex items-center gap-2 pt-6">

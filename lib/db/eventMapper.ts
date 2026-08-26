@@ -19,6 +19,7 @@ export interface EventRow {
   prerequisites: string[] | null;
   agenda: EventData["agenda"] | null;
   max_seats: number;
+  ecc_points: number | null;
 }
 
 const DEFAULT_IMAGE =
@@ -47,6 +48,8 @@ export function rowToEvent(row: EventRow): EventData {
     prerequisites: row.prerequisites ?? [],
     agenda: row.agenda ?? [],
     maxSeats: row.max_seats,
+    // Older rows predate the column, so null reads as "no credits".
+    eccPoints: row.ecc_points ?? 0,
     // Deliberately not a column. Seats taken is counted from
     // event_registrations through the event_seats RPC, never denormalised onto
     // the event row where it could drift from the truth.
@@ -72,6 +75,7 @@ const TO_COLUMN: Record<string, keyof EventRow> = {
   prerequisites: "prerequisites",
   agenda: "agenda",
   maxSeats: "max_seats",
+  eccPoints: "ecc_points",
 };
 
 /**

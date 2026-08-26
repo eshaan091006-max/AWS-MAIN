@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Calendar, Clock, MapPin, Users, ArrowUpRight, Sparkles, Lock } from "lucide-react";
+import { Calendar, Clock, MapPin, Users, ArrowUpRight, Sparkles, Lock, Award } from "lucide-react";
 import { EventData } from "@/lib/data/initialData";
 import { RegistrationModal } from "@/components/events/RegistrationModal";
 import { useSeatCount } from "@/lib/hooks/useSeatCount";
@@ -56,6 +56,12 @@ export function EventCard({ event, featured }: EventCardProps) {
             <span className="px-2.5 py-1 rounded-full text-[10px] font-mono font-bold bg-navy-950/80 backdrop-blur-md text-aws-orange border border-aws-orange/40">
               {event.category}
             </span>
+            {event.eccPoints > 0 && (
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-violet-950/85 backdrop-blur-md text-violet-300 border border-violet-400/40 flex items-center gap-1">
+                <Award className="w-3 h-3" />
+                {event.eccPoints} ECC
+              </span>
+            )}
             {event.status === "UPCOMING" ? (
               <span className="px-2 py-0.5 rounded-full text-[10px] font-mono bg-emerald-950/80 text-emerald-400 border border-emerald-500/30 flex items-center gap-1">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />

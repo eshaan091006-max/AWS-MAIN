@@ -27,6 +27,12 @@ export const siteConfig = {
     discord: "https://discord.gg/sxc-aws",
     email: "contact@sxcaws.club",
     awsEducate: "https://aws.amazon.com/education/awseducate/",
+    meetup:
+      "https://www.meetup.com/aws-sbg-at-saint-xaviers-college-mumbai/?utm_medium=referral",
+    // bit.ly/44VWyNV — kept expanded so the destination is visible in review
+    // and survives the shortener being retired.
+    awsBuilder:
+      "https://builder.aws.com/start?trk=5a6e9ca6-bc8b-49c0-ab29-d73e01649878&sc_channel=el",
   },
   stats: {
     members: "500+",

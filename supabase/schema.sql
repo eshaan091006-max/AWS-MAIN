@@ -111,9 +111,16 @@ create table if not exists public.events (
   prerequisites text[] not null default '{}',
   agenda        jsonb not null default '[]'::jsonb,
   max_seats     integer not null default 100 check (max_seats > 0),
+  -- Extra Co-curricular Credits awarded for attending.
+  ecc_points    integer not null default 0 check (ecc_points >= 0),
   created_at    timestamptz not null default now(),
   updated_at    timestamptz not null default now()
 );
+
+-- Added after the table shipped, so CREATE TABLE IF NOT EXISTS above is a
+-- no-op on an existing project and would silently skip it.
+alter table public.events
+  add column if not exists ecc_points integer not null default 0;
 
 create index if not exists events_date_idx on public.events (date desc);
 
@@ -123,7 +130,7 @@ create index if not exists events_date_idx on public.events (date desc);
 insert into public.events (
   id, title, slug, description, full_details, date, time, venue,
   category, status, is_featured, image_url, banner_url,
-  speaker_names, prerequisites, agenda, max_seats
+  speaker_names, prerequisites, agenda, max_seats, ecc_points
 ) values (
   'event-1',
   'AWS Foundations Event',
@@ -143,7 +150,8 @@ insert into public.events (
     {"time":"01:00 PM","title":"Networking Lunch & AWS Architecture Showcase","description":"Explore student projects and chat with AWS certified mentors."},
     {"time":"02:15 PM","title":"Generative AI on AWS: Building with Amazon Bedrock","description":"Deploying production LLM applications with Vector search on RDS Aurora."},
     {"time":"04:30 PM","title":"AWS Cloud Jam Competition & Award Ceremony","description":"Speed troubleshooting challenge with AWS merchandise prizes."}]'::jsonb,
-  100
+  100,
+  2
 ) on conflict (id) do nothing;
 
 -- Carry over any capacity rows created by the earlier design, then retire it.
