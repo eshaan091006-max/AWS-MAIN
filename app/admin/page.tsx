@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   Shield,
   Calendar,
@@ -19,22 +19,46 @@ import {
   RefreshCw,
 } from "lucide-react";
 import {
-  INITIAL_EVENTS,
   INITIAL_PROJECTS,
   INITIAL_TEAM_MEMBERS,
   INITIAL_GALLERY,
   INITIAL_CONTACT_MESSAGES,
+  EventData,
 } from "@/lib/data/initialData";
 
 export default function AdminPage() {
   const [activeTab, setActiveTab] = useState<"overview" | "events" | "projects" | "members" | "gallery" | "messages">("overview");
 
   // Local state for dynamic changes in the dashboard session
-  const [events, setEvents] = useState(INITIAL_EVENTS);
+  // Events are database rows now. They are fetched rather than seeded, so what
+  // this list shows is what the public site shows.
+  const [events, setEvents] = useState<EventData[]>([]);
+  const [eventsLoading, setEventsLoading] = useState(true);
+  const [eventsError, setEventsError] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
   const [projects, setProjects] = useState(INITIAL_PROJECTS);
   const [members, setMembers] = useState(INITIAL_TEAM_MEMBERS);
   const [gallery, setGallery] = useState(INITIAL_GALLERY);
   const [messages, setMessages] = useState(INITIAL_CONTACT_MESSAGES);
+
+  const loadEvents = useCallback(async () => {
+    setEventsLoading(true);
+    setEventsError(null);
+    try {
+      const res = await fetch("/api/events", { cache: "no-store" });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || "Could not load events.");
+      setEvents(json.data ?? []);
+    } catch (err: any) {
+      setEventsError(err.message);
+    } finally {
+      setEventsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadEvents();
+  }, [loadEvents]);
 
   // Form modal states
   const [showAddEvent, setShowAddEvent] = useState(false);
@@ -67,35 +91,50 @@ export default function AdminPage() {
   });
 
   // Handlers
-  const handleAddEvent = (e: React.FormEvent) => {
+  const handleAddEvent = async (e: React.FormEvent) => {
     e.preventDefault();
-    const created = {
-      id: `event-${Date.now()}`,
-      title: newEvent.title,
-      slug: newEvent.title.toLowerCase().replace(/\s+/g, "-"),
-      description: newEvent.description,
-      fullDetails: newEvent.description,
-      date: new Date().toISOString(),
-      time: newEvent.time,
-      venue: newEvent.venue,
-      category: newEvent.category,
-      status: "UPCOMING" as const,
-      isFeatured: false,
-      imageUrl: "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?q=80&w=1200&auto=format&fit=crop",
-      bannerUrl: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=1600&auto=format&fit=crop",
-      speakerNames: ["SXC AWS Leadership"],
-      prerequisites: ["Laptop"],
-      agenda: [{ time: "02:00 PM", title: "Session", description: "Hands-on session." }],
-      maxSeats: Number(newEvent.maxSeats),
-      currentRegistrations: 0,
-    };
-    setEvents([created, ...events]);
-    setShowAddEvent(false);
-    setNewEvent({ title: "", venue: "", time: "02:00 PM - 05:00 PM IST", category: "WORKSHOP", description: "", maxSeats: 100 });
+    setSaving(true);
+    setEventsError(null);
+    try {
+      const res = await fetch("/api/admin/events", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: newEvent.title,
+          description: newEvent.description,
+          venue: newEvent.venue,
+          time: newEvent.time,
+          category: newEvent.category,
+          maxSeats: Number(newEvent.maxSeats),
+        }),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || "Could not create the event.");
+
+      // Re-read rather than splicing the response into local state: the server
+      // is the only thing that knows the real list, and this is exactly where
+      // the old version went wrong.
+      await loadEvents();
+      setShowAddEvent(false);
+      setNewEvent({ title: "", venue: "", time: "02:00 PM - 05:00 PM IST", category: "WORKSHOP", description: "", maxSeats: 100 });
+    } catch (err: any) {
+      setEventsError(err.message);
+    } finally {
+      setSaving(false);
+    }
   };
 
-  const handleDeleteEvent = (id: string) => {
-    setEvents(events.filter((e) => e.id !== id));
+  const handleDeleteEvent = async (id: string) => {
+    if (!window.confirm("Delete this event? Registrations for it are kept, but the event disappears from the site.")) return;
+    setEventsError(null);
+    try {
+      const res = await fetch(`/api/admin/events?id=${encodeURIComponent(id)}`, { method: "DELETE" });
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(json.error || "Could not delete the event.");
+      await loadEvents();
+    } catch (err: any) {
+      setEventsError(err.message);
+    }
   };
 
   const handleAddMember = (e: React.FormEvent) => {
@@ -291,6 +330,12 @@ export default function AdminPage() {
         )}
 
         {/* Tab 2: Events Management */}
+        {activeTab === "events" && eventsError && (
+          <div className="mb-4 p-3.5 rounded-xl bg-red-950/70 border border-red-500/40 text-red-300 text-xs font-mono">
+            {eventsError}
+          </div>
+        )}
+
         {activeTab === "events" && (
           <div className="space-y-6">
             <div className="flex items-center justify-between">
@@ -366,7 +411,8 @@ export default function AdminPage() {
                   </button>
                   <button
                     type="submit"
-                    className="px-4 py-1.5 rounded-xl bg-aws-orange text-black font-bold text-xs font-mono"
+                    disabled={saving}
+                    className="px-4 py-1.5 rounded-xl bg-aws-orange text-black font-bold text-xs font-mono disabled:opacity-50"
                   >
                     Save Event
                   </button>

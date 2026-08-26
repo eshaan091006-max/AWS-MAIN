@@ -111,7 +111,7 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: "eventId is required." }, { status: 400 });
     }
 
-    const event = db.getEventBySlug(eventId);
+    const event = await db.findEvent(eventId);
     if (!event) {
       return NextResponse.json({ error: "Event not found." }, { status: 404 });
     }

@@ -13,8 +13,10 @@ export const metadata = {
   description: "Official SXC AWS Student Community at St. Xavier's College. Learn cloud computing, deploy serverless architectures, compete in hackathons, and master AWS technologies.",
 };
 
-export default function HomePage() {
-  const events = db.getEvents();
+export const revalidate = 60;
+
+export default async function HomePage() {
+  const events = await db.listEvents();
   const projects = db.getProjects();
   const featuredEvents = events.filter((e) => e.isFeatured || e.status === "UPCOMING").slice(0, 2);
   const featuredProjects = projects.filter((p) => p.isFeatured).slice(0, 3);

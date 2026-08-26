@@ -77,26 +77,84 @@ create index if not exists contact_messages_unread_idx
 
 
 -- =================================================================
--- 3. EVENT CAPACITY
+-- 3. EVENTS
 --
--- Seat limits are enforced in the database, so the limit itself has to
--- live in the database. It cannot be passed in by the caller: anyone
--- can invoke the registration function with the public anon key, and a
--- caller-supplied limit is a limit the caller can raise to anything.
+-- Events used to be static content in lib/data/initialData.ts, which meant an
+-- event created from the admin UI existed only in that browser tab. They are
+-- rows now, so creating one actually persists.
 --
--- ADDING A NEW EVENT: insert a row here as well, or registration for
--- that event is refused (deliberately — an event with no configured
--- capacity would otherwise accept unlimited signups).
+-- max_seats lives on the event rather than in a separate capacity table: one
+-- row per event means the seat limit cannot drift from the event it describes.
+-- It must stay server-authoritative — anyone can call the registration function
+-- with the public anon key, and a caller-supplied limit is one the caller can
+-- raise to anything.
 -- =================================================================
-create table if not exists public.event_capacity (
-  event_id   text primary key,
-  max_seats  integer not null check (max_seats > 0),
-  updated_at timestamptz not null default now()
+create table if not exists public.events (
+  id            text primary key,
+  title         text not null,
+  slug          text unique not null,
+  description   text not null,
+  full_details  text,
+  date          timestamptz not null,
+  time          text not null,
+  venue         text not null,
+  category      text not null default 'WORKSHOP'
+                  check (category in ('WORKSHOP','HACKATHON','SEMINAR','BOOTCAMP')),
+  status        text not null default 'UPCOMING'
+                  check (status in ('UPCOMING','ONGOING','COMPLETED')),
+  is_featured   boolean not null default false,
+  image_url     text,
+  banner_url    text,
+  speaker_names text[] not null default '{}',
+  prerequisites text[] not null default '{}',
+  agenda        jsonb not null default '[]'::jsonb,
+  max_seats     integer not null default 100 check (max_seats > 0),
+  created_at    timestamptz not null default now(),
+  updated_at    timestamptz not null default now()
 );
 
-insert into public.event_capacity (event_id, max_seats)
-values ('event-1', 100)
-on conflict (event_id) do nothing;
+create index if not exists events_date_idx on public.events (date desc);
+
+-- Seed the one event that previously lived in initialData.ts, so the site has
+-- content the moment this runs. ON CONFLICT DO NOTHING keeps re-runs safe and
+-- never overwrites an edit made in the admin UI.
+insert into public.events (
+  id, title, slug, description, full_details, date, time, venue,
+  category, status, is_featured, image_url, banner_url,
+  speaker_names, prerequisites, agenda, max_seats
+) values (
+  'event-1',
+  'AWS Foundations Event',
+  'aws-foundations',
+  'An introductory event to AWS and Cloud Computing.',
+  'Learn the basics of cloud computing and AWS services with hands-on labs and real-world examples.',
+  '2026-08-30T02:00:00Z',
+  '02:00 PM - 04:00 PM IST',
+  'Bonet Lab, St. Xavier''s College',
+  'BOOTCAMP', 'UPCOMING', true,
+  'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?q=80&w=1200&auto=format&fit=crop',
+  'https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=1600&auto=format&fit=crop',
+  ARRAY['Dr. Rajesh Kulkarni (AWS Principal Architect)','Aarav Sharma (SXC AWS Lead)','Sneha Mukherjee (AI Researcher)'],
+  ARRAY['Basic understanding of programming','Laptop with modern web browser','AWS Free Tier account (optional)'],
+  '[{"time":"09:30 AM","title":"Registration & Welcome Keynote","description":"Opening address on the state of global cloud infrastructure in 2026."},
+    {"time":"10:30 AM","title":"Hands-on: Serverless Microservices with AWS Lambda & CDK","description":"Live code-along: build and deploy an API from scratch."},
+    {"time":"01:00 PM","title":"Networking Lunch & AWS Architecture Showcase","description":"Explore student projects and chat with AWS certified mentors."},
+    {"time":"02:15 PM","title":"Generative AI on AWS: Building with Amazon Bedrock","description":"Deploying production LLM applications with Vector search on RDS Aurora."},
+    {"time":"04:30 PM","title":"AWS Cloud Jam Competition & Award Ceremony","description":"Speed troubleshooting challenge with AWS merchandise prizes."}]'::jsonb,
+  100
+) on conflict (id) do nothing;
+
+-- Carry over any capacity rows created by the earlier design, then retire it.
+insert into public.events (id, title, slug, description, date, time, venue, max_seats)
+select c.event_id,
+       'Untitled event (imported)',
+       'imported-' || c.event_id,
+       'Imported from event_capacity. Edit this in the admin area.',
+       now(), 'TBC', 'TBC', c.max_seats
+from public.event_capacity c
+on conflict (id) do nothing;
+
+drop table if exists public.event_capacity;
 
 
 -- =================================================================
@@ -110,7 +168,17 @@ on conflict (event_id) do nothing;
 -- =================================================================
 alter table public.event_registrations enable row level security;
 alter table public.contact_messages    enable row level security;
-alter table public.event_capacity      enable row level security;
+alter table public.events              enable row level security;
+
+-- Events are public content, unlike registrations: the site has to render them.
+-- Reads are open; writes stay service-role only, so nobody can create or edit
+-- an event (or raise its max_seats) with the anon key.
+drop policy if exists "Events are publicly readable" on public.events;
+create policy "Events are publicly readable"
+  on public.events for select to anon, authenticated using (true);
+
+grant select on public.events to anon, authenticated;
+revoke insert, update, delete on public.events from anon, authenticated;
 
 -- Registrations are NOT insertable directly. Every signup goes through
 -- register_for_event() below, which holds a lock while it checks the
@@ -127,7 +195,6 @@ create policy "Anyone can submit a contact message"
 -- Defense in depth: the public roles hold no privileges of their own on
 -- these tables, so even a mistakenly added policy grants nothing.
 revoke all on public.event_registrations from anon, authenticated;
-revoke all on public.event_capacity      from anon, authenticated;
 revoke select, update, delete on public.contact_messages from anon, authenticated;
 grant  insert on public.contact_messages to anon, authenticated;
 
@@ -171,9 +238,9 @@ as $$
     (select count(*)::integer
        from public.event_registrations r
       where r.event_id = p_event_id),
-    (select c.max_seats
-       from public.event_capacity c
-      where c.event_id = p_event_id);
+    (select e.max_seats
+       from public.events e
+      where e.id = p_event_id);
 $$;
 
 grant execute on function public.event_seats(text) to anon, authenticated;
@@ -220,11 +287,11 @@ declare
   v_id    uuid;
 begin
   select max_seats into v_max
-  from public.event_capacity
-  where event_id = p_event_id;
+  from public.events
+  where id = p_event_id;
 
   if v_max is null then
-    raise exception 'No capacity configured for event %. Add a row to public.event_capacity.', p_event_id
+    raise exception 'Unknown event %. Create it in the admin area first.', p_event_id
       using errcode = 'SXC02';
   end if;
 

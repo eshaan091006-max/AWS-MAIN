@@ -13,14 +13,24 @@ interface Props {
   }>;
 }
 
-export function generateStaticParams() {
-  const events = db.getEvents();
+// Events live in the database, so this page cannot be frozen at build time.
+// Revalidating every minute keeps it fresh; the admin API also revalidates the
+// exact path on save, so an edit is visible immediately.
+export const revalidate = 60;
+
+// An event created after the last build has no pre-rendered param. true (the
+// default, stated here so it is not silently changed) renders it on first
+// request instead of returning 404.
+export const dynamicParams = true;
+
+export async function generateStaticParams() {
+  const events = await db.listEvents();
   return events.map((e) => ({ slug: e.slug }));
 }
 
 export async function generateMetadata({ params }: Props) {
   const { slug } = await params;
-  const event = db.getEventBySlug(slug);
+  const event = await db.findEvent(slug);
   if (!event) return { title: "Event Not Found" };
   return {
     title: `${event.title} — SXC AWS Club Events`,
@@ -30,13 +40,13 @@ export async function generateMetadata({ params }: Props) {
 
 export default async function EventDetailPage({ params }: Props) {
   const { slug } = await params;
-  const event = db.getEventBySlug(slug);
+  const event = await db.findEvent(slug);
 
   if (!event) {
     notFound();
   }
 
-  const allEvents = db.getEvents();
+  const allEvents = await db.listEvents();
   const relatedEvents = allEvents.filter((e) => e.id !== event.id).slice(0, 2);
 
   const formattedDate = new Date(event.date).toLocaleDateString("en-US", {

@@ -20,12 +20,18 @@ import {
   supabaseStatus,
 } from "@/lib/supabase";
 
+import { getCached, invalidate } from "@/lib/cache";
+import { rowToEvent, eventToRow } from "@/lib/db/eventMapper";
 import {
   SCHEMA_MISSING_CODES,
   UNIQUE_VIOLATION,
   EVENT_FULL,
   NO_CAPACITY,
 } from "@/lib/dbErrors";
+
+const EVENTS_CACHE_KEY = "events:all";
+const EVENTS_TTL_MS = 60_000;
+const SEATS_TTL_MS = 20_000;
 
 export interface RegistrationInput {
   name: string;
@@ -79,43 +85,117 @@ function describeDbError(error: { code?: string; message: string }, what: string
 class LocalDataStore {
   departments: DepartmentData[] = [...INITIAL_DEPARTMENTS];
   teamMembers: TeamMemberData[] = [...INITIAL_TEAM_MEMBERS];
-  events: EventData[] = [...INITIAL_EVENTS];
   projects: ProjectData[] = [...INITIAL_PROJECTS];
+
+  // Events used to live here. They are rows in Supabase now, so an event
+  // created in the admin area actually persists. This copy survives only as the
+  // fallback used when the database cannot be reached, so the public site
+  // renders content instead of an empty page during an outage.
+  private seedEvents: EventData[] = [...INITIAL_EVENTS];
+
   gallery: GalleryImageData[] = [...INITIAL_GALLERY];
   modules: AWSModuleData[] = [...INITIAL_AWS_MODULES];
 
   // ==================== Events ====================
-  getEvents() {
-    return this.events;
-  }
 
-  getEventBySlug(slug: string) {
-    return this.events.find((e) => e.slug === slug || e.id === slug) || null;
-  }
+  /**
+   * Every event, newest first.
+   *
+   * Cached for a minute: the listing, the homepage and each card would
+   * otherwise re-query on every render. Any mutation invalidates the key, so an
+   * admin edit shows up immediately rather than after the TTL.
+   */
+  async listEvents(): Promise<EventData[]> {
+    if (!isSupabaseConfigured) return this.seedEvents;
 
-  addEvent(event: Omit<EventData, "id" | "currentRegistrations">) {
-    const newEvent: EventData = {
-      ...event,
-      id: `event-${Date.now()}`,
-      currentRegistrations: 0,
-    };
-    this.events.unshift(newEvent);
-    return newEvent;
-  }
+    const client = getWriteSupabase();
+    if (!client) return this.seedEvents;
 
-  updateEvent(id: string, updates: Partial<EventData>) {
-    const idx = this.events.findIndex((e) => e.id === id);
-    if (idx !== -1) {
-      this.events[idx] = { ...this.events[idx], ...updates };
-      return this.events[idx];
+    try {
+      return await getCached(EVENTS_CACHE_KEY, EVENTS_TTL_MS, async () => {
+        const { data, error } = await client
+          .from("events")
+          .select("*")
+          .order("date", { ascending: false });
+
+        if (error) throw new Error(`${error.code ?? ""} ${error.message}`.trim());
+        return (data ?? []).map(rowToEvent);
+      });
+    } catch (err: any) {
+      // Logged, never silent: a fallback that looks like normal operation hides
+      // an outage until someone notices the site is stale.
+      console.error("[supabase] event list failed, serving seed data:", err?.message);
+      return this.seedEvents;
     }
-    return null;
   }
 
-  deleteEvent(id: string) {
-    const prevLen = this.events.length;
-    this.events = this.events.filter((e) => e.id !== id);
-    return this.events.length < prevLen;
+  async findEvent(idOrSlug: string): Promise<EventData | null> {
+    const events = await this.listEvents();
+    return events.find((e) => e.slug === idOrSlug || e.id === idOrSlug) ?? null;
+  }
+
+  async createEvent(input: Omit<EventData, "id" | "currentRegistrations">): Promise<EventData> {
+    const client = getServiceSupabase();
+    if (!client) throw new Error("Creating events requires SUPABASE_SERVICE_ROLE_KEY.");
+
+    const id = `event-${Date.now()}`;
+    const { data, error } = await client
+      .from("events")
+      .insert({ ...eventToRow(input), id })
+      .select()
+      .single();
+
+    if (error) {
+      if (error.code === UNIQUE_VIOLATION) {
+        throw new Error("An event with that name already exists. Choose a different title.");
+      }
+      console.error("[supabase] event insert failed:", error.code, error.message);
+      throw describeDbError(error, "event");
+    }
+
+    invalidate(EVENTS_CACHE_KEY);
+    return rowToEvent(data);
+  }
+
+  async updateEvent(id: string, patch: Partial<EventData>): Promise<EventData> {
+    const client = getServiceSupabase();
+    if (!client) throw new Error("Editing events requires SUPABASE_SERVICE_ROLE_KEY.");
+
+    const { data, error } = await client
+      .from("events")
+      .update({ ...eventToRow(patch), updated_at: new Date().toISOString() })
+      .eq("id", id)
+      .select()
+      .single();
+
+    if (error) {
+      if (error.code === UNIQUE_VIOLATION) {
+        throw new Error("Another event already uses that name.");
+      }
+      console.error("[supabase] event update failed:", error.code, error.message);
+      throw describeDbError(error, "event");
+    }
+
+    invalidate(EVENTS_CACHE_KEY);
+    return rowToEvent(data);
+  }
+
+  async removeEvent(id: string): Promise<boolean> {
+    const client = getServiceSupabase();
+    if (!client) throw new Error("Deleting events requires SUPABASE_SERVICE_ROLE_KEY.");
+
+    const { error, count } = await client
+      .from("events")
+      .delete({ count: "exact" })
+      .eq("id", id);
+
+    if (error) {
+      console.error("[supabase] event delete failed:", error.code, error.message);
+      throw describeDbError(error, "event");
+    }
+
+    invalidate(EVENTS_CACHE_KEY);
+    return (count ?? 0) > 0;
   }
 
   // ==================== Event Registrations ====================
@@ -134,7 +214,7 @@ class LocalDataStore {
    * register_for_event(), so a null here cannot let an event overbook.
    */
   async getSeatInfo(eventId: string): Promise<SeatInfo | null> {
-    const event = this.getEventBySlug(eventId);
+    const event = await this.findEvent(eventId);
     const id = event?.id ?? eventId;
 
     if (!isSupabaseConfigured) return null;
@@ -167,7 +247,7 @@ class LocalDataStore {
   }
 
   async registerForEvent(eventId: string, data: RegistrationInput): Promise<RegistrationRecord> {
-    const event = this.events.find((e) => e.id === eventId || e.slug === eventId);
+    const event = await this.findEvent(eventId);
     if (!event) throw new Error("Event not found");
 
     if (event.status === "COMPLETED") {
