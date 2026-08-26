@@ -29,6 +29,16 @@ import {
   NO_CAPACITY,
 } from "@/lib/dbErrors";
 
+// A missing table is reported on every render of every page that lists events.
+// Once per process is enough to tell you what to do; more is just noise that
+// buries anything genuinely wrong.
+const warnedOnce = new Set<string>();
+function warnOnce(key: string, message: string) {
+  if (warnedOnce.has(key)) return;
+  warnedOnce.add(key);
+  console.warn(message);
+}
+
 const EVENTS_CACHE_KEY = "events:all";
 const EVENTS_TTL_MS = 60_000;
 const SEATS_TTL_MS = 20_000;
@@ -45,10 +55,10 @@ export interface RegistrationInput {
 
 export interface SeatInfo {
   registered: number;
-  /** Authoritative limit from public.event_capacity, or the initialData value if unset. */
+  /** Authoritative limit from public.events.max_seats, or the seed value if unavailable. */
   maxSeats: number;
   isFull: boolean;
-  /** False when the event has no event_capacity row — registration will be refused. */
+  /** False when the event is not in the database — registration will be refused. */
   configured: boolean;
 }
 
@@ -75,13 +85,14 @@ function describeDbError(error: { code?: string; message: string }, what: string
   return new Error(`Could not save your ${what}. Please try again in a moment.`);
 }
 
-// Site content (events, projects, team, gallery, modules) is authored in
-// lib/data/initialData.ts and served from here for static generation.
+// Projects, team, gallery and modules are still authored in
+// lib/data/initialData.ts and served straight from here.
 //
-// The two things users submit — registrations and contact messages — are NOT
-// stored here. Supabase is their only home: if it is unreachable the write
-// fails loudly, because a form that reports success while dropping the data is
-// worse than one that reports an error.
+// Events are database rows; the seed copy below is only the offline fallback.
+//
+// Registrations and contact messages are NOT stored here at all. Supabase is
+// their only home: if it is unreachable the write fails loudly, because a form
+// that reports success while dropping the data is worse than one that errors.
 class LocalDataStore {
   departments: DepartmentData[] = [...INITIAL_DEPARTMENTS];
   teamMembers: TeamMemberData[] = [...INITIAL_TEAM_MEMBERS];
@@ -118,13 +129,30 @@ class LocalDataStore {
           .select("*")
           .order("date", { ascending: false });
 
-        if (error) throw new Error(`${error.code ?? ""} ${error.message}`.trim());
+        if (error) {
+          // Carry the code through so the caller can tell a setup step apart
+          // from a genuine outage.
+          const wrapped = new Error(error.message) as Error & { code?: string };
+          wrapped.code = error.code;
+          throw wrapped;
+        }
         return (data ?? []).map(rowToEvent);
       });
     } catch (err: any) {
-      // Logged, never silent: a fallback that looks like normal operation hides
-      // an outage until someone notices the site is stale.
-      console.error("[supabase] event list failed, serving seed data:", err?.message);
+      if (err?.code && SCHEMA_MISSING_CODES.includes(err.code)) {
+        // Expected until supabase/schema.sql has been run. A warning, not an
+        // error: this is a setup step with a known fix, and console.error in a
+        // server component throws Next's red overlay over a working page.
+        warnOnce(
+          "events-table-missing",
+          "[supabase] No events table yet — serving the seeded event. Run supabase/schema.sql in the Supabase SQL Editor to create it."
+        );
+      } else {
+        // A real failure. Loud, and on every occurrence: a fallback that looks
+        // like normal operation hides an outage until someone notices the site
+        // has gone stale.
+        console.error("[supabase] event list failed, serving seed data:", err?.message);
+      }
       return this.seedEvents;
     }
   }
@@ -225,7 +253,14 @@ class LocalDataStore {
     const { data, error } = await client.rpc("event_seats", { p_event_id: id });
 
     if (error) {
-      console.error("[supabase] seat lookup failed:", error.message);
+      if (error.code && SCHEMA_MISSING_CODES.includes(error.code)) {
+        warnOnce(
+          "event-seats-missing",
+          "[supabase] event_seats() not found — seat counts will show build-time numbers. Run supabase/schema.sql."
+        );
+      } else {
+        console.error("[supabase] seat lookup failed:", error.code, error.message);
+      }
       return null;
     }
 
@@ -299,7 +334,7 @@ class LocalDataStore {
         case EVENT_FULL:
           throw new Error("This event is fully booked. All seats have been reserved.");
         case NO_CAPACITY:
-          console.error(`[supabase] no event_capacity row for ${event.id}`);
+          console.error(`[supabase] event ${event.id} is not in the events table`);
           throw new Error("Registration for this event is not open yet.");
         case UNIQUE_VIOLATION:
           // The unique index on (event_id, lower(email)) is what makes
