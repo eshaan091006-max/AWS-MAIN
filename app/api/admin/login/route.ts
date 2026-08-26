@@ -100,7 +100,7 @@ export async function POST(req: Request) {
   if (stampError) console.error("[admin] last_login_at stamp failed:", stampError.message);
 
   const expiresAt = Date.now() + SESSION_TTL_MS;
-  const token = createSessionToken(
+  const token = await createSessionToken(
     (process.env.ADMIN_SESSION_SECRET || "").trim(),
     username,
     expiresAt

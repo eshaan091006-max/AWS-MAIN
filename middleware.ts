@@ -10,7 +10,7 @@ export const config = { matcher: ["/admin/:path*", "/api/admin/:path*"] };
 // while signed out, or there is no way in.
 const PUBLIC_ADMIN_PATHS = new Set(["/admin/login", "/api/admin/login"]);
 
-export function middleware(req: NextRequest) {
+export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
   if (PUBLIC_ADMIN_PATHS.has(pathname)) {
@@ -19,7 +19,7 @@ export function middleware(req: NextRequest) {
 
   const secret = (process.env.ADMIN_SESSION_SECRET || "").trim();
   const token = req.cookies.get(ADMIN_COOKIE)?.value ?? "";
-  const username = readSessionToken(secret, token);
+  const username = await readSessionToken(secret, token);
 
   if (username) {
     // Pass the identity down so handlers can attribute actions without

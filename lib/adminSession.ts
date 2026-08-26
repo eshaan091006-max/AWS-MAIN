@@ -1,5 +1,3 @@
-import { createHmac, timingSafeEqual } from "crypto";
-
 export const ADMIN_COOKIE = "sxc_admin_session";
 export const SESSION_TTL_MS = 8 * 60 * 60 * 1000; // one working day
 
@@ -14,8 +12,43 @@ export function isValidUsername(username: string): boolean {
   return USERNAME_RE.test(username);
 }
 
-function sign(secret: string, payload: string): string {
-  return createHmac("sha256", secret).update(payload).digest("hex");
+/**
+ * HMAC via Web Crypto rather than Node's `crypto`.
+ *
+ * This module is imported by middleware.ts, which Next runs on the Edge
+ * runtime where the Node `crypto` module does not exist. Web Crypto is present
+ * in both Edge and Node 18+, so one implementation serves the middleware, the
+ * route handlers, and the tests. The cost is that signing is async.
+ */
+async function sign(secret: string, payload: string): Promise<string> {
+  const encoder = new TextEncoder();
+  const key = await crypto.subtle.importKey(
+    "raw",
+    encoder.encode(secret),
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign"]
+  );
+  const signature = await crypto.subtle.sign("HMAC", key, encoder.encode(payload));
+  return Array.from(new Uint8Array(signature))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+}
+
+/**
+ * Constant-time comparison of two hex strings.
+ *
+ * Node's `timingSafeEqual` is also unavailable on Edge. Comparing with `===`
+ * would return as soon as two characters differ, leaking through timing how
+ * much of a forged signature was correct.
+ */
+function safeEqual(a: string, b: string): boolean {
+  if (a.length !== b.length) return false;
+  let diff = 0;
+  for (let i = 0; i < a.length; i++) {
+    diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  }
+  return diff === 0;
 }
 
 /**
@@ -25,9 +58,13 @@ function sign(secret: string, payload: string): string {
  * straight from the cookie — no extra lookup — and neither the name nor the
  * expiry can be edited without invalidating the signature.
  */
-export function createSessionToken(secret: string, username: string, expiresAt: number): string {
+export async function createSessionToken(
+  secret: string,
+  username: string,
+  expiresAt: number
+): Promise<string> {
   const payload = `${username}.${expiresAt}`;
-  return `${payload}.${sign(secret, payload)}`;
+  return `${payload}.${await sign(secret, payload)}`;
 }
 
 /**
@@ -37,7 +74,11 @@ export function createSessionToken(secret: string, username: string, expiresAt: 
  * secret — because the caller's only correct response to any of them is
  * identical: treat the request as unauthenticated.
  */
-export function readSessionToken(secret: string, token: string, now = Date.now()): string | null {
+export async function readSessionToken(
+  secret: string,
+  token: string,
+  now = Date.now()
+): Promise<string | null> {
   if (!secret || secret.length < MIN_SECRET_LENGTH || !token) return null;
 
   const parts = token.split(".");
@@ -47,11 +88,8 @@ export function readSessionToken(secret: string, token: string, now = Date.now()
   if (!isValidUsername(username)) return null;
   if (!/^\d+$/.test(expiry)) return null;
 
-  const expected = sign(secret, `${username}.${expiry}`);
-  const a = Buffer.from(provided, "utf8");
-  const b = Buffer.from(expected, "utf8");
-  if (a.length !== b.length) return null;
-  if (!timingSafeEqual(a, b)) return null;
+  const expected = await sign(secret, `${username}.${expiry}`);
+  if (!safeEqual(provided, expected)) return null;
 
   if (Number(expiry) <= now) return null;
 

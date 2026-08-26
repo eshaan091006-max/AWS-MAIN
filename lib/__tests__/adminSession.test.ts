@@ -13,44 +13,44 @@ function future() {
 }
 
 describe("session tokens", () => {
-  it("reads back the username it was issued for", () => {
-    const token = createSessionToken(SECRET, "eshaan", future());
-    expect(readSessionToken(SECRET, token)).toBe("eshaan");
+  it("reads back the username it was issued for", async () => {
+    const token = await createSessionToken(SECRET, "eshaan", future());
+    expect(await readSessionToken(SECRET, token)).toBe("eshaan");
   });
 
-  it("rejects a token signed with a different secret", () => {
-    const token = createSessionToken(SECRET, "eshaan", future());
-    expect(readSessionToken(OTHER, token)).toBeNull();
+  it("rejects a token signed with a different secret", async () => {
+    const token = await createSessionToken(SECRET, "eshaan", future());
+    expect(await readSessionToken(OTHER, token)).toBeNull();
   });
 
-  it("rejects an expired token", () => {
-    const token = createSessionToken(SECRET, "eshaan", Date.now() - 1);
-    expect(readSessionToken(SECRET, token)).toBeNull();
+  it("rejects an expired token", async () => {
+    const token = await createSessionToken(SECRET, "eshaan", Date.now() - 1);
+    expect(await readSessionToken(SECRET, token)).toBeNull();
   });
 
-  it("rejects a token whose expiry was edited to extend the session", () => {
-    const token = createSessionToken(SECRET, "eshaan", future());
+  it("rejects a token whose expiry was edited to extend the session", async () => {
+    const token = await createSessionToken(SECRET, "eshaan", future());
     const signature = token.split(".")[2];
     const forged = `eshaan.${Date.now() + 999_999_999}.${signature}`;
-    expect(readSessionToken(SECRET, forged)).toBeNull();
+    expect(await readSessionToken(SECRET, forged)).toBeNull();
   });
 
-  it("rejects a token whose username was swapped for someone else's", () => {
-    const token = createSessionToken(SECRET, "eshaan", future());
+  it("rejects a token whose username was swapped for someone else's", async () => {
+    const token = await createSessionToken(SECRET, "eshaan", future());
     const [, expiry, signature] = token.split(".");
     const forged = `president.${expiry}.${signature}`;
-    expect(readSessionToken(SECRET, forged)).toBeNull();
+    expect(await readSessionToken(SECRET, forged)).toBeNull();
   });
 
-  it("rejects malformed input rather than throwing", () => {
+  it("rejects malformed input rather than throwing", async () => {
     for (const bad of ["", "nodots", "a.b", "a.b.c.d", "..", "user.notanumber.abc"]) {
-      expect(readSessionToken(SECRET, bad)).toBeNull();
+      expect(await readSessionToken(SECRET, bad)).toBeNull();
     }
   });
 
-  it("rejects an empty secret, so an unconfigured deployment cannot be entered", () => {
-    const token = createSessionToken(SECRET, "eshaan", future());
-    expect(readSessionToken("", token)).toBeNull();
+  it("rejects an empty secret, so an unconfigured deployment cannot be entered", async () => {
+    const token = await createSessionToken(SECRET, "eshaan", future());
+    expect(await readSessionToken("", token)).toBeNull();
   });
 });
 
