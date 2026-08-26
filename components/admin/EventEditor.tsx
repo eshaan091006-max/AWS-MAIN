@@ -193,7 +193,7 @@ export function EventEditor({ event, onSaved, onCancel }: Props) {
           <label className="text-xs font-medium text-slate-300">Card image URL</label>
           <input value={form.imageUrl} onChange={(e) => set({ imageUrl: e.target.value })} className={`${inputClass} font-mono`} placeholder="https://images.unsplash.com/..." />
           <p className="text-[10px] text-slate-500 font-mono">
-            Must be https and from an allowed host (unsplash, githubusercontent, awsstatic, wikimedia).
+            Any https image URL. Leave blank to use the default artwork.
           </p>
         </div>
 

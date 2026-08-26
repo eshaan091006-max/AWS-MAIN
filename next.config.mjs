@@ -1,12 +1,10 @@
 /** @type {import('next').NextConfig} */
 
-const IMAGE_HOSTS = [
-  "images.unsplash.com",
-  "avatars.githubusercontent.com",
-  "a0.awsstatic.com",
-  "raw.githubusercontent.com",
-  "upload.wikimedia.org",
-];
+// Event posters come from wherever the committee hosts them, so images are not
+// restricted to a fixed list. This is a deliberate trade: `img-src https:`
+// still blocks http, data-exfiltrating schemes and any script execution — an
+// image cannot run code — but it does mean an admin-supplied URL can see
+// visitors' IP addresses. Acceptable when only signed-in officers can set it.
 
 // Content Security Policy.
 //
@@ -28,7 +26,7 @@ const csp = [
   "worker-src 'self' blob:",
   "style-src 'self' 'unsafe-inline'",
   "font-src 'self' data:",
-  `img-src 'self' data: blob: ${IMAGE_HOSTS.map((h) => `https://${h}`).join(" ")}`,
+  "img-src 'self' data: blob: https:",
   // Supabase REST + realtime. Wildcarded because the project ref is part of
   // the hostname and comes from an env var at deploy time.
   "connect-src 'self' https://*.supabase.co wss://*.supabase.co",
@@ -61,7 +59,10 @@ const nextConfig = {
   },
   images: {
     unoptimized: true,
-    remotePatterns: IMAGE_HOSTS.map((hostname) => ({ protocol: "https", hostname })),
+    // Matches the CSP above. With unoptimized:true these are plain <img> tags,
+    // but keeping the two in step means enabling optimisation later will not
+    // suddenly start rejecting images that already render.
+    remotePatterns: [{ protocol: "https", hostname: "**" }],
   },
   async headers() {
     return [

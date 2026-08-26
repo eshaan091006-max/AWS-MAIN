@@ -15,28 +15,16 @@ const STATUSES = ["UPCOMING", "ONGOING", "COMPLETED"] as const;
 const MAX = { title: 200, description: 2000, venue: 200, time: 100, url: 2000 };
 const MAX_SEATS_CEILING = 10_000;
 
-// Must match the remotePatterns allowlist in next.config.mjs — an image from
-// any other host will not render anyway, so accepting one would only produce a
-// broken card later.
-const ALLOWED_IMAGE_HOSTS = [
-  "images.unsplash.com",
-  "avatars.githubusercontent.com",
-  "a0.awsstatic.com",
-  "raw.githubusercontent.com",
-  "upload.wikimedia.org",
-];
-
 function imageUrlError(url: string): string | null {
   if (!url) return null;
   try {
     const parsed = new URL(url);
-    if (parsed.protocol !== "https:") return "Image URL must use https.";
-    if (!ALLOWED_IMAGE_HOSTS.includes(parsed.hostname)) {
-      return `Image host must be one of: ${ALLOWED_IMAGE_HOSTS.join(", ")}`;
-    }
+    // https only. An http image on an https page is blocked as mixed content
+    // and would silently fail to render, which is worse than refusing it here.
+    if (parsed.protocol !== "https:") return "Image URL must start with https://";
     return null;
   } catch {
-    return "Image URL is not a valid URL.";
+    return "That does not look like a valid URL.";
   }
 }
 
