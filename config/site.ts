@@ -25,7 +25,7 @@ export const siteConfig = {
     linkedin: "https://linkedin.com/company/sxc-aws-club",
     instagram: "https://instagram.com/sxc_aws_club",
     discord: "https://discord.gg/sxc-aws",
-    email: "contact@sxcaws.club",
+    email: "aws.sbg@xaviers.edu",
     awsEducate: "https://aws.amazon.com/education/awseducate/",
     meetup:
       "https://www.meetup.com/aws-sbg-at-saint-xaviers-college-mumbai/?utm_medium=referral",
