@@ -1,10 +1,11 @@
 "use client";
 
 import React, { useState } from "react";
-import { Calendar, Clock, MapPin, Users, Sparkles, Share2, Check, Lock, Award } from "lucide-react";
+import { Calendar, Clock, MapPin, Users, Sparkles, Share2, Check, Lock, Award, CheckCircle2 } from "lucide-react";
 import { EventData } from "@/lib/data/initialData";
 import { RegistrationModal } from "@/components/events/RegistrationModal";
 import { useSeatCount } from "@/lib/hooks/useSeatCount";
+import { useRegistered } from "@/lib/hooks/useRegistered";
 
 interface Props {
   event: EventData;
@@ -14,6 +15,8 @@ interface Props {
 export function EventDetailsClient({ event, formattedDate }: Props) {
   const [modalOpen, setModalOpen] = useState(false);
   const [copied, setCopied] = useState(false);
+
+  const { isRegistered, markRegistered } = useRegistered(event.id);
 
   const { registered, maxSeats, isFull, refresh: refreshSeats } = useSeatCount(
     event.id,
@@ -97,7 +100,12 @@ export function EventDetailsClient({ event, formattedDate }: Props) {
         </div>
 
         {/* Action Button */}
-        {event.status === "UPCOMING" && isFull ? (
+        {event.status === "UPCOMING" && isRegistered ? (
+          <div className="w-full py-3 rounded-2xl bg-emerald-950/60 border border-emerald-500/40 text-emerald-300 text-center text-xs font-mono font-bold uppercase tracking-widest flex items-center justify-center gap-2">
+            <CheckCircle2 className="w-4 h-4" />
+            <span>Already Registered</span>
+          </div>
+        ) : event.status === "UPCOMING" && isFull ? (
           <div className="w-full py-3 rounded-2xl bg-navy-950 border border-slate-600/50 text-slate-300 text-center text-xs font-mono font-bold uppercase tracking-widest flex items-center justify-center gap-2 grayscale">
             <Lock className="w-4 h-4" />
             <span>Slots Booked</span>
@@ -131,6 +139,7 @@ export function EventDetailsClient({ event, formattedDate }: Props) {
         onClose={() => setModalOpen(false)}
         onSuccess={refreshSeats}
         isFull={isFull}
+        onRegistered={() => markRegistered()}
       />
     </>
   );

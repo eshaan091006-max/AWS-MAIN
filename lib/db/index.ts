@@ -39,9 +39,8 @@ function warnOnce(key: string, message: string) {
   console.warn(message);
 }
 
-const EVENTS_CACHE_KEY = "events:all";
-const EVENTS_TTL_MS = 60_000;
 const SEATS_TTL_MS = 20_000;
+const seatsKey = (eventId: string) => `seats:${eventId}`;
 
 export interface RegistrationInput {
   name: string;
@@ -109,35 +108,35 @@ class LocalDataStore {
 
   // ==================== Events ====================
 
-  /**
-   * Every event, newest first.
-   *
-   * Cached for a minute: the listing, the homepage and each card would
-   * otherwise re-query on every render. Any mutation invalidates the key, so an
-   * admin edit shows up immediately rather than after the TTL.
-   */
+  /** Every event, newest first. */
   async listEvents(): Promise<EventData[]> {
     if (!isSupabaseConfigured) return this.seedEvents;
 
     const client = getWriteSupabase();
     if (!client) return this.seedEvents;
 
+    // Deliberately NOT cached in process.
+    //
+    // ISR already caches the rendered page, and invalidates it on demand when
+    // an admin saves. A second cache underneath that one is per-instance, so
+    // the write invalidates only the instance that handled it while the
+    // instance that regenerates the page can still hold a stale copy — an edit
+    // then appears on the event page but not on the cards, for up to the TTL.
+    // The query is a single indexed read; ISR is the layer that makes it rare.
     try {
-      return await getCached(EVENTS_CACHE_KEY, EVENTS_TTL_MS, async () => {
-        const { data, error } = await client
-          .from("events")
-          .select("*")
-          .order("date", { ascending: false });
+      const { data, error } = await client
+        .from("events")
+        .select("*")
+        .order("date", { ascending: false });
 
-        if (error) {
-          // Carry the code through so the caller can tell a setup step apart
-          // from a genuine outage.
-          const wrapped = new Error(error.message) as Error & { code?: string };
-          wrapped.code = error.code;
-          throw wrapped;
-        }
-        return (data ?? []).map(rowToEvent);
-      });
+      if (error) {
+        // Carry the code through so the caller can tell a setup step apart
+        // from a genuine outage.
+        const wrapped = new Error(error.message) as Error & { code?: string };
+        wrapped.code = error.code;
+        throw wrapped;
+      }
+      return (data ?? []).map(rowToEvent);
     } catch (err: any) {
       if (err?.code && SCHEMA_MISSING_CODES.includes(err.code)) {
         // Expected until supabase/schema.sql has been run. A warning, not an
@@ -181,7 +180,6 @@ class LocalDataStore {
       throw describeDbError(error, "event");
     }
 
-    invalidate(EVENTS_CACHE_KEY);
     return rowToEvent(data);
   }
 
@@ -204,7 +202,6 @@ class LocalDataStore {
       throw describeDbError(error, "event");
     }
 
-    invalidate(EVENTS_CACHE_KEY);
     return rowToEvent(data);
   }
 
@@ -222,7 +219,6 @@ class LocalDataStore {
       throw describeDbError(error, "event");
     }
 
-    invalidate(EVENTS_CACHE_KEY);
     return (count ?? 0) > 0;
   }
 
@@ -250,7 +246,16 @@ class LocalDataStore {
     const client = getWriteSupabase();
     if (!client) return null;
 
-    const { data, error } = await client.rpc("event_seats", { p_event_id: id });
+    // Cached briefly: every card on the listing calls this on mount, so an
+    // events page with N cards is N round-trips per visitor. Unlike event
+    // content, a seat counter being a few seconds behind is harmless — and the
+    // seat *limit* is enforced in Postgres, so a stale count cannot overbook.
+    // Invalidated immediately after a successful registration.
+    const { data, error } = await getCached(
+      seatsKey(id),
+      SEATS_TTL_MS,
+      async () => client.rpc("event_seats", { p_event_id: id })
+    );
 
     if (error) {
       if (error.code && SCHEMA_MISSING_CODES.includes(error.code)) {
@@ -344,6 +349,10 @@ class LocalDataStore {
       console.error("[supabase] registration failed:", error.code, error.message);
       throw describeDbError(error, "registration");
     }
+
+    // The seat bar must reflect the signup that just happened, not a count
+    // cached seconds ago.
+    invalidate(seatsKey(event.id));
 
     record.id = typeof newId === "string" ? newId : `${event.id}:${email}`;
     return record;
