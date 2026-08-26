@@ -21,17 +21,17 @@ export function OrganizationalTree() {
       <div className="w-full flex flex-col items-center">
         {/* ================= LEVEL 1: FACULTY IN CHARGE ================= */}
         <div className="flex flex-col items-center">
-          <div className="p-4 sm:p-5 rounded-2xl bg-navy-900/90 border-2 border-amber-500/30 backdrop-blur-xl shadow-2xl text-center min-w-[280px] sm:min-w-[340px] relative">
+          <div className="p-4 sm:p-5 rounded-2xl bg-navy-900/90 border-2 border-amber-500/30 backdrop-blur-xl shadow-2xl text-center min-w-[280px] sm:min-w-[500px] md:min-w-[580px] relative">
             <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-amber-500/15 text-amber-400 border border-amber-500/30 mb-2">
               <Shield className="w-3 h-3" />
               <span>{faculty.title}</span>
             </div>
 
-            <div className="grid grid-cols-2 gap-3 pt-1">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
               {faculty.members.map((fac, idx) => (
                 <div
                   key={idx}
-                  className="p-2.5 rounded-xl border bg-navy-950/80 border-white/5"
+                  className="p-2.5 sm:p-3 rounded-xl border bg-navy-950/80 border-white/5"
                 >
                   <div className="text-xs sm:text-sm font-bold text-white tracking-tight">{fac.name}</div>
                   <div className="text-[10px] text-slate-400 font-mono mt-0.5 leading-tight">{fac.designation}</div>

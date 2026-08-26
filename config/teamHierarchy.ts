@@ -40,8 +40,9 @@ export const teamHierarchy: TeamHierarchy = {
   faculty: {
     title: "FACULTY IN CHARGE",
     members: [
-      { name: "Aaron Johns", designation: "Faculty Mentor & Advisor" },
-      { name: "Norine Dsouza", designation: "Faculty Mentor & Advisor" },
+      { name: "Mazarban Kotwal", designation: "Vice Principal" },
+      { name: "Norine Dsouza", designation: "Faculty Mentor" },
+      { name: "Aaron Johns", designation: "Faculty Mentor" },
     ],
   },
   chairperson: {
