@@ -207,7 +207,7 @@ export default function ContactPage() {
             <div className="p-8 rounded-3xl bg-navy-900/70 border border-white/10 backdrop-blur-xl shadow-xl space-y-4">
               <h3 className="text-lg font-bold text-white">Join the Conversation</h3>
               <p className="text-xs text-slate-300 leading-relaxed">
-                Connect directly with our leadership team, get invited to our private Discord servers, and access exclusive AWS certification study materials.
+                Connect with fellow cloud enthusiasts, AWS learners, and builders. Join our community to discover events, collaborate on projects, get AWS guidance, and grow your cloud skills together.
               </p>
 
               {/* Primary join actions. Both leave the site, so both are
