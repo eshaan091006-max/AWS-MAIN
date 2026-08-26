@@ -264,7 +264,34 @@ grant execute on function public.register_for_event(
 
 
 -- =================================================================
--- 7. REFRESH THE API SCHEMA CACHE
+-- 7. ADMIN USERS
+--
+-- Credentials for the admin area. Passwords are stored as scrypt digests
+-- (`scrypt:<saltHex>:<hashHex>`) produced by lib/password.ts — never plaintext,
+-- never a bare SHA.
+--
+-- This table is service-role only. No RLS policy is created for it and every
+-- privilege is revoked from the public roles, so the password hashes are
+-- unreachable with the anon key even if that key is read out of a bundle.
+--
+-- Create the first account with:  npm run admin:create -- <username> <password>
+-- =================================================================
+create table if not exists public.admin_users (
+  id            uuid primary key default gen_random_uuid(),
+  username      text unique not null check (username ~ '^[a-z0-9_-]{3,32}$'),
+  password_hash text not null,
+  display_name  text not null,
+  is_active     boolean not null default true,
+  created_at    timestamptz not null default now(),
+  last_login_at timestamptz
+);
+
+alter table public.admin_users enable row level security;
+revoke all on public.admin_users from anon, authenticated;
+
+
+-- =================================================================
+-- 8. REFRESH THE API SCHEMA CACHE
 --
 -- PostgREST caches the schema, so a freshly created function can 404 on
 -- first call until it reloads. Supabase usually reloads on its own; this

@@ -20,24 +20,12 @@ import {
   supabaseStatus,
 } from "@/lib/supabase";
 
-// Supabase/Postgres error codes we translate into something a student can act on.
-const UNIQUE_VIOLATION = "23505";
-
-// Raised by register_for_event() in supabase/schema.sql.
-const EVENT_FULL = "SXC01";
-const NO_CAPACITY = "SXC02";
-
-// "Schema not set up yet" arrives under two different code families. Postgres
-// raises 42P01/42883 when SQL runs against a missing table or function, but a
-// request through the REST API usually fails earlier, in PostgREST's schema
-// cache, which uses its own PGRST2xx codes. Both mean the same thing here:
-// supabase/schema.sql has not been run.
-const SCHEMA_MISSING_CODES = [
-  "42P01", // undefined_table
-  "42883", // undefined_function
-  "PGRST205", // table not found in schema cache
-  "PGRST202", // function not found in schema cache
-];
+import {
+  SCHEMA_MISSING_CODES,
+  UNIQUE_VIOLATION,
+  EVENT_FULL,
+  NO_CAPACITY,
+} from "@/lib/dbErrors";
 
 export interface RegistrationInput {
   name: string;
