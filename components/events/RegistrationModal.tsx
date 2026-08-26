@@ -12,9 +12,12 @@ interface RegistrationModalProps {
   onSuccess?: () => void;
   /** Every seat is taken: the form is shown disabled rather than submittable. */
   isFull?: boolean;
+  /** Called when this browser is known to have registered — on success, and
+   *  also when the server reports the email is already signed up. */
+  onRegistered?: (email: string) => void;
 }
 
-export function RegistrationModal({ event, isOpen, onClose, onSuccess, isFull = false }: RegistrationModalProps) {
+export function RegistrationModal({ event, isOpen, onClose, onSuccess, isFull = false, onRegistered }: RegistrationModalProps) {
   const [formData, setFormData] = useState({
     name: "",
     surname: "",
@@ -25,6 +28,7 @@ export function RegistrationModal({ event, isOpen, onClose, onSuccess, isFull = 
   });
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [alreadyRegistered, setAlreadyRegistered] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   // The modal stays mounted between openings, so reset the success screen on
@@ -33,6 +37,7 @@ export function RegistrationModal({ event, isOpen, onClose, onSuccess, isFull = 
   const handleClose = () => {
     if (submitted) {
       setSubmitted(false);
+      setAlreadyRegistered(false);
       setFormData({ name: "", surname: "", uid: "", email: "", academicYear: "FY", stream: "BSc IT" });
     }
     setError(null);
@@ -67,9 +72,21 @@ export function RegistrationModal({ event, isOpen, onClose, onSuccess, isFull = 
 
       const data = await res.json();
       if (!res.ok) {
+        // 409 means the database rejected this email as a duplicate. That is
+        // not a failure to report as one — this person IS registered, so
+        // record it and show the confirmation rather than an error they can
+        // do nothing about.
+        if (res.status === 409 && /already registered/i.test(data.error ?? "")) {
+          setAlreadyRegistered(true);
+          setSubmitted(true);
+          onRegistered?.(formData.email);
+          if (onSuccess) onSuccess();
+          return;
+        }
         throw new Error(data.error || "Failed to register. Please try again.");
       }
 
+      onRegistered?.(formData.email);
       setSubmitted(true);
       if (typeof window !== "undefined") {
         confetti({
@@ -114,9 +131,9 @@ export function RegistrationModal({ event, isOpen, onClose, onSuccess, isFull = 
             <div className="w-16 h-16 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 flex items-center justify-center mx-auto">
               <CheckCircle className="w-8 h-8" />
             </div>
-            <h4 className="text-xl font-bold text-white">Registration Confirmed!</h4>
+            <h4 className="text-xl font-bold text-white">{alreadyRegistered ? "You are already registered" : "Registration Confirmed!"}</h4>
             <p className="text-xs text-slate-300 max-w-sm mx-auto leading-relaxed">
-              We have reserved your seat for <strong className="text-aws-orange">{event.title}</strong>. A confirmation has been registered for <span className="text-white font-mono">{formData.name} {formData.surname} (UID: {formData.uid})</span>.
+              {alreadyRegistered ? "This email is already on the list for " : "We have reserved your seat for "}<strong className="text-aws-orange">{event.title}</strong>. A confirmation has been registered for <span className="text-white font-mono">{formData.name} {formData.surname} (UID: {formData.uid})</span>.
             </p>
             <div className="p-3.5 rounded-2xl bg-navy-950/80 border border-white/10 text-left text-xs space-y-1.5 font-mono text-slate-300">
               <div className="flex items-center gap-2">

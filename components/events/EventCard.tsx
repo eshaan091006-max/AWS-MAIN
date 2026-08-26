@@ -3,10 +3,11 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Calendar, Clock, MapPin, Users, ArrowUpRight, Sparkles, Lock, Award } from "lucide-react";
+import { Calendar, Clock, MapPin, Users, ArrowUpRight, Sparkles, Lock, Award, CheckCircle2 } from "lucide-react";
 import { EventData } from "@/lib/data/initialData";
 import { RegistrationModal } from "@/components/events/RegistrationModal";
 import { useSeatCount } from "@/lib/hooks/useSeatCount";
+import { useRegistered } from "@/lib/hooks/useRegistered";
 
 interface EventCardProps {
   event: EventData;
@@ -18,6 +19,8 @@ export function EventCard({ event, featured }: EventCardProps) {
 
   // Previously this rendered the build-time seed, so a card could advertise
   // free seats for an event that had filled up since the last deploy.
+  const { isRegistered, markRegistered } = useRegistered(event.id);
+
   const { registered, maxSeats, isFull, refresh } = useSeatCount(
     event.id,
     event.currentRegistrations,
@@ -126,7 +129,12 @@ export function EventCard({ event, featured }: EventCardProps) {
 
           {/* Action buttons */}
           <div className="mt-5 flex items-center gap-2.5">
-            {event.status === "UPCOMING" && isFull ? (
+            {event.status === "UPCOMING" && isRegistered ? (
+              <div className="flex-1 py-2 px-3 rounded-xl bg-emerald-950/60 border border-emerald-500/40 text-emerald-300 text-xs font-mono font-bold text-center flex items-center justify-center gap-1.5">
+                <CheckCircle2 className="w-3.5 h-3.5" />
+                <span>Already Registered</span>
+              </div>
+            ) : event.status === "UPCOMING" && isFull ? (
               <div className="flex-1 py-2 px-3 rounded-xl bg-navy-950 border border-slate-600/50 text-slate-400 text-xs font-mono font-bold text-center flex items-center justify-center gap-1.5 grayscale">
                 <Lock className="w-3.5 h-3.5" />
                 <span>Slots Booked</span>
@@ -166,6 +174,7 @@ export function EventCard({ event, featured }: EventCardProps) {
         onClose={() => setIsModalOpen(false)}
         onSuccess={refresh}
         isFull={isFull}
+        onRegistered={() => markRegistered()}
       />
     </>
   );
