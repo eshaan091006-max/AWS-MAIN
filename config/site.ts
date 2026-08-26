@@ -3,7 +3,10 @@ export const siteConfig = {
   shortName: "SXC AWS",
   description: "Empowering students to build the future with cloud computing, AWS architecture, and modern distributed systems.",
   tagline: "BUILD. DEPLOY. SCALE.",
-  url: process.env.NEXT_PUBLIC_SITE_URL || "https://sxcaws.club",
+  // Trailing slashes are stripped: this value is concatenated directly in
+  // sitemap.ts and robots.ts, so "https://site.com/" would emit
+  // "https://site.com//sitemap.xml".
+  url: (process.env.NEXT_PUBLIC_SITE_URL || "https://sxcawsclub.vercel.app").replace(/\/+$/, ""),
   ogImage: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=1200&auto=format&fit=crop",
   creator: "SXC AWS Student Community",
   links: {
