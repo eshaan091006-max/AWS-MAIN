@@ -99,7 +99,7 @@ export const teamHierarchy: TeamHierarchy = {
         {
           name: "Anubhav Barik",
           role: "VCP — Event Coordinator",
-          coordinators: ["ABC", "XYZ"],
+          coordinators: ["Nyneishia Naik", "Deveshi Saha", "Bhumika Hasalkar"],
         },
       ],
     },
