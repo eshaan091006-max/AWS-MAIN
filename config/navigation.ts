@@ -30,6 +30,6 @@ export const footerNavItems = {
   community: [
     { title: "Meet the Teams", href: "/teams" },
     { title: "Executive Board", href: "/teams#executive-board" },
-    { title: "Join SXC AWS Club", href: "/contact" },
+    { title: "Join SXC AWS Group", href: "/contact" },
   ],
 };

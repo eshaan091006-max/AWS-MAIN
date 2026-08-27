@@ -7,7 +7,7 @@ import { ProjectCard } from "@/components/projects/ProjectCard";
 import { db } from "@/lib/db";
 
 export const metadata = {
-  title: "SXC AWS Club — Build. Deploy. Scale. | St. Xavier's College",
+  title: "SXC AWS Group — Build. Deploy. Scale. | St. Xavier's College",
   description: "Official SXC AWS Student Community at St. Xavier's College. Learn cloud computing, deploy serverless architectures, compete in hackathons, and master AWS technologies.",
 };
 
@@ -68,7 +68,7 @@ export default async function HomePage() {
                 <span className="text-gradient-orange">SCALE.</span>
               </h1>
               <div className="text-xl sm:text-2xl font-mono font-bold text-slate-300 tracking-wider">
-                St. Xavier&apos;s College AWS CLUB
+                St. Xavier&apos;s College AWS Group
               </div>
             </div>
 
