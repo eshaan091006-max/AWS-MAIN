@@ -20,7 +20,7 @@ export function Footer() {
                 <Cloud className="w-6 h-6 text-black stroke-[2.2]" />
               </div>
               <div className="font-display font-extrabold text-xl text-white tracking-tight">
-                SXC AWS <span className="text-aws-orange">CLUB</span>
+                SXC AWS <span className="text-aws-orange">Group</span>
               </div>
             </Link>
 
