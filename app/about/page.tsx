@@ -75,7 +75,7 @@ export default function AboutPage() {
           </h1>
 
           <p className="text-base text-slate-300 leading-relaxed">
-            SXC AWS Club is a premier student-driven technology community at St. Xavier&apos;s College dedicated to cloud architecture, distributed systems, DevOps engineering, and modern artificial intelligence.
+            SXC AWS Group is a premier student-driven technology community at St. Xavier&apos;s College dedicated to cloud architecture, distributed systems, DevOps engineering, and modern artificial intelligence.
           </p>
         </div>
       </section>
@@ -178,7 +178,7 @@ export default function AboutPage() {
         <div className="p-8 rounded-3xl bg-gradient-to-r from-navy-900 to-navy-950 border border-aws-orange/30 flex flex-col md:flex-row items-center justify-between gap-6 text-center md:text-left shadow-2xl">
           <div>
             <h3 className="text-2xl font-bold text-white">Want to be part of our next milestone?</h3>
-            <p className="text-xs text-slate-300 mt-1">Join SXC AWS Club as a member, speaker, or community partner.</p>
+            <p className="text-xs text-slate-300 mt-1">Join SXC AWS Group as a member, speaker, or community partner.</p>
           </div>
           <Link
             href="/contact"

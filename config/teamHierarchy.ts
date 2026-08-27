@@ -53,7 +53,7 @@ export const teamHierarchy: TeamHierarchy = {
   departments: [
     {
       id: "dept-events-dir",
-      name: "Director of Events",
+      name: "Department of Events",
       shortName: "Event Direction",
       code: "EVT-DIR",
       color: "from-amber-500/20 to-aws-orange/10",
