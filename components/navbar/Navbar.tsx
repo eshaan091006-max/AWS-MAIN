@@ -3,9 +3,8 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Cloud, Search, Menu, X, ArrowUpRight, Sparkles, Shield } from "lucide-react";
+import { Cloud, Menu, X, ArrowUpRight } from "lucide-react";
 import { mainNavItems } from "@/config/navigation";
-import { SearchModal } from "@/components/navbar/SearchModal";
 import { siteConfig } from "@/config/site";
 
 export function Navbar() {
@@ -13,7 +12,6 @@ export function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isEmbedded, setIsEmbedded] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [searchOpen, setSearchOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -51,8 +49,8 @@ export function Navbar() {
     <>
       <header
         className={`${isEmbedded ? "relative" : "fixed"} top-0 left-0 right-0 z-40 transition-all duration-300 ${isScrolled
-            ? "bg-[#060A14]/85 backdrop-blur-xl border-b border-aws-orange/20 shadow-lg shadow-black/40 py-3"
-            : "bg-transparent py-5"
+          ? "bg-[#060A14]/85 backdrop-blur-xl border-b border-aws-orange/20 shadow-lg shadow-black/40 py-3"
+          : "bg-transparent py-5"
           }`}
       >
         <div className="max-w-[1750px] mx-auto px-4 sm:px-8 lg:px-12 xl:px-16 flex items-center justify-between">
@@ -80,8 +78,8 @@ export function Navbar() {
                   key={item.href}
                   href={item.href}
                   className={`relative px-3.5 py-1.5 rounded-full text-xs font-medium transition-all ${isActive
-                      ? "text-black font-semibold bg-gradient-to-r from-aws-orange to-amber-500 shadow-md shadow-aws-orange/20"
-                      : "text-slate-300 hover:text-white hover:bg-white/5"
+                    ? "text-black font-semibold bg-gradient-to-r from-aws-orange to-amber-500 shadow-md shadow-aws-orange/20"
+                    : "text-slate-300 hover:text-white hover:bg-white/5"
                     }`}
                 >
                   {item.title}
@@ -97,24 +95,12 @@ export function Navbar() {
 
           {/* Right Action Buttons */}
           <div className="flex items-center gap-2.5">
-            {/* Search Trigger */}
-            <button
-              onClick={() => setSearchOpen(true)}
-              className="p-2 rounded-xl bg-navy-900/80 hover:bg-navy-800 border border-white/10 text-slate-300 hover:text-aws-orange transition-all flex items-center gap-2 text-xs cursor-pointer"
-              title="Search (Cmd+K)"
-            >
-              <Search className="w-4 h-4" />
-              <span className="hidden sm:inline-block font-mono text-[11px] text-slate-400 bg-white/5 px-1.5 py-0.5 rounded border border-white/10">
-                ⌘K
-              </span>
-            </button>
-
             {/* Join Club CTA */}
             <Link
               href="/contact"
               className="hidden sm:inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-gradient-to-r from-aws-orange to-amber-600 hover:from-amber-500 hover:to-aws-orange text-black text-xs font-bold shadow-lg shadow-aws-orange/20 transition-all hover:scale-105 active:scale-95"
             >
-              <span>Join Club</span>
+              <span>Join Group</span>
               <ArrowUpRight className="w-3.5 h-3.5 stroke-[2.5]" />
             </Link>
 
@@ -140,8 +126,8 @@ export function Navbar() {
                     href={item.href}
                     onClick={() => setMobileMenuOpen(false)}
                     className={`p-2.5 rounded-xl text-xs font-medium border flex items-center justify-between ${isActive
-                        ? "bg-aws-orange text-black border-aws-orange font-bold"
-                        : "bg-navy-900/80 text-slate-200 border-white/10 hover:border-aws-orange/40"
+                      ? "bg-aws-orange text-black border-aws-orange font-bold"
+                      : "bg-navy-900/80 text-slate-200 border-white/10 hover:border-aws-orange/40"
                       }`}
                   >
                     <span>{item.title}</span>
@@ -165,9 +151,6 @@ export function Navbar() {
           </div>
         )}
       </header>
-
-      {/* Global Search Modal */}
-      <SearchModal isOpen={searchOpen} onClose={() => setSearchOpen(false)} />
     </>
   );
 }
