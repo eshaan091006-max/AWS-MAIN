@@ -71,9 +71,9 @@ export const teamHierarchy: TeamHierarchy = {
       ],
       vcps: [
         {
-          name: "Raphael Vol",
+          name: "Raphael Wol",
           role: "VCP — Director of Events",
-          coordinators: ["ABC", "XYZ"],
+          coordinators: ["Praneet Singh", "Harsh Arkal"],
         },
       ],
     },
