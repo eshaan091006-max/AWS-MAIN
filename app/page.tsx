@@ -245,7 +245,7 @@ export default async function HomePage() {
           </h2>
 
           <p className="text-sm sm:text-base text-slate-300 max-w-xl mx-auto leading-relaxed">
-            Whether you are writing your first line of code or deploying complex multi-region Kubernetes clusters, SXC AWS Club is your launchpad.
+            Whether you are writing your first line of code or deploying complex multi-region Kubernetes clusters, SXC AWS Group is your launchpad.
           </p>
 
           <div className="flex flex-wrap items-center justify-center gap-4 pt-4">
