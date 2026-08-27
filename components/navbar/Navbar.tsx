@@ -50,11 +50,10 @@ export function Navbar() {
   return (
     <>
       <header
-        className={`${isEmbedded ? "relative" : "fixed"} top-0 left-0 right-0 z-40 transition-all duration-300 ${
-          isScrolled
+        className={`${isEmbedded ? "relative" : "fixed"} top-0 left-0 right-0 z-40 transition-all duration-300 ${isScrolled
             ? "bg-[#060A14]/85 backdrop-blur-xl border-b border-aws-orange/20 shadow-lg shadow-black/40 py-3"
             : "bg-transparent py-5"
-        }`}
+          }`}
       >
         <div className="max-w-[1750px] mx-auto px-4 sm:px-8 lg:px-12 xl:px-16 flex items-center justify-between">
           {/* Logo */}
@@ -64,7 +63,7 @@ export function Navbar() {
             </div>
             <div>
               <div className="flex items-center gap-1.5 font-display font-extrabold text-lg text-white tracking-tight leading-none group-hover:text-aws-orange transition-colors">
-                SXC AWS <span className="text-aws-orange">CLUB</span>
+                SXC AWS <span className="text-aws-orange">Group</span>
               </div>
               <div className="text-[10px] font-mono tracking-widest text-slate-400 uppercase">
                 Cloud Community
@@ -80,11 +79,10 @@ export function Navbar() {
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`relative px-3.5 py-1.5 rounded-full text-xs font-medium transition-all ${
-                    isActive
+                  className={`relative px-3.5 py-1.5 rounded-full text-xs font-medium transition-all ${isActive
                       ? "text-black font-semibold bg-gradient-to-r from-aws-orange to-amber-500 shadow-md shadow-aws-orange/20"
                       : "text-slate-300 hover:text-white hover:bg-white/5"
-                  }`}
+                    }`}
                 >
                   {item.title}
                   {item.badge && (
@@ -141,11 +139,10 @@ export function Navbar() {
                     key={item.href}
                     href={item.href}
                     onClick={() => setMobileMenuOpen(false)}
-                    className={`p-2.5 rounded-xl text-xs font-medium border flex items-center justify-between ${
-                      isActive
+                    className={`p-2.5 rounded-xl text-xs font-medium border flex items-center justify-between ${isActive
                         ? "bg-aws-orange text-black border-aws-orange font-bold"
                         : "bg-navy-900/80 text-slate-200 border-white/10 hover:border-aws-orange/40"
-                    }`}
+                      }`}
                   >
                     <span>{item.title}</span>
                     {item.badge && (
@@ -162,7 +159,7 @@ export function Navbar() {
                 onClick={() => setMobileMenuOpen(false)}
                 className="w-full py-2.5 rounded-xl bg-gradient-to-r from-aws-orange to-amber-600 text-black text-center text-xs font-bold shadow-md shadow-aws-orange/20"
               >
-                Join SXC AWS Club
+                Join SXC AWS Group
               </Link>
             </div>
           </div>
