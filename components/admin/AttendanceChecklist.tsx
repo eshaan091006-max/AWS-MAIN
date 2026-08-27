@@ -1,0 +1,238 @@
+"use client";
+
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import {
+  Check,
+  Download,
+  Loader2,
+  RefreshCw,
+  Search,
+  Users,
+  X,
+} from "lucide-react";
+import { EventData } from "@/lib/data/initialData";
+
+interface Registration {
+  id: string;
+  fullName: string;
+  uid: string;
+  email: string;
+  academicYear: string;
+  stream: string;
+  registeredAt: string;
+  attended: boolean;
+  attendedAt: string | null;
+  attendedBy: string | null;
+}
+
+interface Props {
+  event: EventData;
+  onClose: () => void;
+}
+
+export function AttendanceChecklist({ event, onClose }: Props) {
+  const [rows, setRows] = useState<Registration[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [query, setQuery] = useState("");
+  // Ids currently being written, so a row can show a spinner without locking
+  // the whole list — an officer at the door may tick several people quickly.
+  const [pending, setPending] = useState<Set<string>>(new Set());
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch(
+        `/api/admin/registrations?eventId=${encodeURIComponent(event.id)}`,
+        { cache: "no-store" }
+      );
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || "Could not load registrations.");
+      setRows(json.data ?? []);
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  }, [event.id]);
+
+  useEffect(() => {
+    load();
+  }, [load]);
+
+  const toggle = async (row: Registration) => {
+    const next = !row.attended;
+
+    // Optimistic: the tick has to feel instant with a queue at the door.
+    setRows((prev) => prev.map((r) => (r.id === row.id ? { ...r, attended: next } : r)));
+    setPending((prev) => new Set(prev).add(row.id));
+    setError(null);
+
+    try {
+      const res = await fetch("/api/admin/registrations", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: row.id, attended: next }),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || "Could not save attendance.");
+
+      // Replace with the server's copy so attendedAt/attendedBy are real.
+      setRows((prev) => prev.map((r) => (r.id === row.id ? json.data : r)));
+    } catch (err: any) {
+      // Roll back, or the list would claim someone was marked when they were not.
+      setRows((prev) => prev.map((r) => (r.id === row.id ? { ...r, attended: !next } : r)));
+      setError(`${row.fullName}: ${err.message}`);
+    } finally {
+      setPending((prev) => {
+        const copy = new Set(prev);
+        copy.delete(row.id);
+        return copy;
+      });
+    }
+  };
+
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return rows;
+    return rows.filter(
+      (r) =>
+        r.fullName.toLowerCase().includes(q) ||
+        r.uid.toLowerCase().includes(q) ||
+        r.email.toLowerCase().includes(q)
+    );
+  }, [rows, query]);
+
+  const present = rows.filter((r) => r.attended).length;
+
+  return (
+    <div className="p-5 sm:p-6 rounded-2xl bg-navy-950 border border-aws-orange/40 space-y-4">
+      <div className="flex items-start justify-between gap-4">
+        <div className="min-w-0">
+          <div className="text-[10px] font-mono uppercase tracking-widest text-aws-orange font-bold">
+            Attendance
+          </div>
+          <h3 className="text-sm font-bold text-white truncate">{event.title}</h3>
+        </div>
+        <button
+          type="button"
+          onClick={onClose}
+          aria-label="Close attendance list"
+          className="p-1.5 rounded-lg hover:bg-white/10 text-slate-400 hover:text-white transition-colors shrink-0"
+        >
+          <X className="w-4 h-4" />
+        </button>
+      </div>
+
+      <div className="flex flex-wrap items-center gap-2.5">
+        <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-950/60 border border-emerald-500/40 text-emerald-300 text-xs font-mono font-bold">
+          <Users className="w-3.5 h-3.5" />
+          <span>
+            {present} / {rows.length} present
+          </span>
+        </div>
+
+        <div className="relative flex-1 min-w-[180px]">
+          <Search className="w-3.5 h-3.5 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
+          <input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search name, UID or email"
+            className="w-full pl-9 pr-3 py-1.5 rounded-xl bg-navy-900 border border-white/15 text-white placeholder-slate-500 focus:outline-none focus:border-aws-orange text-xs"
+          />
+        </div>
+
+        <button
+          type="button"
+          onClick={load}
+          className="p-2 rounded-xl bg-navy-900 hover:bg-navy-800 border border-white/10 text-slate-300 hover:text-white transition-colors"
+          title="Reload the list"
+        >
+          <RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin" : ""}`} />
+        </button>
+
+        <a
+          href={`/api/admin/registrations?eventId=${encodeURIComponent(event.id)}&format=csv`}
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-navy-900 hover:bg-navy-800 border border-white/10 text-slate-300 hover:text-aws-orange text-xs font-mono transition-colors"
+        >
+          <Download className="w-3.5 h-3.5" />
+          <span>CSV</span>
+        </a>
+      </div>
+
+      {error && (
+        <div role="alert" className="p-3 rounded-xl bg-red-950/70 border border-red-500/40 text-red-300 text-xs font-mono">
+          {error}
+        </div>
+      )}
+
+      {loading && rows.length === 0 ? (
+        <div className="py-10 text-center text-xs font-mono text-slate-400 flex items-center justify-center gap-2">
+          <Loader2 className="w-4 h-4 animate-spin" />
+          <span>Loading registrations…</span>
+        </div>
+      ) : rows.length === 0 ? (
+        <div className="py-10 text-center text-xs font-mono text-slate-400">
+          Nobody has registered for this event yet.
+        </div>
+      ) : filtered.length === 0 ? (
+        <div className="py-10 text-center text-xs font-mono text-slate-400">
+          No registration matches “{query}”.
+        </div>
+      ) : (
+        <ul className="space-y-1.5 max-h-[26rem] overflow-y-auto pr-1">
+          {filtered.map((row) => {
+            const busy = pending.has(row.id);
+            return (
+              <li key={row.id}>
+                {/* The whole row is the control: a small checkbox is a poor
+                    target on a phone at a check-in desk. */}
+                <button
+                  type="button"
+                  onClick={() => toggle(row)}
+                  disabled={busy}
+                  aria-pressed={row.attended}
+                  className={`w-full text-left p-3 rounded-xl border flex items-center gap-3 transition-colors ${
+                    row.attended
+                      ? "bg-emerald-950/40 border-emerald-500/40 hover:bg-emerald-950/60"
+                      : "bg-navy-900/70 border-white/10 hover:border-aws-orange/40"
+                  } disabled:opacity-60`}
+                >
+                  <span
+                    className={`w-5 h-5 rounded-md border flex items-center justify-center shrink-0 ${
+                      row.attended
+                        ? "bg-emerald-500 border-emerald-400 text-black"
+                        : "border-white/25 text-transparent"
+                    }`}
+                  >
+                    {busy ? (
+                      <Loader2 className="w-3 h-3 animate-spin text-slate-300" />
+                    ) : (
+                      <Check className="w-3.5 h-3.5 stroke-[3]" />
+                    )}
+                  </span>
+
+                  <span className="min-w-0 flex-1">
+                    <span className="block text-xs font-semibold text-white truncate">
+                      {row.fullName}
+                    </span>
+                    <span className="block text-[11px] font-mono text-slate-400 truncate">
+                      {row.uid} · {row.academicYear} {row.stream}
+                    </span>
+                  </span>
+
+                  {row.attended && row.attendedBy && (
+                    <span className="text-[10px] font-mono text-emerald-400/70 shrink-0 hidden sm:block">
+                      by {row.attendedBy}
+                    </span>
+                  )}
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+    </div>
+  );
+}

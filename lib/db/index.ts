@@ -61,6 +61,22 @@ export interface SeatInfo {
   configured: boolean;
 }
 
+export interface RegistrationRow {
+  id: string;
+  eventId: string;
+  eventTitle: string | null;
+  fullName: string;
+  uid: string;
+  email: string;
+  academicYear: string;
+  stream: string;
+  college: string;
+  registeredAt: string;
+  attended: boolean;
+  attendedAt: string | null;
+  attendedBy: string | null;
+}
+
 export interface RegistrationRecord {
   id: string;
   eventId: string;
@@ -76,6 +92,14 @@ export interface RegistrationRecord {
 }
 
 function describeDbError(error: { code?: string; message: string }, what: string): Error {
+  // 42703 is a missing *column*: the schema is present but predates a newer
+  // migration. Saying "the tables do not exist" there sends someone looking
+  // for the wrong problem.
+  if (error.code === "42703") {
+    return new Error(
+      `The database is missing a column added in a newer version. Re-run supabase/schema.sql in the Supabase SQL Editor, then try again. (${error.message})`
+    );
+  }
   if (error.code && SCHEMA_MISSING_CODES.includes(error.code)) {
     return new Error(
       `The database is connected but the tables do not exist yet. Run supabase/schema.sql in the Supabase SQL Editor, then try again. (${error.message})`
@@ -356,6 +380,111 @@ class LocalDataStore {
 
     record.id = typeof newId === "string" ? newId : `${event.id}:${email}`;
     return record;
+  }
+
+
+  // ==================== Registrations (admin) ====================
+
+  /**
+   * Registrations for an event, oldest first.
+   *
+   * Oldest first because this is read as a check-in list: the order people
+   * signed up is stable, so a name does not jump around the page while an
+   * officer is working down it at the door.
+   *
+   * Service role only. The anon key has no read access to this table and must
+   * not gain any — these rows are student emails and UIDs.
+   */
+  async listRegistrations(eventId?: string): Promise<RegistrationRow[]> {
+    const admin = getServiceSupabase();
+    if (!admin) {
+      console.error("[supabase] reading registrations requires SUPABASE_SERVICE_ROLE_KEY");
+      return [];
+    }
+
+    let query = admin
+      .from("event_registrations")
+      .select(
+        "id,event_id,event_title,full_name,uid,email,academic_year,stream,college,created_at,attended,attended_at,attended_by"
+      )
+      .order("created_at", { ascending: true })
+      .limit(2000);
+
+    if (eventId) query = query.eq("event_id", eventId);
+
+    const { data, error } = await query;
+    if (error) {
+      console.error("[supabase] registration read failed:", error.code, error.message);
+      throw describeDbError(error, "registration list");
+    }
+
+    return (data ?? []).map((row: any) => ({
+      id: row.id,
+      eventId: row.event_id,
+      eventTitle: row.event_title,
+      fullName: row.full_name,
+      uid: row.uid,
+      email: row.email,
+      academicYear: row.academic_year,
+      stream: row.stream,
+      college: row.college,
+      registeredAt: row.created_at,
+      attended: Boolean(row.attended),
+      attendedAt: row.attended_at ?? null,
+      attendedBy: row.attended_by ?? null,
+    }));
+  }
+
+  /**
+   * Marks one registration present or absent.
+   *
+   * `markedBy` is the signed-in admin from the session, not anything the
+   * client sends, so the audit trail cannot be forged by the browser.
+   */
+  async setAttendance(
+    registrationId: string,
+    attended: boolean,
+    markedBy: string
+  ): Promise<RegistrationRow | null> {
+    const admin = getServiceSupabase();
+    if (!admin) throw new Error("Marking attendance requires SUPABASE_SERVICE_ROLE_KEY.");
+
+    const { data, error } = await admin
+      .from("event_registrations")
+      .update({
+        attended,
+        // Cleared when unmarking, so a mistaken tick leaves no trace claiming
+        // someone was seen at a time they were not.
+        attended_at: attended ? new Date().toISOString() : null,
+        attended_by: attended ? markedBy : null,
+      })
+      .eq("id", registrationId)
+      .select(
+        "id,event_id,event_title,full_name,uid,email,academic_year,stream,college,created_at,attended,attended_at,attended_by"
+      )
+      .maybeSingle();
+
+    if (error) {
+      console.error("[supabase] attendance update failed:", error.code, error.message);
+      throw describeDbError(error, "attendance");
+    }
+    if (!data) return null;
+
+    return {
+      id: data.id,
+      eventId: data.event_id,
+      eventTitle: data.event_title,
+      fullName: data.full_name,
+      uid: data.uid,
+      email: data.email,
+      academicYear: data.academic_year,
+      stream: data.stream,
+      college: data.college,
+      registeredAt: data.created_at,
+      attended: Boolean(data.attended),
+      attendedAt: data.attended_at ?? null,
+      attendedBy: data.attended_by ?? null,
+    };
   }
 
   // ==================== Contact Messages ====================

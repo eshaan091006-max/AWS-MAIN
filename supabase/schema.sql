@@ -54,6 +54,22 @@ create index if not exists event_registrations_event_id_idx
 create index if not exists event_registrations_created_at_idx
   on public.event_registrations (created_at desc);
 
+-- Attendance, marked from the admin area on the day of the event.
+--
+-- Separate from the registration itself: signing up and turning up are
+-- different facts, and the club needs both — who reserved a seat, and who
+-- actually attended. attended_by records which admin marked it, so an
+-- attendance sheet is accountable rather than anonymous.
+--
+-- Added after the table shipped, so CREATE TABLE IF NOT EXISTS above is a
+-- no-op on an existing project and would skip these.
+alter table public.event_registrations
+  add column if not exists attended boolean not null default false;
+alter table public.event_registrations
+  add column if not exists attended_at timestamptz;
+alter table public.event_registrations
+  add column if not exists attended_by text;
+
 
 -- =================================================================
 -- 2. CONTACT MESSAGES
