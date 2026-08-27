@@ -18,6 +18,7 @@ import {
   Sparkles,
   RefreshCw,
   Pencil,
+  ClipboardCheck,
 } from "lucide-react";
 import {
   INITIAL_PROJECTS,
@@ -27,6 +28,7 @@ import {
   EventData,
 } from "@/lib/data/initialData";
 import { EventEditor } from "@/components/admin/EventEditor";
+import { AttendanceChecklist } from "@/components/admin/AttendanceChecklist";
 
 export default function AdminPage() {
   const [activeTab, setActiveTab] = useState<"overview" | "events" | "projects" | "members" | "gallery" | "messages">("overview");
@@ -65,6 +67,7 @@ export default function AdminPage() {
   // Form modal states
   const [showAddEvent, setShowAddEvent] = useState(false);
   const [editingEvent, setEditingEvent] = useState<EventData | null>(null);
+  const [attendanceEvent, setAttendanceEvent] = useState<EventData | null>(null);
   const [newEvent, setNewEvent] = useState({
     title: "",
     venue: "",
@@ -355,6 +358,13 @@ export default function AdminPage() {
               </button>
             </div>
 
+            {attendanceEvent && (
+              <AttendanceChecklist
+                event={attendanceEvent}
+                onClose={() => setAttendanceEvent(null)}
+              />
+            )}
+
             {showAddEvent && (
               <EventEditor
                 event={editingEvent}
@@ -397,8 +407,19 @@ export default function AdminPage() {
                       <td className="p-3 text-right space-x-1.5 whitespace-nowrap">
                         <button
                           onClick={() => {
+                            setAttendanceEvent(e);
+                            setShowAddEvent(false);
+                          }}
+                          className="p-1.5 rounded-lg bg-navy-800 hover:bg-navy-700 text-slate-300 hover:text-emerald-400 transition-colors"
+                          title="Take attendance for this event"
+                        >
+                          <ClipboardCheck className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          onClick={() => {
                             setEditingEvent(e);
                             setShowAddEvent(true);
+                            setAttendanceEvent(null);
                           }}
                           className="p-1.5 rounded-lg bg-navy-800 hover:bg-navy-700 text-slate-300 hover:text-aws-orange transition-colors"
                           title="Edit event, agenda, speakers and prerequisites"
