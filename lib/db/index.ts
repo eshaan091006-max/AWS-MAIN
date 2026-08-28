@@ -386,6 +386,49 @@ class LocalDataStore {
   // ==================== Registrations (admin) ====================
 
   /**
+   * Registers someone past the seat limit, on an admin's explicit say-so.
+   *
+   * Bypasses register_for_event() and its capacity check, so it is reachable
+   * only from the authenticated admin walk-in desk — never from the public
+   * form. The limit exists to stop the public overbooking an event; an officer
+   * standing at the door deciding to admit one more person is a judgement the
+   * system should allow them to make.
+   *
+   * The unique index still applies, so this cannot create a duplicate.
+   */
+  async forceRegister(eventId: string, data: RegistrationInput): Promise<void> {
+    const client = getServiceSupabase();
+    if (!client) throw new Error("Over-capacity registration requires SUPABASE_SERVICE_ROLE_KEY.");
+
+    const event = await this.findEvent(eventId);
+    if (!event) throw new Error("Event not found");
+
+    const { error } = await client.from("event_registrations").insert({
+      event_id: event.id,
+      event_title: event.title,
+      event_slug: event.slug,
+      first_name: data.name.trim(),
+      last_name: data.surname?.trim() || null,
+      uid: data.uid?.trim() || "",
+      email: data.email.trim().toLowerCase(),
+      academic_year: data.academicYear?.trim() || "",
+      stream: data.stream?.trim() || "",
+      college: data.college?.trim() || "St. Xavier's College",
+    });
+
+    if (error) {
+      if (error.code === UNIQUE_VIOLATION) {
+        throw new Error("You have already registered for this event with this email.");
+      }
+      console.error("[supabase] force register failed:", error.code, error.message);
+      throw describeDbError(error, "registration");
+    }
+
+    invalidate(seatsKey(event.id));
+  }
+
+
+  /**
    * Registrations for an event, oldest first.
    *
    * Oldest first because this is read as a check-in list: the order people

@@ -19,6 +19,7 @@ import {
   RefreshCw,
   Pencil,
   ClipboardCheck,
+  UserPlus,
 } from "lucide-react";
 import {
   INITIAL_PROJECTS,
@@ -29,9 +30,12 @@ import {
 } from "@/lib/data/initialData";
 import { EventEditor } from "@/components/admin/EventEditor";
 import { AttendanceChecklist } from "@/components/admin/AttendanceChecklist";
+import { WalkInTab } from "@/components/admin/WalkInTab";
 
 export default function AdminPage() {
-  const [activeTab, setActiveTab] = useState<"overview" | "events" | "projects" | "members" | "gallery" | "messages">("overview");
+  const [activeTab, setActiveTab] = useState<
+    "overview" | "events" | "walkin" | "projects" | "members" | "gallery" | "messages"
+  >("overview");
 
   // Local state for dynamic changes in the dashboard session
   // Events are database rows now. They are fetched rather than seeded, so what
@@ -233,6 +237,7 @@ export default function AdminPage() {
           {[
             { id: "overview", label: "System Metrics", icon: Shield },
             { id: "events", label: `Events (${events.length})`, icon: Calendar },
+            { id: "walkin", label: "Walk-in Desk", icon: UserPlus },
             { id: "projects", label: `Projects (${projects.length})`, icon: FolderGit2 },
             { id: "members", label: `Leadership (${members.length})`, icon: Users },
             { id: "gallery", label: `Gallery (${gallery.length})`, icon: Camera },
@@ -336,6 +341,8 @@ export default function AdminPage() {
         )}
 
         {/* Tab 2: Events Management */}
+        {activeTab === "walkin" && <WalkInTab events={events} />}
+
         {activeTab === "events" && eventsError && (
           <div className="mb-4 p-3.5 rounded-xl bg-red-950/70 border border-red-500/40 text-red-300 text-xs font-mono">
             {eventsError}
