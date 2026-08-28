@@ -23,7 +23,7 @@ export const siteConfig = {
   links: {
     github: "https://github.com/sxc-aws-club",
     linkedin: "https://linkedin.com/company/sxc-aws-club",
-    instagram: "https://instagram.com/sxc_aws_club",
+    instagram: "https://www.instagram.com/aws.sxcbom",
     discord: "https://discord.gg/sxc-aws",
     email: "aws.sbg@xaviers.edu",
     awsEducate: "https://aws.amazon.com/education/awseducate/",

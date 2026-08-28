@@ -267,6 +267,24 @@ export default function ContactPage() {
                     <div className="text-xs font-semibold text-white">St. Xavier&apos;s College,Fort, Mumbai</div>
                   </div>
                 </div>
+
+                <a
+                  href={siteConfig.links.instagram}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group p-3 rounded-2xl bg-navy-950/80 border border-white/5 hover:border-pink-400/40 flex items-center gap-3 transition-colors"
+                >
+                  <div className="w-8 h-8 rounded-lg bg-pink-500/20 text-pink-400 flex items-center justify-center shrink-0">
+                    <Instagram className="w-4 h-4" />
+                  </div>
+                  <div className="min-w-0">
+                    <div className="text-[10px] font-mono text-slate-400 uppercase">Instagram</div>
+                    <div className="text-xs font-semibold text-white group-hover:text-pink-300 transition-colors truncate">
+                      AWS SXC
+                    </div>
+                  </div>
+                  <ExternalLink className="w-3.5 h-3.5 ml-auto shrink-0 text-slate-500 group-hover:text-pink-300" />
+                </a>
               </div>
 
               {/* Social Channels */}
