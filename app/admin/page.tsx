@@ -30,6 +30,8 @@ import { EventEditor } from "@/components/admin/EventEditor";
 import { AttendanceChecklist } from "@/components/admin/AttendanceChecklist";
 import { WalkInTab } from "@/components/admin/WalkInTab";
 import { StatusStrip } from "@/components/admin/StatusStrip";
+import { ConsoleInteractions } from "@/components/admin/ConsoleInteractions";
+import { CommandPalette, type Command } from "@/components/admin/CommandPalette";
 
 type Tab =
   | "overview"
@@ -137,8 +139,75 @@ export default function AdminPage() {
 
   const activeLabel = tabs.find((t) => t.id === activeTab)?.label ?? "";
 
+  // Built from live state, so a newly created event is reachable from the
+  // palette immediately without any registration step.
+  const commands: Command[] = [
+    ...tabs.map((tab) => ({
+      id: `tab:${tab.id}`,
+      label: `Go to ${tab.label}`,
+      group: "Navigate",
+      run: () => setActiveTab(tab.id),
+    })),
+    {
+      id: "action:new-event",
+      label: "Create a new event",
+      group: "Events",
+      keywords: "add make",
+      run: () => {
+        setEditingEvent(null);
+        setAttendanceEvent(null);
+        setShowEditor(true);
+        setActiveTab("events");
+      },
+    },
+    {
+      id: "action:refresh",
+      label: "Reload all data",
+      group: "Console",
+      keywords: "refetch sync",
+      run: () => {
+        loadEvents();
+        loadSummary();
+      },
+    },
+    ...events.flatMap((event) => [
+      {
+        id: `attend:${event.id}`,
+        label: `Attendance — ${event.title}`,
+        group: "Check-in",
+        keywords: `${event.venue} register present`,
+        run: () => {
+          setAttendanceEvent(event);
+          setShowEditor(false);
+          setActiveTab("events");
+        },
+      },
+      {
+        id: `edit:${event.id}`,
+        label: `Edit — ${event.title}`,
+        group: "Events",
+        keywords: event.venue,
+        run: () => {
+          setEditingEvent(event);
+          setAttendanceEvent(null);
+          setShowEditor(true);
+          setActiveTab("events");
+        },
+      },
+    ]),
+    {
+      id: "action:signout",
+      label: "Sign out",
+      group: "Console",
+      run: signOut,
+    },
+  ];
+
   return (
     <div className="adm-shell">
+      <ConsoleInteractions />
+      <CommandPalette commands={commands} />
+
       {/* ---------------- Rail ---------------- */}
       <aside className="adm-rail">
         <div className="adm-brand">
@@ -221,18 +290,18 @@ export default function AdminPage() {
           {activeTab === "overview" && (
             <>
               <div className="adm-stats">
-                <div className="adm-stat" data-index="01">
+                <button type="button" className="adm-stat" data-index="01" onClick={() => setActiveTab("events")}>
                   <div className="adm-eyebrow">Events</div>
                   <div className="adm-stat-value">{events.length}</div>
                   <div className="adm-stat-note">{upcoming} upcoming</div>
-                </div>
-                <div className="adm-stat" data-index="02">
+                </button>
+                <button type="button" className="adm-stat" data-index="02" onClick={() => setActiveTab("walkin")}>
                   <div className="adm-eyebrow">Registrations</div>
                   <div className="adm-stat-value" style={{ color: "var(--adm-accent)" }}>
                     {regSummary?.total ?? "—"}
                   </div>
                   <div className="adm-stat-note">across all events</div>
-                </div>
+                </button>
                 <div className="adm-stat" data-index="03">
                   <div className="adm-eyebrow">Checked in</div>
                   <div className="adm-stat-value" style={{ color: "var(--adm-ok)" }}>
@@ -257,13 +326,13 @@ export default function AdminPage() {
                     </div>
                   )}
                 </div>
-                <div className="adm-stat" data-index="04">
+                <button type="button" className="adm-stat" data-index="04" onClick={() => setActiveTab("messages")}>
                   <div className="adm-eyebrow">Inquiries</div>
                   <div className="adm-stat-value">{messages.length}</div>
                   <div className="adm-stat-note">
                     {messages.filter((m) => !m.isRead).length} unread
                   </div>
-                </div>
+                </button>
               </div>
 
               <section className="adm-panel">
