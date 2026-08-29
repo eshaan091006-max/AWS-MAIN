@@ -27,7 +27,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       <div className="adm-horizon" aria-hidden="true" />
       <div className="adm-vignette" aria-hidden="true" />
       <div className="adm-scan" aria-hidden="true" />
-      <div className="adm-sweep" aria-hidden="true" />
       <div className="adm-frame" aria-hidden="true">
         <span /><span /><span /><span />
       </div>
