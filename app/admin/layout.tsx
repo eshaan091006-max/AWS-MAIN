@@ -23,6 +23,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       {/* Rendered once for the whole console, behind everything, inert. */}
       <div className="adm-depth" aria-hidden="true" />
       <div className="adm-horizon" aria-hidden="true" />
+      <div className="adm-vignette" aria-hidden="true" />
+      <div className="adm-scan" aria-hidden="true" />
       {children}
     </div>
   );

@@ -29,6 +29,7 @@ import {
 import { EventEditor } from "@/components/admin/EventEditor";
 import { AttendanceChecklist } from "@/components/admin/AttendanceChecklist";
 import { WalkInTab } from "@/components/admin/WalkInTab";
+import { StatusStrip } from "@/components/admin/StatusStrip";
 
 type Tab =
   | "overview"
@@ -54,6 +55,7 @@ export default function AdminPage() {
 
   const [signedInAs, setSignedInAs] = useState<string | null>(null);
   const [regSummary, setRegSummary] = useState<{ total: number; present: number } | null>(null);
+  const [dbConnected, setDbConnected] = useState<boolean | null>(null);
 
   // Static content, authored in lib/data/initialData.ts. Shown read-only —
   // these tabs used to offer Add and Delete buttons that only ever mutated
@@ -71,8 +73,10 @@ export default function AdminPage() {
       const json = await res.json();
       if (!res.ok) throw new Error(json.error || "Could not load events.");
       setEvents(json.data ?? []);
+      setDbConnected(true);
     } catch (err: any) {
       setEventsError(err.message);
+      setDbConnected(false);
     } finally {
       setEventsLoading(false);
     }
@@ -190,6 +194,10 @@ export default function AdminPage() {
             <h1 className="adm-title mt-1">{activeLabel}</h1>
           </div>
 
+          <div className="hidden md:block flex-1 min-w-0 px-4">
+            <StatusStrip dbConnected={dbConnected} signedInAs={signedInAs} />
+          </div>
+
           <div className="flex items-center gap-2 shrink-0">
             <button
               type="button"
@@ -213,26 +221,43 @@ export default function AdminPage() {
           {activeTab === "overview" && (
             <>
               <div className="adm-stats">
-                <div className="adm-stat">
+                <div className="adm-stat" data-index="01">
                   <div className="adm-eyebrow">Events</div>
                   <div className="adm-stat-value">{events.length}</div>
                   <div className="adm-stat-note">{upcoming} upcoming</div>
                 </div>
-                <div className="adm-stat">
+                <div className="adm-stat" data-index="02">
                   <div className="adm-eyebrow">Registrations</div>
                   <div className="adm-stat-value" style={{ color: "var(--adm-accent)" }}>
                     {regSummary?.total ?? "—"}
                   </div>
                   <div className="adm-stat-note">across all events</div>
                 </div>
-                <div className="adm-stat">
+                <div className="adm-stat" data-index="03">
                   <div className="adm-eyebrow">Checked in</div>
                   <div className="adm-stat-value" style={{ color: "var(--adm-ok)" }}>
                     {regSummary?.present ?? "—"}
                   </div>
-                  <div className="adm-stat-note">marked present</div>
+                  <div className="adm-stat-note">
+                    {regSummary && regSummary.total > 0
+                      ? `${Math.round((regSummary.present / regSummary.total) * 100)}% of registered`
+                      : "marked present"}
+                  </div>
+                  {/* Turnout against registrations — the one ratio here with a
+                      real ceiling, so the only one that earns a meter. */}
+                  {regSummary && regSummary.total > 0 && (
+                    <div className="adm-meter">
+                      <span
+                        style={{
+                          width: `${Math.min(100, (regSummary.present / regSummary.total) * 100)}%`,
+                          background: "var(--adm-ok)",
+                          boxShadow: "0 0 10px rgba(53,208,127,0.6)",
+                        }}
+                      />
+                    </div>
+                  )}
                 </div>
-                <div className="adm-stat">
+                <div className="adm-stat" data-index="04">
                   <div className="adm-eyebrow">Inquiries</div>
                   <div className="adm-stat-value">{messages.length}</div>
                   <div className="adm-stat-note">

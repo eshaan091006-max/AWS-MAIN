@@ -754,3 +754,222 @@ body:has(.adm) {
   font-size: 11px;
   color: var(--adm-faint);
 }
+
+/* ============================================================
+   HUD
+   ============================================================
+   Everything below is chrome. It sits on structure — panel
+   edges, headers, empty margin — and never on top of a value
+   someone has to read. That is the whole rule: the console can
+   look like an instrument, but the instrument has to be legible.
+   ============================================================ */
+
+/* ---------- Scanlines ---------- */
+
+/*
+ * A 3px scanline field over the whole console.
+ *
+ * Static, so it costs one paint and never animates — a moving
+ * scanline over a table is genuinely hard to read from.
+ */
+.adm-scan {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.016) 0px,
+    rgba(255, 255, 255, 0.016) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+  mix-blend-mode: overlay;
+}
+
+/* A vignette pulls the eye to the middle of the screen, where
+   the data is, and lets the grid fade out at the corners. */
+.adm-vignette {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: radial-gradient(
+    120% 90% at 50% 45%,
+    transparent 40%,
+    rgba(0, 0, 0, 0.55) 100%
+  );
+}
+
+/* ---------- Panel brackets ---------- */
+
+/*
+ * Targeting brackets at the panel corners.
+ *
+ * Drawn on the panel's own corners with pseudo-elements, so they
+ * cost no markup and cannot land on content. Two elements give
+ * four corners by mirroring.
+ */
+.adm-panel {
+  position: relative;
+}
+
+.adm-panel::before,
+.adm-panel::after {
+  content: "";
+  position: absolute;
+  width: 9px;
+  height: 9px;
+  pointer-events: none;
+  border-color: var(--adm-accent);
+  opacity: 0.55;
+  transition: opacity 200ms;
+}
+
+.adm-panel::before {
+  top: -1px;
+  left: -1px;
+  border-top: 1px solid;
+  border-left: 1px solid;
+}
+
+.adm-panel::after {
+  bottom: -1px;
+  right: -1px;
+  border-bottom: 1px solid;
+  border-right: 1px solid;
+}
+
+.adm-panel:hover::before,
+.adm-panel:hover::after {
+  opacity: 1;
+}
+
+/* ---------- Signal ---------- */
+
+/* The accent gets a bloom. Used on the few things that are
+   genuinely live: the active tab, a primary action, a headline
+   number. */
+.adm-btn-primary {
+  box-shadow: 0 0 0 1px rgba(255, 153, 0, 0.35), 0 0 22px rgba(255, 153, 0, 0.28);
+}
+
+.adm-btn-primary:hover:not(:disabled) {
+  box-shadow: 0 0 0 1px rgba(255, 153, 0, 0.5), 0 0 30px rgba(255, 153, 0, 0.4);
+}
+
+.adm-navitem[data-active="true"] {
+  box-shadow: inset 0 0 24px rgba(255, 153, 0, 0.07);
+}
+
+/* A light travelling down the active tab's marker rule. */
+.adm-navitem[data-active="true"]::after {
+  content: "";
+  position: absolute;
+  left: -2px;
+  width: 2px;
+  height: 40%;
+  background: linear-gradient(to bottom, transparent, #fff, transparent);
+  animation: adm-scanline 2.6s ease-in-out infinite;
+}
+
+.adm-navitem {
+  position: relative;
+  overflow: hidden;
+}
+
+@keyframes adm-scanline {
+  0%   { transform: translateY(-120%); opacity: 0; }
+  40%  { opacity: 1; }
+  100% { transform: translateY(320%); opacity: 0; }
+}
+
+/* ---------- Readouts ---------- */
+
+.adm-stat {
+  position: relative;
+}
+
+/* Section index, in the corner of each stat cell. Technical
+   drawings number their callouts; so does this. */
+.adm-stat::after {
+  content: attr(data-index);
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  font-family: var(--font-mono), monospace;
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  color: var(--adm-ghost);
+}
+
+.adm-stat-value {
+  text-shadow: 0 0 26px rgba(255, 255, 255, 0.14);
+}
+
+/* A hairline that fills to show the value's share of its ceiling.
+   Reads at a glance without a chart. */
+.adm-meter {
+  height: 2px;
+  margin-top: 12px;
+  background: rgba(255, 255, 255, 0.07);
+  position: relative;
+  overflow: hidden;
+}
+
+.adm-meter span {
+  position: absolute;
+  inset: 0 auto 0 0;
+  background: var(--adm-accent);
+  box-shadow: 0 0 10px rgba(255, 153, 0, 0.6);
+}
+
+/* ---------- Status strip ---------- */
+
+.adm-status {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--adm-faint);
+}
+
+.adm-status-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.adm-pulse {
+  width: 5px;
+  height: 5px;
+  background: var(--adm-ok);
+  box-shadow: 0 0 8px var(--adm-ok);
+  animation: adm-pulse 2s ease-in-out infinite;
+}
+
+.adm-pulse[data-state="down"] {
+  background: var(--adm-danger);
+  box-shadow: 0 0 8px var(--adm-danger);
+}
+
+@keyframes adm-pulse {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.25; }
+}
+
+/* Motion is decoration here; the readouts stay either way. */
+@media (prefers-reduced-motion: reduce) {
+  .adm-navitem[data-active="true"]::after,
+  .adm-pulse {
+    animation: none;
+  }
+  .adm-navitem[data-active="true"]::after {
+    opacity: 0.5;
+    transform: none;
+  }
+}
