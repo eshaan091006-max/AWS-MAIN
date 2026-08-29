@@ -1,6 +1,7 @@
 import React from "react";
 import type { Metadata } from "next";
 import "./admin.css";
+import { FloatingObjects } from "@/components/admin/FloatingObjects";
 
 export const metadata: Metadata = {
   title: "Console — SXC AWS",
@@ -22,6 +23,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     <div className="adm">
       {/* Rendered once for the whole console, behind everything, inert. */}
       <div className="adm-depth" aria-hidden="true" />
+      <FloatingObjects />
       <div className="adm-horizon" aria-hidden="true" />
       <div className="adm-vignette" aria-hidden="true" />
       <div className="adm-scan" aria-hidden="true" />

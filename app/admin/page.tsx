@@ -31,6 +31,8 @@ import { AttendanceChecklist } from "@/components/admin/AttendanceChecklist";
 import { WalkInTab } from "@/components/admin/WalkInTab";
 import { StatusStrip } from "@/components/admin/StatusStrip";
 import { ConsoleInteractions } from "@/components/admin/ConsoleInteractions";
+import { CustomCursor } from "@/components/admin/CustomCursor";
+import { MotionToggle } from "@/components/admin/MotionToggle";
 import { CommandPalette, type Command } from "@/components/admin/CommandPalette";
 
 type Tab =
@@ -206,6 +208,7 @@ export default function AdminPage() {
   return (
     <div className="adm-shell">
       <ConsoleInteractions />
+      <CustomCursor />
       <CommandPalette commands={commands} />
 
       {/* ---------------- Rail ---------------- */}
@@ -268,6 +271,7 @@ export default function AdminPage() {
           </div>
 
           <div className="flex items-center gap-2 shrink-0">
+            <MotionToggle />
             <button
               type="button"
               onClick={() => {

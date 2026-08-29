@@ -42,13 +42,24 @@ export function ConsoleInteractions() {
       const w = window.innerWidth || 1;
       const h = window.innerHeight || 1;
 
-      if (!stillness.matches) {
+      // The console's own toggle wins over the OS setting in both directions;
+      // with neither set, the OS decides.
+      const root2 = document.documentElement;
+      const motionOn = root2.classList.contains("adm-motion-on");
+      const motionOff = root2.classList.contains("adm-motion-off");
+      const allowDrift = motionOn || (!motionOff && !stillness.matches);
+
+      if (allowDrift) {
         // -1..1, then damped. Full range would swing the vanishing point far
         // enough to be motion sickness rather than depth.
         const px = (e.clientX / w - 0.5) * 2;
         const py = (e.clientY / h - 0.5) * 2;
         root.style.setProperty("--adm-px", px.toFixed(3));
         root.style.setProperty("--adm-py", py.toFixed(3));
+      } else {
+        // Park it centred rather than leaving whatever offset was last set.
+        root.style.setProperty("--adm-px", "0");
+        root.style.setProperty("--adm-py", "0");
       }
 
       const panel = (e.target as Element | null)?.closest?.(".adm-panel") as HTMLElement | null;
@@ -56,6 +67,9 @@ export function ConsoleInteractions() {
         const r = panel.getBoundingClientRect();
         panel.style.setProperty("--adm-mx", `${e.clientX - r.left}px`);
         panel.style.setProperty("--adm-my", `${e.clientY - r.top}px`);
+        // -1..1 from the panel's centre, for the lean.
+        panel.style.setProperty("--adm-tx", (((e.clientX - r.left) / r.width - 0.5) * 2).toFixed(3));
+        panel.style.setProperty("--adm-ty", (((e.clientY - r.top) / r.height - 0.5) * 2).toFixed(3));
         panel.dataset.lit = "true";
       }
     };

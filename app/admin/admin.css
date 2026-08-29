@@ -181,8 +181,8 @@ body:has(.adm) {
 /* Motion is decorative and nothing depends on it; the perspective is not
    motion, so it stays. */
 @media (prefers-reduced-motion: reduce) {
-  .adm-depth::before,
-  .adm-depth::after {
+  html:not(.adm-motion-on) .adm-depth::before,
+  html:not(.adm-motion-on) .adm-depth::after {
     animation: none;
     will-change: auto;
   }
@@ -966,11 +966,11 @@ body:has(.adm) {
 
 /* Motion is decoration here; the readouts stay either way. */
 @media (prefers-reduced-motion: reduce) {
-  .adm-navitem[data-active="true"]::after,
-  .adm-pulse {
+  html:not(.adm-motion-on) .adm-navitem[data-active="true"]::after,
+  html:not(.adm-motion-on) .adm-pulse {
     animation: none;
   }
-  .adm-navitem[data-active="true"]::after {
+  html:not(.adm-motion-on) .adm-navitem[data-active="true"]::after {
     opacity: 0.5;
     transform: none;
   }
@@ -1003,8 +1003,8 @@ body:has(.adm) {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .adm-depth,
-  .adm-horizon {
+  html:not(.adm-motion-on) .adm-depth,
+  html:not(.adm-motion-on) .adm-horizon {
     transition: none;
   }
 }
@@ -1147,8 +1147,8 @@ button.adm-stat:hover .adm-stat-value {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .adm-palette-backdrop,
-  .adm-palette {
+  html:not(.adm-motion-on) .adm-palette-backdrop,
+  html:not(.adm-motion-on) .adm-palette {
     animation: none;
   }
 }
@@ -1251,6 +1251,192 @@ button.adm-stat:hover .adm-stat-value {
 
 /* Decoration only; the frame stays, the movement goes. */
 @media (prefers-reduced-motion: reduce) {
-  .adm-sweep { display: none; }
-  .adm-header::after { animation: none; opacity: 0.6; }
+  html:not(.adm-motion-on) .adm-sweep { display: none; }
+  html:not(.adm-motion-on) .adm-header::after { animation: none; opacity: 0.6; }
+}
+
+/* ---------- Floating solids ---------- */
+
+.adm-objects {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  perspective: 900px;
+  overflow: hidden;
+}
+
+/*
+ * Each solid sits at its own depth, and depth drives everything at once:
+ * how far it shifts with the cursor, how large it is, and how soft. Parallax
+ * where only position changes reads as sliding, not distance.
+ */
+.adm-obj {
+  position: absolute;
+  width: var(--size);
+  height: var(--size);
+  transform-style: preserve-3d;
+  transform: translate3d(
+    calc(var(--adm-px, 0) * var(--depth) * -70px),
+    calc(var(--adm-py, 0) * var(--depth) * -50px),
+    0
+  );
+  transition: transform 500ms cubic-bezier(0.22, 1, 0.36, 1);
+  opacity: calc(0.16 + var(--depth) * 0.34);
+  filter: blur(calc((1 - var(--depth)) * 1.4px));
+}
+
+.adm-cube {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  animation: adm-tumble var(--spin, 30s) linear infinite;
+  animation-delay: var(--delay, 0s);
+  will-change: transform;
+}
+
+.adm-face {
+  position: absolute;
+  inset: 0;
+  border: 1px solid var(--adm-accent);
+  background: rgba(255, 153, 0, 0.02);
+  box-shadow: inset 0 0 22px rgba(255, 153, 0, 0.12);
+}
+
+/* Six faces of a cube, each half the width out along its own axis. */
+.adm-fz  { transform: translateZ(calc(var(--size) / 2)); }
+.adm-fzb { transform: rotateY(180deg) translateZ(calc(var(--size) / 2)); }
+.adm-fx  { transform: rotateY(90deg)  translateZ(calc(var(--size) / 2)); }
+.adm-fxb { transform: rotateY(-90deg) translateZ(calc(var(--size) / 2)); }
+.adm-fy  { transform: rotateX(90deg)  translateZ(calc(var(--size) / 2)); }
+.adm-fyb { transform: rotateX(-90deg) translateZ(calc(var(--size) / 2)); }
+
+@keyframes adm-tumble {
+  from { transform: rotateX(0deg) rotateY(0deg) rotateZ(0deg); }
+  to   { transform: rotateX(360deg) rotateY(360deg) rotateZ(180deg); }
+}
+
+/* ---------- Panel tilt ---------- */
+
+/* The panel under the cursor leans toward it. Small angles on purpose: past a
+   couple of degrees, text on a tilted plane starts to fight the reader. */
+.adm-panel {
+  transform-style: preserve-3d;
+  transition: transform 260ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.adm-panel[data-lit="true"] {
+  transform: perspective(900px)
+    rotateX(calc(var(--adm-ty, 0) * -1.6deg))
+    rotateY(calc(var(--adm-tx, 0) * 1.6deg))
+    translateZ(6px);
+}
+
+/* ---------- Reticle cursor ---------- */
+
+/* Only hide the system cursor once ours is actually mounted, so a failure
+   leaves the machine usable rather than pointer-less. */
+html.adm-has-cursor .adm,
+html.adm-has-cursor .adm * {
+  cursor: none;
+}
+
+/* Text fields keep theirs: a reticle tells you nothing about where a caret
+   will land. */
+html.adm-has-cursor .adm input,
+html.adm-has-cursor .adm textarea {
+  cursor: text;
+}
+
+.adm-cursor-dot,
+.adm-cursor-ring {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 90;
+  pointer-events: none;
+  margin-left: -50%;
+  margin-top: -50%;
+}
+
+.adm-cursor-dot {
+  width: 6px;
+  height: 6px;
+  margin: -3px 0 0 -3px;
+  background: var(--adm-accent);
+  box-shadow: 0 0 12px rgba(255, 153, 0, 0.9);
+}
+
+.adm-cursor-ring {
+  width: 30px;
+  height: 30px;
+  margin: -15px 0 0 -15px;
+  border: 1px solid rgba(255, 153, 0, 0.7);
+  transition: width 160ms, height 160ms, margin 160ms, border-color 160ms,
+    background 160ms, opacity 160ms;
+}
+
+/* Corner ticks make it a reticle rather than a circle. */
+.adm-cursor-ring::before,
+.adm-cursor-ring::after {
+  content: "";
+  position: absolute;
+  background: var(--adm-accent);
+}
+
+.adm-cursor-ring::before {
+  left: 50%;
+  top: -5px;
+  bottom: -5px;
+  width: 1px;
+  transform: translateX(-50%);
+  opacity: 0.5;
+}
+
+.adm-cursor-ring::after {
+  top: 50%;
+  left: -5px;
+  right: -5px;
+  height: 1px;
+  transform: translateY(-50%);
+  opacity: 0.5;
+}
+
+.adm-cursor-ring[data-over="control"] {
+  width: 46px;
+  height: 46px;
+  margin: -23px 0 0 -23px;
+  border-color: #fff;
+  background: rgba(255, 153, 0, 0.1);
+}
+
+.adm-cursor-ring[data-text="true"] {
+  opacity: 0;
+}
+
+.adm-cursor-ring[data-down="true"] {
+  width: 20px;
+  height: 20px;
+  margin: -10px 0 0 -10px;
+  background: rgba(255, 153, 0, 0.25);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html:not(.adm-motion-on) .adm-cube { animation: none; }
+  html:not(.adm-motion-on) .adm-obj,
+  html:not(.adm-motion-on) .adm-panel { transition: none; }
+}
+
+/* Turning motion off explicitly stops everything, whatever the OS says. */
+html.adm-motion-off .adm-cube,
+html.adm-motion-off .adm-depth::before,
+html.adm-motion-off .adm-depth::after,
+html.adm-motion-off .adm-navitem[data-active="true"]::after,
+html.adm-motion-off .adm-pulse,
+html.adm-motion-off .adm-header::after {
+  animation: none !important;
+}
+
+html.adm-motion-off .adm-sweep {
+  display: none;
 }
