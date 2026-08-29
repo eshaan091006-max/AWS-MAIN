@@ -185,7 +185,39 @@ class LocalDataStore {
         wrapped.code = error.code;
         throw wrapped;
       }
-      return (data ?? []).map(rowToEvent);
+      const events = (data ?? []).map(rowToEvent);
+
+      // Fill in seats taken before the page renders.
+      //
+      // currentRegistrations is not a column — it is counted — so without this
+      // the server rendered every event as 0/N and therefore never full. A full
+      // event flashed "Register Now" until the client fetch corrected it, which
+      // is long enough to click and land in a form the server then rejects.
+      //
+      // head:true asks for the count only, so no rows cross the wire, and the
+      // requests run in parallel. Events are few; registrations are many.
+      await Promise.all(
+        events.map(async (event) => {
+          const { count, error: countError } = await client
+            .from("event_registrations")
+            .select("id", { count: "exact", head: true })
+            .eq("event_id", event.id);
+
+          if (countError) {
+            // Leave it at 0 and let the client's own fetch correct it, rather
+            // than failing the whole listing over a counter.
+            console.error(
+              "[supabase] seat count failed for",
+              event.id,
+              countError.message
+            );
+            return;
+          }
+          event.currentRegistrations = count ?? 0;
+        })
+      );
+
+      return events;
     } catch (err: any) {
       if (err?.code && SCHEMA_MISSING_CODES.includes(err.code)) {
         // Expected until supabase/schema.sql has been run. A warning, not an
@@ -201,7 +233,10 @@ class LocalDataStore {
         // has gone stale.
         console.error("[supabase] event list failed, serving seed data:", err?.message);
       }
-      return this.seedEvents;
+      // The seeded events carry demo counts. Zeroed here so a database
+      // outage can never make a page claim an event is full — registration
+      // will fail loudly on its own if it is.
+      return this.seedEvents.map((e) => ({ ...e, currentRegistrations: 0 }));
     }
   }
 

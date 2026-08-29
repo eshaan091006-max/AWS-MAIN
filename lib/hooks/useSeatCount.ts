@@ -3,13 +3,13 @@
 import { useCallback, useEffect, useState } from "react";
 
 export interface SeatCount {
-  /** Seats taken. Starts at the build-time number, replaced once the live count arrives. */
+  /** Seats taken. Server-resolved on first paint, refreshed from the API on mount. */
   registered: number;
   /** The limit the database enforces, once known; the build-time value until then. */
   maxSeats: number;
   /** True once the number above came from the database rather than the page bundle. */
   live: boolean;
-  /** Every seat is taken. Only ever true against a live count — see below. */
+  /** Every seat is taken. */
   isFull: boolean;
   /** Re-read the count, e.g. after a successful registration. */
   refresh: () => Promise<void>;
@@ -22,10 +22,15 @@ export interface SeatCount {
  * only as fresh as the last build. This re-reads it from the database on mount
  * so the card, the detail page, and the registration form all agree.
  *
- * `isFull` deliberately requires `live`. The seed number in initialData.ts is
- * demo filler; treating it as authoritative could gray out registration for an
- * event that has plenty of room. Until a real count arrives the form stays
- * open, and the database refuses the signup if it turns out to be full.
+ * `isFull` is derived from whatever count is currently held, including the one
+ * the server rendered with. It used to require the fetch to have landed, back
+ * when the incoming number was demo filler — but listEvents resolves real
+ * counts now, so waiting only produced a flash of "Register Now" on a full
+ * event, which is long enough to click.
+ *
+ * Trusting it is safe in the other direction too: on a database outage the
+ * fallback events report 0 taken, so a page can never wrongly claim an event
+ * is full.
  */
 export function useSeatCount(eventId: string, seedCount: number, seedMaxSeats: number): SeatCount {
   const [registered, setRegistered] = useState(seedCount);
@@ -59,5 +64,9 @@ export function useSeatCount(eventId: string, seedCount: number, seedMaxSeats: n
     refresh();
   }, [refresh]);
 
-  return { registered, maxSeats, live, isFull: live && full, refresh };
+  // Prefer the server's verdict once it arrives — it is the same comparison,
+  // but made against the row the database will actually enforce.
+  const isFull = live ? full : maxSeats > 0 && registered >= maxSeats;
+
+  return { registered, maxSeats, live, isFull, refresh };
 }
