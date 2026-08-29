@@ -1,0 +1,612 @@
+/* ============================================================
+   SXC AWS — Admin console
+   ============================================================
+   An operator surface, not a marketing one. Everything here is
+   in service of reading a screen quickly and being certain of
+   what you clicked:
+
+   - True black ground, so the only luminous things are data.
+   - Zero radius. Every edge is a right angle; alignment becomes
+     legible because nothing is softened.
+   - Hairline rules instead of cards. Weight comes from
+     structure, not from shadows or fills.
+   - One accent. AWS orange marks the live thing and nothing
+     else, so it never has to compete with itself.
+
+   Scoped under .adm so the public site is untouched.
+   ============================================================ */
+
+/* The root layout paints the public navy on <body>. The console covers it,
+   but overscroll and any short page would show a navy band at the edges, so
+   the ground is claimed for the whole document while a console page is
+   mounted. :has() is progressive — without it the .adm block below still
+   covers the viewport. */
+body:has(.adm) {
+  background: #000000;
+}
+
+.adm {
+  /* Ground */
+  --adm-bg: #000000;
+  --adm-panel: #08080a;
+  --adm-raised: #0f0f12;
+  --adm-hover: #16161a;
+
+  /* Rules. Two weights only: structural and emphatic. */
+  --adm-line: rgba(255, 255, 255, 0.09);
+  --adm-line-strong: rgba(255, 255, 255, 0.2);
+
+  /* Type ramp, four steps.
+     faint carries table headers and field labels at 10px, so it has to clear
+     4.5:1 against the panel rather than merely look quiet; ghost is for
+     placeholders and empty-value dashes only. */
+  --adm-text: #f4f4f5;   /* 18.2:1 */
+  --adm-dim: #9a9aa4;    /*  7.2:1 */
+  --adm-faint: #80808b;  /*  5.0:1 */
+  --adm-ghost: #6e6e79;  /*  3.7:1 — placeholders only */
+
+  /* Signal */
+  --adm-accent: #ff9900;
+  --adm-accent-dim: rgba(255, 153, 0, 0.14);
+  --adm-ok: #35d07f;
+  --adm-ok-dim: rgba(53, 208, 127, 0.12);
+  --adm-warn: #ffb020;
+  --adm-danger: #ff4d4d;
+  --adm-danger-dim: rgba(255, 77, 77, 0.12);
+
+  --adm-rail: 232px;
+
+  background: var(--adm-bg);
+  color: var(--adm-text);
+  font-family: var(--font-inter), Inter, system-ui, sans-serif;
+  min-height: 100vh;
+}
+
+/* Nothing in this console is rounded. Stated once, absolutely,
+   so a stray utility class cannot reintroduce a soft corner. */
+.adm *,
+.adm *::before,
+.adm *::after {
+  border-radius: 0 !important;
+}
+
+/* A square, high-contrast focus ring. Keyboard operation of a
+   check-in list has to be obvious at a glance in a dim room. */
+.adm :focus-visible {
+  outline: 2px solid var(--adm-accent);
+  outline-offset: 2px;
+}
+
+/* ---------- Structure ---------- */
+
+.adm-shell {
+  display: grid;
+  grid-template-columns: 1fr;
+  min-height: 100vh;
+}
+
+/* Grid children default to min-width:auto, so the nav's tabs would size the
+   column to their combined min-content width — 877px inside a 375px phone —
+   and overflow-x on the nav never engages because the track simply grew.
+   Allowing the tracks to shrink is what makes the nav scroll instead. */
+.adm-shell > * {
+  min-width: 0;
+}
+
+@media (min-width: 1024px) {
+  .adm-shell {
+    grid-template-columns: var(--adm-rail) 1fr;
+  }
+}
+
+.adm-rail {
+  border-bottom: 1px solid var(--adm-line);
+  background: var(--adm-panel);
+}
+
+@media (min-width: 1024px) {
+  .adm-rail {
+    border-bottom: 0;
+    border-right: 1px solid var(--adm-line);
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+.adm-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 20px;
+  border-bottom: 1px solid var(--adm-line);
+}
+
+.adm-brand-mark {
+  width: 26px;
+  height: 26px;
+  display: grid;
+  place-items: center;
+  background: var(--adm-accent);
+  color: #000;
+  flex-shrink: 0;
+}
+
+/* ---------- Navigation ---------- */
+
+.adm-nav {
+  display: flex;
+  overflow-x: auto;
+  padding: 8px;
+  gap: 2px;
+}
+
+@media (min-width: 1024px) {
+  .adm-nav {
+    flex-direction: column;
+    overflow: visible;
+    padding: 12px 8px;
+    gap: 1px;
+  }
+}
+
+.adm-navitem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--adm-dim);
+  background: transparent;
+  border: 0;
+  border-left: 2px solid transparent;
+  cursor: pointer;
+  white-space: nowrap;
+  text-align: left;
+  transition: color 120ms, background 120ms, border-color 120ms;
+}
+
+.adm-navitem:hover {
+  color: var(--adm-text);
+  background: var(--adm-hover);
+}
+
+/* The active tab is marked by a rule, not a filled pill — the
+   accent stays reserved for one meaning per screen. */
+.adm-navitem[data-active="true"] {
+  color: var(--adm-text);
+  background: var(--adm-raised);
+  border-left-color: var(--adm-accent);
+}
+
+.adm-navitem-count {
+  margin-left: auto;
+  font-size: 10px;
+  color: var(--adm-faint);
+  font-variant-numeric: tabular-nums;
+}
+
+.adm-navitem[data-active="true"] .adm-navitem-count {
+  color: var(--adm-accent);
+}
+
+/* ---------- Header ---------- */
+
+.adm-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px 20px;
+  border-bottom: 1px solid var(--adm-line);
+  background: var(--adm-panel);
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+
+@media (min-width: 1024px) {
+  .adm-header {
+    padding: 20px 28px;
+  }
+}
+
+.adm-main {
+  padding: 20px;
+  max-width: 1600px;
+}
+
+@media (min-width: 1024px) {
+  .adm-main {
+    padding: 28px;
+  }
+}
+
+/* ---------- Primitives ---------- */
+
+.adm-eyebrow {
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--adm-faint);
+}
+
+.adm-title {
+  font-family: var(--font-display), sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--adm-text);
+}
+
+.adm-panel {
+  background: var(--adm-panel);
+  border: 1px solid var(--adm-line);
+}
+
+.adm-panel-head {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--adm-line);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.adm-panel-body {
+  padding: 16px;
+}
+
+/* Stat tiles read as one continuous instrument strip: they share
+   dividing rules rather than each floating in its own box. */
+.adm-stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  border: 1px solid var(--adm-line);
+  background: var(--adm-panel);
+}
+
+@media (min-width: 900px) {
+  .adm-stats {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.adm-stat {
+  padding: 18px;
+  border-right: 1px solid var(--adm-line);
+  border-bottom: 1px solid var(--adm-line);
+}
+
+.adm-stat:last-child {
+  border-right: 0;
+}
+
+@media (min-width: 900px) {
+  .adm-stat {
+    border-bottom: 0;
+  }
+}
+
+.adm-stat-value {
+  font-family: var(--font-display), sans-serif;
+  font-size: 30px;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  margin-top: 10px;
+}
+
+.adm-stat-note {
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  color: var(--adm-faint);
+  margin-top: 8px;
+}
+
+/* ---------- Controls ---------- */
+
+.adm-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 9px 14px;
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  border: 1px solid var(--adm-line-strong);
+  background: transparent;
+  color: var(--adm-text);
+  cursor: pointer;
+  transition: background 120ms, border-color 120ms, color 120ms;
+}
+
+.adm-btn:hover:not(:disabled) {
+  background: var(--adm-hover);
+  border-color: var(--adm-text);
+}
+
+.adm-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.adm-btn-primary {
+  background: var(--adm-accent);
+  border-color: var(--adm-accent);
+  color: #000;
+}
+
+.adm-btn-primary:hover:not(:disabled) {
+  background: #ffad33;
+  border-color: #ffad33;
+  color: #000;
+}
+
+.adm-btn-danger:hover:not(:disabled) {
+  background: var(--adm-danger-dim);
+  border-color: var(--adm-danger);
+  color: var(--adm-danger);
+}
+
+.adm-btn-icon {
+  padding: 7px;
+}
+
+@media (max-width: 640px) {
+  .adm-btn-icon {
+    padding: 10px;
+  }
+}
+
+.adm-label {
+  display: block;
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--adm-dim);
+  margin-bottom: 6px;
+}
+
+.adm-input,
+.adm-select,
+.adm-textarea {
+  width: 100%;
+  padding: 9px 11px;
+  background: var(--adm-bg);
+  border: 1px solid var(--adm-line);
+  color: var(--adm-text);
+  font-size: 12px;
+  font-family: inherit;
+  transition: border-color 120ms;
+}
+
+.adm-input::placeholder,
+.adm-textarea::placeholder {
+  color: var(--adm-ghost);
+}
+
+.adm-input:hover,
+.adm-select:hover,
+.adm-textarea:hover {
+  border-color: var(--adm-line-strong);
+}
+
+.adm-input:focus,
+.adm-select:focus,
+.adm-textarea:focus {
+  border-color: var(--adm-accent);
+  outline: none;
+}
+
+.adm-mono {
+  font-family: var(--font-mono), monospace;
+}
+
+.adm-select {
+  cursor: pointer;
+  appearance: none;
+  background-image: linear-gradient(45deg, transparent 50%, var(--adm-dim) 50%),
+    linear-gradient(135deg, var(--adm-dim) 50%, transparent 50%);
+  background-position: calc(100% - 15px) 50%, calc(100% - 10px) 50%;
+  background-size: 5px 5px, 5px 5px;
+  background-repeat: no-repeat;
+  padding-right: 30px;
+}
+
+.adm-hint {
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  color: var(--adm-faint);
+  margin-top: 5px;
+  line-height: 1.5;
+}
+
+/* ---------- Status ---------- */
+
+.adm-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 7px;
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  border: 1px solid var(--adm-line-strong);
+  color: var(--adm-dim);
+}
+
+.adm-tag-accent {
+  border-color: var(--adm-accent);
+  color: var(--adm-accent);
+  background: var(--adm-accent-dim);
+}
+
+.adm-tag-ok {
+  border-color: var(--adm-ok);
+  color: var(--adm-ok);
+  background: var(--adm-ok-dim);
+}
+
+.adm-dot {
+  width: 5px;
+  height: 5px;
+  background: currentColor;
+  flex-shrink: 0;
+}
+
+.adm-alert {
+  padding: 11px 13px;
+  border: 1px solid var(--adm-danger);
+  border-left-width: 3px;
+  background: var(--adm-danger-dim);
+  color: #ff9d9d;
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  line-height: 1.6;
+}
+
+.adm-notice {
+  padding: 11px 13px;
+  border: 1px solid var(--adm-line);
+  border-left: 3px solid var(--adm-accent);
+  background: var(--adm-raised);
+  font-size: 11px;
+  line-height: 1.6;
+  color: var(--adm-dim);
+}
+
+.adm-warnbox {
+  padding: 11px 13px;
+  border: 1px solid var(--adm-warn);
+  border-left-width: 3px;
+  background: rgba(255, 176, 32, 0.1);
+  color: #ffd9a0;
+  font-size: 11px;
+  line-height: 1.6;
+}
+
+/* ---------- Table ---------- */
+
+.adm-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.adm-table th {
+  text-align: left;
+  padding: 10px 14px;
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--adm-faint);
+  border-bottom: 1px solid var(--adm-line-strong);
+  background: var(--adm-bg);
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.adm-table td {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--adm-line);
+  vertical-align: middle;
+}
+
+.adm-table tbody tr {
+  transition: background 100ms;
+}
+
+.adm-table tbody tr:hover {
+  background: var(--adm-raised);
+}
+
+.adm-num {
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- Check-in list ---------- */
+
+.adm-checkrow {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 13px;
+  background: var(--adm-panel);
+  border: 1px solid var(--adm-line);
+  border-left: 3px solid transparent;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background 100ms, border-color 100ms;
+}
+
+.adm-checkrow:hover:not(:disabled) {
+  background: var(--adm-hover);
+}
+
+.adm-checkrow[data-present="true"] {
+  border-left-color: var(--adm-ok);
+  background: var(--adm-ok-dim);
+}
+
+.adm-checkrow:disabled {
+  opacity: 0.55;
+  cursor: wait;
+}
+
+.adm-checkbox {
+  width: 18px;
+  height: 18px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--adm-line-strong);
+  flex-shrink: 0;
+  color: transparent;
+}
+
+.adm-checkrow[data-present="true"] .adm-checkbox {
+  background: var(--adm-ok);
+  border-color: var(--adm-ok);
+  color: #000;
+}
+
+/* ---------- Utility ---------- */
+
+.adm-scroll::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.adm-scroll::-webkit-scrollbar-track {
+  background: var(--adm-bg);
+}
+
+.adm-scroll::-webkit-scrollbar-thumb {
+  background: var(--adm-line-strong);
+}
+
+.adm-scroll::-webkit-scrollbar-thumb:hover {
+  background: var(--adm-faint);
+}
+
+.adm-empty {
+  padding: 44px 20px;
+  text-align: center;
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  color: var(--adm-faint);
+}

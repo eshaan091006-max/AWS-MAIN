@@ -3,6 +3,7 @@ import { Inter, Outfit, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { Navbar } from "@/components/navbar/Navbar";
 import { Footer } from "@/components/footer/Footer";
+import { SiteChrome } from "@/components/layout/SiteChrome";
 import { CloudGridBackground } from "@/components/animations/CloudGridBackground";
 import { NetworkNodesCanvas } from "@/components/animations/NetworkNodesCanvas";
 import { siteConfig } from "@/config/site";
@@ -83,20 +84,23 @@ export default function RootLayout({
   return (
     <html lang="en" className={`dark ${inter.variable} ${outfit.variable} ${jetbrainsMono.variable}`}>
       <body className="min-h-screen bg-[#060A14] text-slate-100 font-sans antialiased selection:bg-aws-orange selection:text-black">
-        {/* Background Visualizations */}
-        <CloudGridBackground />
-        <NetworkNodesCanvas />
-
-        {/* Global Navigation */}
-        <Navbar />
+        {/* Public site chrome. Absent on /admin, which is an operator
+            console with its own navigation and no need for a marketing
+            navbar or two animated background canvases. */}
+        <SiteChrome>
+          <CloudGridBackground />
+          <NetworkNodesCanvas />
+          <Navbar />
+        </SiteChrome>
 
         {/* Page Content */}
         <main className="relative z-10 min-h-[calc(100vh-200px)]">
           {children}
         </main>
 
-        {/* Global Footer */}
-        <Footer />
+        <SiteChrome>
+          <Footer />
+        </SiteChrome>
       </body>
     </html>
   );

@@ -25,9 +25,6 @@ const EMPTY = {
   stream: "BSc IT",
 };
 
-const inputClass =
-  "w-full px-3 py-2 rounded-xl bg-navy-950 border border-white/15 text-white placeholder-slate-500 focus:outline-none focus:border-aws-orange text-xs";
-
 /**
  * Registering someone at the door.
  *
@@ -95,7 +92,7 @@ export function WalkInTab({ events }: Props) {
 
   if (upcoming.length === 0) {
     return (
-      <div className="p-8 rounded-2xl bg-navy-900/80 border border-white/10 text-center">
+      <div className="adm-panel adm-empty">
         <p className="text-xs font-mono text-slate-400">
           No upcoming events. Create one in the Events tab before taking walk-ins.
         </p>
@@ -107,23 +104,23 @@ export function WalkInTab({ events }: Props) {
     <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
       <form
         onSubmit={handleSubmit}
-        className="lg:col-span-3 p-6 rounded-2xl bg-navy-900/80 border border-aws-orange/30 space-y-4"
+        className="adm-panel lg:col-span-3 p-6 space-y-4"
       >
         <div>
-          <h2 className="text-lg font-bold text-white">On-the-spot Registration</h2>
+          <h2 className="adm-title">On-the-spot Registration</h2>
           <p className="text-[11px] text-slate-400 font-mono mt-1">
             Registers the person and marks them present in one step.
           </p>
         </div>
 
         {error && (
-          <div role="alert" className="p-3 rounded-xl bg-red-950/70 border border-red-500/40 text-red-300 text-xs font-mono">
+          <div role="alert" className="adm-alert">
             {error}
           </div>
         )}
 
         <div className="space-y-1.5">
-          <label className="text-xs font-medium text-slate-300">Event</label>
+          <label className="adm-label">Event</label>
           <select
             value={eventId}
             onChange={(e) => {
@@ -132,7 +129,7 @@ export function WalkInTab({ events }: Props) {
               setAllowOverCapacity(false);
               setError(null);
             }}
-            className={`${inputClass} font-mono cursor-pointer`}
+            className="adm-select adm-mono"
           >
             {upcoming.map((e) => (
               <option key={e.id} value={e.id}>
@@ -144,68 +141,68 @@ export function WalkInTab({ events }: Props) {
 
         <div className="grid grid-cols-2 gap-3">
           <div className="space-y-1.5">
-            <label className="text-xs font-medium text-slate-300">Name *</label>
+            <label className="adm-label">Name *</label>
             <input
               ref={firstFieldRef}
               required
               value={form.firstName}
               onChange={(e) => set({ firstName: e.target.value })}
               placeholder="First name"
-              className={inputClass}
+              className="adm-input"
             />
           </div>
           <div className="space-y-1.5">
-            <label className="text-xs font-medium text-slate-300">Surname</label>
+            <label className="adm-label">Surname</label>
             <input
               value={form.surname}
               onChange={(e) => set({ surname: e.target.value })}
               placeholder="Last name"
-              className={inputClass}
+              className="adm-input"
             />
           </div>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div className="space-y-1.5">
-            <label className="text-xs font-medium text-slate-300">UID *</label>
+            <label className="adm-label">UID *</label>
             <input
               required
               value={form.uid}
               onChange={(e) => set({ uid: e.target.value })}
               placeholder="e.g. 2609034"
-              className={`${inputClass} font-mono`}
+              className="adm-input adm-mono"
             />
           </div>
           <div className="space-y-1.5">
-            <label className="text-xs font-medium text-slate-300">Email *</label>
+            <label className="adm-label">Email *</label>
             <input
               required
               type="email"
               value={form.email}
               onChange={(e) => set({ email: e.target.value })}
               placeholder="name@xaviers.edu"
-              className={inputClass}
+              className="adm-input"
             />
           </div>
         </div>
 
         <div className="grid grid-cols-2 gap-3">
           <div className="space-y-1.5">
-            <label className="text-xs font-medium text-slate-300">Academic Year</label>
+            <label className="adm-label">Academic Year</label>
             <select
               value={form.academicYear}
               onChange={(e) => set({ academicYear: e.target.value })}
-              className={`${inputClass} font-mono cursor-pointer`}
+              className="adm-select adm-mono"
             >
               {YEARS.map((y) => <option key={y} value={y}>{y}</option>)}
             </select>
           </div>
           <div className="space-y-1.5">
-            <label className="text-xs font-medium text-slate-300">Stream</label>
+            <label className="adm-label">Stream</label>
             <select
               value={form.stream}
               onChange={(e) => set({ stream: e.target.value })}
-              className={`${inputClass} font-mono cursor-pointer`}
+              className="adm-select adm-mono"
             >
               {STREAMS.map((st) => <option key={st} value={st}>{st}</option>)}
             </select>
@@ -213,14 +210,14 @@ export function WalkInTab({ events }: Props) {
         </div>
 
         {canOverride && (
-          <label className="flex items-start gap-2.5 p-3 rounded-xl bg-amber-950/40 border border-amber-500/40 cursor-pointer">
+          <label className="adm-warnbox flex items-start gap-2.5 cursor-pointer">
             <input
               type="checkbox"
               checked={allowOverCapacity}
               onChange={(e) => setAllowOverCapacity(e.target.checked)}
               className="w-4 h-4 mt-0.5 accent-amber-500 cursor-pointer shrink-0"
             />
-            <span className="text-[11px] text-amber-200 leading-relaxed">
+            <span className="leading-relaxed">
               This event is at capacity. Tick to admit this person anyway — it
               applies to this one registration only.
             </span>
@@ -230,7 +227,7 @@ export function WalkInTab({ events }: Props) {
         <button
           type="submit"
           disabled={saving}
-          className="w-full py-2.5 rounded-xl bg-gradient-to-r from-aws-orange to-amber-600 hover:from-amber-500 hover:to-aws-orange text-black font-bold text-xs font-mono flex items-center justify-center gap-2 transition-all disabled:opacity-50"
+          className="adm-btn adm-btn-primary w-full"
         >
           {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <UserPlus className="w-4 h-4" />}
           <span>{saving ? "Saving..." : "Register & mark present"}</span>
@@ -238,7 +235,7 @@ export function WalkInTab({ events }: Props) {
       </form>
 
       <div className="lg:col-span-2 space-y-3">
-        <div className="p-4 rounded-2xl bg-navy-950/80 border border-white/10 flex gap-3">
+        <div className="adm-notice flex gap-3">
           <Info className="w-4 h-4 text-aws-orange shrink-0 mt-0.5" />
           <p className="text-[11px] text-slate-400 leading-relaxed">
             If this email already registered online, they are not added twice — they
@@ -246,8 +243,8 @@ export function WalkInTab({ events }: Props) {
           </p>
         </div>
 
-        <div className="p-4 rounded-2xl bg-navy-900/80 border border-white/10">
-          <h3 className="text-xs font-mono uppercase tracking-widest text-slate-400 font-bold mb-3">
+        <div className="adm-panel p-4">
+          <h3 className="adm-eyebrow mb-3">
             This session
           </h3>
           {recent.length === 0 ? (
@@ -257,7 +254,7 @@ export function WalkInTab({ events }: Props) {
               {recent.map((r, i) => (
                 <li
                   key={i}
-                  className="flex items-center gap-2 text-[11px] p-2 rounded-lg bg-navy-950/70 border border-white/5"
+                  className="flex items-center gap-2 text-[11px] p-2" style={{ background: "var(--adm-raised)", border: "1px solid var(--adm-line)" }}
                 >
                   <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
                   <span className="text-white font-semibold truncate">{r.name}</span>

@@ -107,26 +107,26 @@ export function AttendanceChecklist({ event, onClose }: Props) {
   const present = rows.filter((r) => r.attended).length;
 
   return (
-    <div className="p-5 sm:p-6 rounded-2xl bg-navy-950 border border-aws-orange/40 space-y-4">
+    <div className="adm-panel p-5 sm:p-6 space-y-4">
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0">
-          <div className="text-[10px] font-mono uppercase tracking-widest text-aws-orange font-bold">
+          <div className="adm-eyebrow" style={{ color: "var(--adm-accent)" }}>
             Attendance
           </div>
-          <h3 className="text-sm font-bold text-white truncate">{event.title}</h3>
+          <h3 className="adm-title text-sm truncate">{event.title}</h3>
         </div>
         <button
           type="button"
           onClick={onClose}
           aria-label="Close attendance list"
-          className="p-1.5 rounded-lg hover:bg-white/10 text-slate-400 hover:text-white transition-colors shrink-0"
+          className="adm-btn adm-btn-icon shrink-0"
         >
           <X className="w-4 h-4" />
         </button>
       </div>
 
       <div className="flex flex-wrap items-center gap-2.5">
-        <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-950/60 border border-emerald-500/40 text-emerald-300 text-xs font-mono font-bold">
+        <div className="adm-tag adm-tag-ok">
           <Users className="w-3.5 h-3.5" />
           <span>
             {present} / {rows.length} present
@@ -139,14 +139,14 @@ export function AttendanceChecklist({ event, onClose }: Props) {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search name, UID or email"
-            className="w-full pl-9 pr-3 py-1.5 rounded-xl bg-navy-900 border border-white/15 text-white placeholder-slate-500 focus:outline-none focus:border-aws-orange text-xs"
+            className="adm-input"
           />
         </div>
 
         <button
           type="button"
           onClick={load}
-          className="p-2 rounded-xl bg-navy-900 hover:bg-navy-800 border border-white/10 text-slate-300 hover:text-white transition-colors"
+          className="adm-btn adm-btn-icon"
           title="Reload the list"
         >
           <RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin" : ""}`} />
@@ -154,7 +154,7 @@ export function AttendanceChecklist({ event, onClose }: Props) {
 
         <a
           href={`/api/admin/registrations?eventId=${encodeURIComponent(event.id)}&format=csv`}
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-navy-900 hover:bg-navy-800 border border-white/10 text-slate-300 hover:text-aws-orange text-xs font-mono transition-colors"
+          className="adm-btn"
         >
           <Download className="w-3.5 h-3.5" />
           <span>CSV</span>
@@ -162,7 +162,7 @@ export function AttendanceChecklist({ event, onClose }: Props) {
       </div>
 
       {error && (
-        <div role="alert" className="p-3 rounded-xl bg-red-950/70 border border-red-500/40 text-red-300 text-xs font-mono">
+        <div role="alert" className="adm-alert">
           {error}
         </div>
       )}
@@ -193,18 +193,11 @@ export function AttendanceChecklist({ event, onClose }: Props) {
                   onClick={() => toggle(row)}
                   disabled={busy}
                   aria-pressed={row.attended}
-                  className={`w-full text-left p-3 rounded-xl border flex items-center gap-3 transition-colors ${
-                    row.attended
-                      ? "bg-emerald-950/40 border-emerald-500/40 hover:bg-emerald-950/60"
-                      : "bg-navy-900/70 border-white/10 hover:border-aws-orange/40"
-                  } disabled:opacity-60`}
+                  data-present={row.attended}
+                  className="adm-checkrow"
                 >
                   <span
-                    className={`w-5 h-5 rounded-md border flex items-center justify-center shrink-0 ${
-                      row.attended
-                        ? "bg-emerald-500 border-emerald-400 text-black"
-                        : "border-white/25 text-transparent"
-                    }`}
+                    className="adm-checkbox"
                   >
                     {busy ? (
                       <Loader2 className="w-3 h-3 animate-spin text-slate-300" />

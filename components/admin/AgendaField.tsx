@@ -40,11 +40,11 @@ export function AgendaField({ values, onChange }: Props) {
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between">
-        <label className="text-xs font-medium text-slate-300">Session Agenda</label>
+        <label className="adm-label">Session Agenda</label>
         <button
           type="button"
           onClick={() => onChange([...values, { ...EMPTY }])}
-          className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-navy-800 hover:bg-navy-700 border border-white/10 text-[10px] font-mono text-slate-300 hover:text-white transition-colors"
+          className="adm-btn"
         >
           <Plus className="w-3 h-3" />
           <span>Add item</span>
@@ -52,7 +52,7 @@ export function AgendaField({ values, onChange }: Props) {
       </div>
 
       {values.length === 0 && (
-        <p className="text-[11px] text-slate-500 font-mono">
+        <p className="adm-hint">
           No agenda items — the section is hidden on the event page.
         </p>
       )}
@@ -61,20 +61,20 @@ export function AgendaField({ values, onChange }: Props) {
         {values.map((item, index) => (
           <div
             key={index}
-            className="p-3 rounded-xl bg-navy-950 border border-white/10 space-y-2"
+            className="p-3 space-y-2" style={{ background: "var(--adm-raised)", border: "1px solid var(--adm-line)" }}
           >
             <div className="flex items-center gap-2">
               <input
                 value={item.time}
                 onChange={(e) => setAt(index, { time: e.target.value })}
                 placeholder="09:30 AM"
-                className="w-28 px-2.5 py-1.5 rounded-lg bg-navy-900 border border-white/15 text-white placeholder-slate-500 focus:outline-none focus:border-aws-orange text-xs font-mono"
+                className="adm-input adm-mono" style={{ width: 104 }}
               />
               <input
                 value={item.title}
                 onChange={(e) => setAt(index, { title: e.target.value })}
                 placeholder="Registration & Welcome Keynote"
-                className="flex-1 px-2.5 py-1.5 rounded-lg bg-navy-900 border border-white/15 text-white placeholder-slate-500 focus:outline-none focus:border-aws-orange text-xs"
+                className="adm-input flex-1"
               />
               {/* Order is what the page renders, so it has to be editable. */}
               <div className="flex flex-col">
@@ -101,7 +101,7 @@ export function AgendaField({ values, onChange }: Props) {
                 type="button"
                 onClick={() => removeAt(index)}
                 aria-label={`Remove agenda item ${index + 1}`}
-                className="p-1.5 rounded-lg bg-navy-900 hover:bg-red-950/60 border border-white/10 hover:border-red-500/40 text-slate-400 hover:text-red-300 transition-colors"
+                className="adm-btn adm-btn-icon adm-btn-danger"
               >
                 <X className="w-3.5 h-3.5" />
               </button>
@@ -110,7 +110,7 @@ export function AgendaField({ values, onChange }: Props) {
               value={item.description}
               onChange={(e) => setAt(index, { description: e.target.value })}
               placeholder="What happens in this slot"
-              className="w-full px-2.5 py-1.5 rounded-lg bg-navy-900 border border-white/15 text-white placeholder-slate-500 focus:outline-none focus:border-aws-orange text-xs"
+              className="adm-input"
             />
           </div>
         ))}

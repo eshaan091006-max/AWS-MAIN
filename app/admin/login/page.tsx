@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Lock, Loader2, User, ShieldCheck } from "lucide-react";
+import { Loader2, ArrowRight, Cloud } from "lucide-react";
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -31,8 +31,8 @@ export default function AdminLoginPage() {
       router.refresh();
     } catch (err: any) {
       setError(err.message || "Sign in failed.");
-      // Clear only the password: retyping the username on every typo is
-      // needless friction.
+      // Only the password clears: retyping a username on every typo is
+      // needless friction, and the username is not the secret.
       setForm((f) => ({ ...f, password: "" }));
     } finally {
       setLoading(false);
@@ -40,73 +40,140 @@ export default function AdminLoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 pt-28 pb-20">
-      <form
-        onSubmit={handleSubmit}
-        className="w-full max-w-sm p-8 rounded-3xl bg-navy-900/80 border border-aws-orange/30 backdrop-blur-2xl shadow-2xl space-y-5"
+    <div className="min-h-screen grid lg:grid-cols-2">
+      {/* Left: identity. Hidden on small screens, where the form is the
+          entire job and decoration would only push it below the fold. */}
+      <aside
+        className="hidden lg:flex flex-col justify-between p-12"
+        style={{ borderRight: "1px solid var(--adm-line)" }}
       >
-        <div className="text-center space-y-2">
-          <div className="w-12 h-12 mx-auto rounded-2xl bg-aws-orange/15 border border-aws-orange/30 flex items-center justify-center text-aws-orange">
-            <ShieldCheck className="w-5 h-5" />
+        <div className="flex items-center gap-3">
+          <span className="adm-brand-mark">
+            <Cloud className="w-4 h-4" strokeWidth={2.4} />
+          </span>
+          <span className="adm-mono text-xs tracking-[0.18em] uppercase" style={{ color: "var(--adm-dim)" }}>
+            SXC AWS
+          </span>
+        </div>
+
+        <div className="space-y-6 max-w-md">
+          <div
+            className="adm-mono text-[10px] tracking-[0.2em] uppercase"
+            style={{ color: "var(--adm-accent)" }}
+          >
+            Operator Console
           </div>
-          <h1 className="text-lg font-bold text-white">Admin Access</h1>
-          <p className="text-[11px] text-slate-400 font-mono">
-            SXC AWS Club committee only
+          <h1
+            className="font-display font-extrabold leading-[0.95] tracking-[-0.03em]"
+            style={{ fontSize: "clamp(2.75rem, 5vw, 4.25rem)" }}
+          >
+            EVENTS.
+            <br />
+            REGISTRATIONS.
+            <br />
+            <span style={{ color: "var(--adm-accent)" }}>ATTENDANCE.</span>
+          </h1>
+          <p className="text-sm leading-relaxed" style={{ color: "var(--adm-faint)" }}>
+            Restricted to committee members. Every action taken here is recorded
+            against the account that performed it.
           </p>
         </div>
 
-        {error && (
-          <div
-            role="alert"
-            className="p-3 rounded-xl bg-red-950/60 border border-red-500/40 text-red-300 text-xs font-mono"
-          >
-            {error}
+        {/* A quiet ruled strip, echoing the stat rail inside the console. */}
+        <div className="grid grid-cols-3" style={{ borderTop: "1px solid var(--adm-line)" }}>
+          {["Events", "Check-in", "Walk-ins"].map((label, i) => (
+            <div
+              key={label}
+              className="py-4 adm-mono text-[10px] tracking-[0.14em] uppercase"
+              style={{
+                color: "var(--adm-ghost)",
+                borderRight: i < 2 ? "1px solid var(--adm-line)" : undefined,
+                paddingLeft: i === 0 ? 0 : 16,
+              }}
+            >
+              {label}
+            </div>
+          ))}
+        </div>
+      </aside>
+
+      {/* Right: the form */}
+      <main className="flex items-center justify-center p-6 sm:p-12">
+        <form onSubmit={handleSubmit} className="w-full max-w-sm">
+          <div className="lg:hidden flex items-center gap-3 mb-10">
+            <span className="adm-brand-mark">
+              <Cloud className="w-4 h-4" strokeWidth={2.4} />
+            </span>
+            <span className="adm-mono text-xs tracking-[0.18em] uppercase" style={{ color: "var(--adm-dim)" }}>
+              SXC AWS
+            </span>
           </div>
-        )}
 
-        <div className="space-y-1.5">
-          <label htmlFor="username" className="text-xs font-medium text-slate-300 flex items-center gap-1.5">
-            <User className="w-3 h-3 text-aws-orange" />
-            <span>Username</span>
-          </label>
-          <input
-            id="username"
-            required
-            autoFocus
-            autoComplete="username"
-            value={form.username}
-            onChange={(e) => setForm({ ...form, username: e.target.value })}
-            placeholder="e.g. aws_lead"
-            className="w-full px-3.5 py-2.5 rounded-xl bg-navy-950 border border-white/15 text-white placeholder-slate-500 focus:outline-none focus:border-aws-orange text-xs font-mono"
-          />
-        </div>
+          <div className="adm-eyebrow">Restricted</div>
+          <h2 className="adm-title mt-2 mb-8" style={{ fontSize: 26 }}>
+            Sign in
+          </h2>
 
-        <div className="space-y-1.5">
-          <label htmlFor="password" className="text-xs font-medium text-slate-300 flex items-center gap-1.5">
-            <Lock className="w-3 h-3 text-aws-orange" />
-            <span>Password</span>
-          </label>
-          <input
-            id="password"
-            required
-            type="password"
-            autoComplete="current-password"
-            value={form.password}
-            onChange={(e) => setForm({ ...form, password: e.target.value })}
-            placeholder="••••••••••"
-            className="w-full px-3.5 py-2.5 rounded-xl bg-navy-950 border border-white/15 text-white placeholder-slate-500 focus:outline-none focus:border-aws-orange text-xs"
-          />
-        </div>
+          {error && (
+            <div role="alert" className="adm-alert mb-5">
+              {error}
+            </div>
+          )}
 
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full py-2.5 rounded-xl bg-gradient-to-r from-aws-orange to-amber-600 hover:from-amber-500 hover:to-aws-orange text-black font-bold text-xs font-mono flex items-center justify-center gap-2 transition-all disabled:opacity-50"
-        >
-          {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Lock className="w-4 h-4" />}
-          <span>{loading ? "Checking..." : "Sign In"}</span>
-        </button>
-      </form>
+          <div className="space-y-5">
+            <div>
+              <label htmlFor="username" className="adm-label">
+                Username
+              </label>
+              <input
+                id="username"
+                required
+                autoFocus
+                autoComplete="username"
+                value={form.username}
+                onChange={(e) => setForm({ ...form, username: e.target.value })}
+                placeholder="aws-texx"
+                className="adm-input adm-mono"
+              />
+            </div>
+
+            <div>
+              <label htmlFor="password" className="adm-label">
+                Password
+              </label>
+              <input
+                id="password"
+                required
+                type="password"
+                autoComplete="current-password"
+                value={form.password}
+                onChange={(e) => setForm({ ...form, password: e.target.value })}
+                placeholder="••••••••••"
+                className="adm-input"
+              />
+            </div>
+
+            <button type="submit" disabled={loading} className="adm-btn adm-btn-primary w-full">
+              {loading ? (
+                <>
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  <span>CHECKING</span>
+                </>
+              ) : (
+                <>
+                  <span>SIGN IN</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </>
+              )}
+            </button>
+          </div>
+
+          <p className="adm-hint mt-8">
+            Lost access? Another committee member can reset your password with
+            the admin:create script.
+          </p>
+        </form>
+      </main>
     </div>
   );
 }

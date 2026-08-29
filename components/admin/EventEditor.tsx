@@ -24,9 +24,6 @@ function toLocalInput(iso: string): string {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
-const inputClass =
-  "w-full px-3 py-2 rounded-xl bg-navy-950 border border-white/15 text-white placeholder-slate-500 focus:outline-none focus:border-aws-orange text-xs";
-
 export function EventEditor({ event, onSaved, onCancel }: Props) {
   const isEdit = Boolean(event);
 
@@ -107,95 +104,95 @@ export function EventEditor({ event, onSaved, onCancel }: Props) {
   return (
     <form
       onSubmit={handleSubmit}
-      className="p-6 rounded-2xl bg-navy-950 border border-aws-orange/40 space-y-5"
+      className="adm-panel p-6 space-y-5"
     >
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-bold text-white">
+        <h3 className="adm-title text-sm">
           {isEdit ? `Edit: ${event!.title}` : "New Event"}
         </h3>
         <button
           type="button"
           onClick={onCancel}
           aria-label="Close editor"
-          className="p-1.5 rounded-lg hover:bg-white/10 text-slate-400 hover:text-white transition-colors"
+          className="adm-btn adm-btn-icon"
         >
           <X className="w-4 h-4" />
         </button>
       </div>
 
       {error && (
-        <div role="alert" className="p-3 rounded-xl bg-red-950/70 border border-red-500/40 text-red-300 text-xs font-mono">
+        <div role="alert" className="adm-alert">
           {error}
         </div>
       )}
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="space-y-1.5 sm:col-span-2">
-          <label className="text-xs font-medium text-slate-300">Title *</label>
-          <input required value={form.title} onChange={(e) => set({ title: e.target.value })} className={inputClass} placeholder="AWS Foundations Event" />
+          <label className="adm-label">Title *</label>
+          <input required value={form.title} onChange={(e) => set({ title: e.target.value })} className="adm-input" placeholder="AWS Foundations Event" />
         </div>
 
         <div className="space-y-1.5 sm:col-span-2">
-          <label className="text-xs font-medium text-slate-300">Short description *</label>
-          <input required value={form.description} onChange={(e) => set({ description: e.target.value })} className={inputClass} placeholder="Shown on the event card" />
+          <label className="adm-label">Short description *</label>
+          <input required value={form.description} onChange={(e) => set({ description: e.target.value })} className="adm-input" placeholder="Shown on the event card" />
         </div>
 
         <div className="space-y-1.5 sm:col-span-2">
-          <label className="text-xs font-medium text-slate-300">About this session</label>
+          <label className="adm-label">About this session</label>
           <textarea
             rows={3}
             value={form.fullDetails}
             onChange={(e) => set({ fullDetails: e.target.value })}
-            className={`${inputClass} resize-y`}
+            className="adm-textarea" style={{ resize: "vertical" }}
             placeholder="The longer text on the event page. Defaults to the short description."
           />
         </div>
 
         <div className="space-y-1.5">
-          <label className="text-xs font-medium text-slate-300">Date</label>
-          <input type="datetime-local" value={form.date} onChange={(e) => set({ date: e.target.value })} className={`${inputClass} font-mono`} />
+          <label className="adm-label">Date</label>
+          <input type="datetime-local" value={form.date} onChange={(e) => set({ date: e.target.value })} className="adm-input adm-mono" />
         </div>
 
         <div className="space-y-1.5">
-          <label className="text-xs font-medium text-slate-300">Time (as displayed)</label>
-          <input value={form.time} onChange={(e) => set({ time: e.target.value })} className={`${inputClass} font-mono`} placeholder="02:00 PM - 05:00 PM IST" />
+          <label className="adm-label">Time (as displayed)</label>
+          <input value={form.time} onChange={(e) => set({ time: e.target.value })} className="adm-input adm-mono" placeholder="02:00 PM - 05:00 PM IST" />
         </div>
 
         <div className="space-y-1.5 sm:col-span-2">
-          <label className="text-xs font-medium text-slate-300">Venue *</label>
-          <input required value={form.venue} onChange={(e) => set({ venue: e.target.value })} className={inputClass} placeholder="Bonet Lab, St. Xavier's College" />
+          <label className="adm-label">Venue *</label>
+          <input required value={form.venue} onChange={(e) => set({ venue: e.target.value })} className="adm-input" placeholder="Bonet Lab, St. Xavier's College" />
         </div>
 
         <div className="space-y-1.5">
-          <label className="text-xs font-medium text-slate-300">Category</label>
-          <select value={form.category} onChange={(e) => set({ category: e.target.value as EventData["category"] })} className={`${inputClass} font-mono cursor-pointer`}>
+          <label className="adm-label">Category</label>
+          <select value={form.category} onChange={(e) => set({ category: e.target.value as EventData["category"] })} className="adm-select adm-mono">
             {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
           </select>
         </div>
 
         <div className="space-y-1.5">
-          <label className="text-xs font-medium text-slate-300">Status</label>
-          <select value={form.status} onChange={(e) => set({ status: e.target.value as EventData["status"] })} className={`${inputClass} font-mono cursor-pointer`}>
+          <label className="adm-label">Status</label>
+          <select value={form.status} onChange={(e) => set({ status: e.target.value as EventData["status"] })} className="adm-select adm-mono">
             {STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}
           </select>
         </div>
 
         <div className="space-y-1.5">
-          <label className="text-xs font-medium text-slate-300">Max seats</label>
-          <input type="number" min={1} value={form.maxSeats} onChange={(e) => set({ maxSeats: Number(e.target.value) })} className={`${inputClass} font-mono`} />
-          <p className="text-[10px] text-slate-500 font-mono">Enforced by the database, not just here.</p>
+          <label className="adm-label">Max seats</label>
+          <input type="number" min={1} value={form.maxSeats} onChange={(e) => set({ maxSeats: Number(e.target.value) })} className="adm-input adm-mono" />
+          <p className="adm-hint">Enforced by the database, not just here.</p>
         </div>
 
         <div className="space-y-1.5">
-          <label className="text-xs font-medium text-slate-300">ECC awarded</label>
+          <label className="adm-label">ECC awarded</label>
           <input
             type="number"
             min={0}
             value={form.eccPoints}
             onChange={(e) => set({ eccPoints: Number(e.target.value) })}
-            className={`${inputClass} font-mono`}
+            className="adm-input adm-mono"
           />
-          <p className="text-[10px] text-slate-500 font-mono">
+          <p className="adm-hint">
             Extra Co-curricular Credits. 0 hides the badge on the event card.
           </p>
         </div>
@@ -206,16 +203,16 @@ export function EventEditor({ event, onSaved, onCancel }: Props) {
         </div>
 
         <div className="space-y-1.5 sm:col-span-2">
-          <label className="text-xs font-medium text-slate-300">Card image URL</label>
-          <input value={form.imageUrl} onChange={(e) => set({ imageUrl: e.target.value })} className={`${inputClass} font-mono`} placeholder="https://images.unsplash.com/..." />
-          <p className="text-[10px] text-slate-500 font-mono">
+          <label className="adm-label">Card image URL</label>
+          <input value={form.imageUrl} onChange={(e) => set({ imageUrl: e.target.value })} className="adm-input adm-mono" placeholder="https://images.unsplash.com/..." />
+          <p className="adm-hint">
             Any https image URL. Leave blank to use the default artwork.
           </p>
         </div>
 
         <div className="space-y-1.5 sm:col-span-2">
-          <label className="text-xs font-medium text-slate-300">Banner image URL</label>
-          <input value={form.bannerUrl} onChange={(e) => set({ bannerUrl: e.target.value })} className={`${inputClass} font-mono`} placeholder="https://images.unsplash.com/..." />
+          <label className="adm-label">Banner image URL</label>
+          <input value={form.bannerUrl} onChange={(e) => set({ bannerUrl: e.target.value })} className="adm-input adm-mono" placeholder="https://images.unsplash.com/..." />
         </div>
       </div>
 
@@ -243,7 +240,7 @@ export function EventEditor({ event, onSaved, onCancel }: Props) {
         <button
           type="submit"
           disabled={saving}
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-aws-orange hover:bg-aws-orange-light text-black font-bold text-xs font-mono transition-colors disabled:opacity-50"
+          className="adm-btn adm-btn-primary"
         >
           {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
           <span>{saving ? "Saving..." : isEdit ? "Save changes" : "Create event"}</span>
@@ -251,7 +248,7 @@ export function EventEditor({ event, onSaved, onCancel }: Props) {
         <button
           type="button"
           onClick={onCancel}
-          className="px-4 py-2 rounded-xl bg-navy-900 hover:bg-navy-800 border border-white/10 text-slate-300 text-xs font-mono transition-colors"
+          className="adm-btn"
         >
           Cancel
         </button>

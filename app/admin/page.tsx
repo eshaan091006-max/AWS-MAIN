@@ -1,25 +1,23 @@
 "use client";
 
 import React, { useCallback, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import {
-  Shield,
   Calendar,
-  FolderGit2,
-  Users,
   Camera,
-  Cpu,
-  Mail,
-  Plus,
-  Trash2,
-  CheckCircle,
-  Eye,
-  Search,
-  ExternalLink,
-  Sparkles,
-  RefreshCw,
-  Pencil,
+  Cloud,
   ClipboardCheck,
+  FolderGit2,
+  LayoutGrid,
+  Loader2,
+  LogOut,
+  Mail,
+  Pencil,
+  Plus,
+  RefreshCw,
+  Trash2,
   UserPlus,
+  Users,
 } from "lucide-react";
 import {
   INITIAL_PROJECTS,
@@ -32,22 +30,38 @@ import { EventEditor } from "@/components/admin/EventEditor";
 import { AttendanceChecklist } from "@/components/admin/AttendanceChecklist";
 import { WalkInTab } from "@/components/admin/WalkInTab";
 
-export default function AdminPage() {
-  const [activeTab, setActiveTab] = useState<
-    "overview" | "events" | "walkin" | "projects" | "members" | "gallery" | "messages"
-  >("overview");
+type Tab =
+  | "overview"
+  | "events"
+  | "walkin"
+  | "projects"
+  | "members"
+  | "gallery"
+  | "messages";
 
-  // Local state for dynamic changes in the dashboard session
-  // Events are database rows now. They are fetched rather than seeded, so what
-  // this list shows is what the public site shows.
+export default function AdminPage() {
+  const router = useRouter();
+  const [activeTab, setActiveTab] = useState<Tab>("overview");
+
+  // Events are database rows, so this list is what the public site shows.
   const [events, setEvents] = useState<EventData[]>([]);
   const [eventsLoading, setEventsLoading] = useState(true);
   const [eventsError, setEventsError] = useState<string | null>(null);
-  const [saving, setSaving] = useState(false);
-  const [projects, setProjects] = useState(INITIAL_PROJECTS);
-  const [members, setMembers] = useState(INITIAL_TEAM_MEMBERS);
-  const [gallery, setGallery] = useState(INITIAL_GALLERY);
-  const [messages, setMessages] = useState(INITIAL_CONTACT_MESSAGES);
+
+  const [showEditor, setShowEditor] = useState(false);
+  const [editingEvent, setEditingEvent] = useState<EventData | null>(null);
+  const [attendanceEvent, setAttendanceEvent] = useState<EventData | null>(null);
+
+  const [signedInAs, setSignedInAs] = useState<string | null>(null);
+  const [regSummary, setRegSummary] = useState<{ total: number; present: number } | null>(null);
+
+  // Static content, authored in lib/data/initialData.ts. Shown read-only —
+  // these tabs used to offer Add and Delete buttons that only ever mutated
+  // React state, so the data vanished on refresh while looking saved.
+  const projects = INITIAL_PROJECTS;
+  const members = INITIAL_TEAM_MEMBERS;
+  const gallery = INITIAL_GALLERY;
+  const messages = INITIAL_CONTACT_MESSAGES;
 
   const loadEvents = useCallback(async () => {
     setEventsLoading(true);
@@ -64,78 +78,30 @@ export default function AdminPage() {
     }
   }, []);
 
+  const loadSummary = useCallback(async () => {
+    try {
+      const res = await fetch("/api/admin/registrations", { cache: "no-store" });
+      if (!res.ok) return;
+      const json = await res.json();
+      if (json.summary) setRegSummary(json.summary);
+    } catch {
+      // A missing headline number should not break the console.
+    }
+  }, []);
+
   useEffect(() => {
     loadEvents();
-  }, [loadEvents]);
+    loadSummary();
+    fetch("/api/admin/me", { cache: "no-store" })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((j) => j?.user && setSignedInAs(j.user.displayName || j.user.username))
+      .catch(() => {});
+  }, [loadEvents, loadSummary]);
 
-  // Form modal states
-  const [showAddEvent, setShowAddEvent] = useState(false);
-  const [editingEvent, setEditingEvent] = useState<EventData | null>(null);
-  const [attendanceEvent, setAttendanceEvent] = useState<EventData | null>(null);
-  const [newEvent, setNewEvent] = useState({
-    title: "",
-    venue: "",
-    time: "02:00 PM - 05:00 PM IST",
-    category: "WORKSHOP" as any,
-    description: "",
-    maxSeats: 100,
-  });
-
-  const [showAddMember, setShowAddMember] = useState(false);
-  const [newMember, setNewMember] = useState({
-    name: "",
-    position: "",
-    departmentName: "Technical Department",
-    bio: "",
-    skills: "AWS, Docker, Python",
-  });
-
-  const [showAddProject, setShowAddProject] = useState(false);
-  const [newProject, setNewProject] = useState({
-    title: "",
-    shortDesc: "",
-    problem: "",
-    solution: "",
-    technologies: "Next.js, Python, Terraform",
-    awsServices: "AWS Lambda, Amazon S3, DynamoDB",
-  });
-
-  // Handlers
-  const handleAddEvent = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setSaving(true);
-    setEventsError(null);
-    try {
-      const res = await fetch("/api/admin/events", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          title: newEvent.title,
-          description: newEvent.description,
-          venue: newEvent.venue,
-          time: newEvent.time,
-          category: newEvent.category,
-          maxSeats: Number(newEvent.maxSeats),
-        }),
-      });
-      const json = await res.json();
-      if (!res.ok) throw new Error(json.error || "Could not create the event.");
-
-      // Re-read rather than splicing the response into local state: the server
-      // is the only thing that knows the real list, and this is exactly where
-      // the old version went wrong.
-      await loadEvents();
-      setShowAddEvent(false);
-      setNewEvent({ title: "", venue: "", time: "02:00 PM - 05:00 PM IST", category: "WORKSHOP", description: "", maxSeats: 100 });
-    } catch (err: any) {
-      setEventsError(err.message);
-    } finally {
-      setSaving(false);
+  const handleDeleteEvent = async (id: string, title: string) => {
+    if (!window.confirm(`Delete "${title}"? Registrations are kept, but it disappears from the site.`)) {
+      return;
     }
-  };
-
-  const handleDeleteEvent = async (id: string) => {
-    if (!window.confirm("Delete this event? Registrations for it are kept, but the event disappears from the site.")) return;
     setEventsError(null);
     try {
       const res = await fetch(`/api/admin/events?id=${encodeURIComponent(id)}`, { method: "DELETE" });
@@ -147,558 +113,413 @@ export default function AdminPage() {
     }
   };
 
-  const handleAddMember = (e: React.FormEvent) => {
-    e.preventDefault();
-    const created = {
-      id: `member-${Date.now()}`,
-      name: newMember.name,
-      position: newMember.position,
-      departmentId: "dept-2",
-      departmentName: newMember.departmentName,
-      bio: newMember.bio,
-      photoUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=600&auto=format&fit=crop",
-      linkedin: "https://linkedin.com",
-      github: "https://github.com",
-      email: "member@sxcaws.club",
-      isExecutive: false,
-      skills: newMember.skills.split(",").map((s) => s.trim()),
-      order: members.length + 1,
-    };
-    setMembers([...members, created]);
-    setShowAddMember(false);
-    setNewMember({ name: "", position: "", departmentName: "Technical Department", bio: "", skills: "AWS, Docker, Python" });
+  const signOut = async () => {
+    await fetch("/api/admin/logout", { method: "POST" });
+    router.replace("/admin/login");
+    router.refresh();
   };
 
-  const handleDeleteMember = (id: string) => {
-    setMembers(members.filter((m) => m.id !== id));
-  };
+  const upcoming = events.filter((e) => e.status === "UPCOMING").length;
 
-  const handleAddProject = (e: React.FormEvent) => {
-    e.preventDefault();
-    const created = {
-      id: `proj-${Date.now()}`,
-      title: newProject.title,
-      slug: newProject.title.toLowerCase().replace(/\s+/g, "-"),
-      shortDesc: newProject.shortDesc,
-      problem: newProject.problem,
-      solution: newProject.solution,
-      technologies: newProject.technologies.split(",").map((s) => s.trim()),
-      awsServices: newProject.awsServices.split(",").map((s) => s.trim()),
-      imageUrl: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=1200&auto=format&fit=crop",
-      githubUrl: "https://github.com/sxc-aws-club",
-      liveDemoUrl: "https://sxcaws.club",
-      isFeatured: false,
-      members: [{ name: "SXC Lead", role: "Architect", avatarUrl: "" }],
-    };
-    setProjects([created, ...projects]);
-    setShowAddProject(false);
-    setNewProject({ title: "", shortDesc: "", problem: "", solution: "", technologies: "Next.js, Python, Terraform", awsServices: "AWS Lambda, Amazon S3, DynamoDB" });
-  };
+  const tabs: { id: Tab; label: string; icon: typeof Calendar; count?: number }[] = [
+    { id: "overview", label: "Overview", icon: LayoutGrid },
+    { id: "events", label: "Events", icon: Calendar, count: events.length },
+    { id: "walkin", label: "Walk-in Desk", icon: UserPlus },
+    { id: "messages", label: "Inquiries", icon: Mail, count: messages.length },
+    { id: "projects", label: "Projects", icon: FolderGit2, count: projects.length },
+    { id: "members", label: "Leadership", icon: Users, count: members.length },
+    { id: "gallery", label: "Gallery", icon: Camera, count: gallery.length },
+  ];
 
-  const handleDeleteProject = (id: string) => {
-    setProjects(projects.filter((p) => p.id !== id));
-  };
-
-  const handleToggleReadMessage = (id: string) => {
-    setMessages(
-      messages.map((m) => (m.id === id ? { ...m, isRead: !m.isRead } : m))
-    );
-  };
-
-  const handleDeleteMessage = (id: string) => {
-    setMessages(messages.filter((m) => m.id !== id));
-  };
+  const activeLabel = tabs.find((t) => t.id === activeTab)?.label ?? "";
 
   return (
-    <div className="relative pt-28 pb-20 overflow-hidden">
-      <div className="max-w-[1750px] mx-auto px-4 sm:px-8 lg:px-12 xl:px-16">
-        {/* Header Bar */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-8 border-b border-white/10">
-          <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-mono font-bold bg-red-500/15 text-red-400 border border-red-500/30 mb-2">
-              <Shield className="w-3.5 h-3.5" />
-              <span>CONTROL PLANE & DASHBOARD</span>
-            </div>
-            <h1 className="text-3xl sm:text-4xl font-extrabold text-white">
-              SXC AWS <span className="text-gradient-orange">Admin Center</span>
-            </h1>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <span className="text-xs font-mono px-3 py-1.5 rounded-xl bg-emerald-950/80 text-emerald-400 border border-emerald-500/30 flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              PostgreSQL / In-Memory Online
+    <div className="adm-shell">
+      {/* ---------------- Rail ---------------- */}
+      <aside className="adm-rail">
+        <div className="adm-brand">
+          <span className="adm-brand-mark">
+            <Cloud className="w-4 h-4" strokeWidth={2.4} />
+          </span>
+          <span className="min-w-0">
+            <span className="block adm-mono text-[11px] tracking-[0.16em] uppercase leading-none">
+              SXC AWS
             </span>
-          </div>
+            <span className="block adm-mono text-[9px] tracking-[0.16em] uppercase mt-1" style={{ color: "var(--adm-faint)" }}>
+              Console
+            </span>
+          </span>
         </div>
 
-        {/* Navigation Tabs */}
-        <div className="flex flex-wrap items-center gap-2 py-6">
-          {[
-            { id: "overview", label: "System Metrics", icon: Shield },
-            { id: "events", label: `Events (${events.length})`, icon: Calendar },
-            { id: "walkin", label: "Walk-in Desk", icon: UserPlus },
-            { id: "projects", label: `Projects (${projects.length})`, icon: FolderGit2 },
-            { id: "members", label: `Leadership (${members.length})`, icon: Users },
-            { id: "gallery", label: `Gallery (${gallery.length})`, icon: Camera },
-            { id: "messages", label: `Inquiries (${messages.length})`, icon: Mail },
-          ].map((tab) => {
-            const Icon = tab.icon;
-            const isSelected = activeTab === tab.id;
-            return (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id as any)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-mono transition-all ${
-                  isSelected
-                    ? "bg-aws-orange text-black font-bold shadow-md shadow-aws-orange/20"
-                    : "bg-navy-900/80 text-slate-300 border border-white/10 hover:border-aws-orange/40 hover:text-white"
-                }`}
-              >
-                <Icon className="w-3.5 h-3.5" />
-                <span>{tab.label}</span>
-              </button>
-            );
-          })}
+        <nav className="adm-nav adm-scroll">
+          {tabs.map((tab) => (
+            <button
+              key={tab.id}
+              type="button"
+              data-active={activeTab === tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className="adm-navitem"
+            >
+              <tab.icon className="w-3.5 h-3.5 shrink-0" />
+              <span>{tab.label}</span>
+              {tab.count !== undefined && (
+                <span className="adm-navitem-count">{tab.count}</span>
+              )}
+            </button>
+          ))}
+        </nav>
+
+        <div
+          className="hidden lg:block mt-auto p-4"
+          style={{ borderTop: "1px solid var(--adm-line)" }}
+        >
+          <div className="adm-eyebrow">Signed in</div>
+          <div className="adm-mono text-[11px] mt-1.5 truncate">{signedInAs ?? "—"}</div>
+          <button type="button" onClick={signOut} className="adm-btn w-full mt-3">
+            <LogOut className="w-3.5 h-3.5" />
+            <span>SIGN OUT</span>
+          </button>
         </div>
+      </aside>
 
-        {/* Tab 1: System Metrics & Overview */}
-        {activeTab === "overview" && (
-          <div className="space-y-8">
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-              <div className="p-6 rounded-2xl bg-navy-900/70 border border-white/10 backdrop-blur-xl">
-                <div className="text-xs font-mono text-slate-400">Total Events</div>
-                <div className="text-3xl font-extrabold text-white mt-1">{events.length}</div>
-                <div className="text-[11px] text-emerald-400 font-mono mt-2">
-                  {events.filter((e) => e.status === "UPCOMING").length} Upcoming Open
-                </div>
-              </div>
-
-              <div className="p-6 rounded-2xl bg-navy-900/70 border border-white/10 backdrop-blur-xl">
-                <div className="text-xs font-mono text-slate-400">Deployed Projects</div>
-                <div className="text-3xl font-extrabold text-white mt-1">{projects.length}</div>
-                <div className="text-[11px] text-aws-orange font-mono mt-2">
-                  {projects.filter((p) => p.isFeatured).length} Featured
-                </div>
-              </div>
-
-              <div className="p-6 rounded-2xl bg-navy-900/70 border border-white/10 backdrop-blur-xl">
-                <div className="text-xs font-mono text-slate-400">Club Leaders</div>
-                <div className="text-3xl font-extrabold text-white mt-1">{members.length}</div>
-                <div className="text-[11px] text-blue-400 font-mono mt-2">5 Active Depts</div>
-              </div>
-
-              <div className="p-6 rounded-2xl bg-navy-900/70 border border-white/10 backdrop-blur-xl">
-                <div className="text-xs font-mono text-slate-400">Inbound Messages</div>
-                <div className="text-3xl font-extrabold text-white mt-1">{messages.length}</div>
-                <div className="text-[11px] text-pink-400 font-mono mt-2">
-                  {messages.filter((m) => !m.isRead).length} Unread
-                </div>
-              </div>
-            </div>
-
-            {/* Quick Actions Overview Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="p-6 rounded-3xl bg-navy-900/70 border border-white/10 space-y-4">
-                <h3 className="text-base font-bold text-white flex items-center justify-between">
-                  <span>Recent Event Registrations</span>
-                  <span className="text-xs font-mono text-aws-orange">Live Feed</span>
-                </h3>
-                <div className="space-y-2">
-                  {events.slice(0, 3).map((e) => (
-                    <div key={e.id} className="p-3 rounded-xl bg-navy-950/80 border border-white/5 flex items-center justify-between text-xs">
-                      <div>
-                        <div className="font-semibold text-white truncate max-w-xs">{e.title}</div>
-                        <div className="text-[11px] text-slate-400 font-mono">{e.venue}</div>
-                      </div>
-                      <span className="px-2.5 py-1 rounded-full bg-aws-orange/20 text-aws-orange font-mono font-bold">
-                        {e.currentRegistrations} / {e.maxSeats}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="p-6 rounded-3xl bg-navy-900/70 border border-white/10 space-y-4">
-                <h3 className="text-base font-bold text-white flex items-center justify-between">
-                  <span>Recent Inquiries & Feedback</span>
-                  <span className="text-xs font-mono text-blue-400">PostgreSQL Store</span>
-                </h3>
-                <div className="space-y-2">
-                  {messages.slice(0, 3).map((m) => (
-                    <div key={m.id} className="p-3 rounded-xl bg-navy-950/80 border border-white/5 text-xs space-y-1">
-                      <div className="flex items-center justify-between">
-                        <span className="font-semibold text-white">{m.name}</span>
-                        <span className="text-[10px] text-slate-400 font-mono">{m.email}</span>
-                      </div>
-                      <p className="text-[11px] text-slate-300 line-clamp-1">{m.subject}: {m.message}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
+      {/* ---------------- Content ---------------- */}
+      <div className="min-w-0">
+        <header className="adm-header">
+          <div className="min-w-0">
+            <div className="adm-eyebrow">Console</div>
+            <h1 className="adm-title mt-1">{activeLabel}</h1>
           </div>
-        )}
 
-        {/* Tab 2: Events Management */}
-        {activeTab === "walkin" && <WalkInTab events={events} />}
-
-        {activeTab === "events" && eventsError && (
-          <div className="mb-4 p-3.5 rounded-xl bg-red-950/70 border border-red-500/40 text-red-300 text-xs font-mono">
-            {eventsError}
+          <div className="flex items-center gap-2 shrink-0">
+            <button
+              type="button"
+              onClick={() => {
+                loadEvents();
+                loadSummary();
+              }}
+              className="adm-btn adm-btn-icon"
+              title="Reload data"
+            >
+              <RefreshCw className={`w-3.5 h-3.5 ${eventsLoading ? "animate-spin" : ""}`} />
+            </button>
+            <button type="button" onClick={signOut} className="adm-btn lg:hidden adm-btn-icon" title="Sign out">
+              <LogOut className="w-3.5 h-3.5" />
+            </button>
           </div>
-        )}
+        </header>
 
-        {activeTab === "events" && (
-          <div className="space-y-6">
-            <div className="flex items-center justify-between">
-              <h2 className="text-lg font-bold text-white">Events & Workshop Management</h2>
-              <button
-                onClick={() => {
-                  setEditingEvent(null);
-                  setShowAddEvent(true);
-                }}
-                className="px-4 py-2 rounded-xl bg-aws-orange hover:bg-aws-orange-light text-black font-bold text-xs font-mono flex items-center gap-1.5 shadow-md"
-              >
-                <Plus className="w-4 h-4" />
-                <span>Create New Event</span>
-              </button>
-            </div>
-
-            {attendanceEvent && (
-              <AttendanceChecklist
-                event={attendanceEvent}
-                onClose={() => setAttendanceEvent(null)}
-              />
-            )}
-
-            {showAddEvent && (
-              <EventEditor
-                event={editingEvent}
-                onSaved={async () => {
-                  await loadEvents();
-                  setShowAddEvent(false);
-                  setEditingEvent(null);
-                }}
-                onCancel={() => {
-                  setShowAddEvent(false);
-                  setEditingEvent(null);
-                }}
-              />
-            )}
-
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs font-mono">
-                <thead className="bg-navy-950/80 text-slate-400 border-b border-white/10">
-                  <tr>
-                    <th className="p-3">Title</th>
-                    <th className="p-3">Category</th>
-                    <th className="p-3">Venue</th>
-                    <th className="p-3">Seats</th>
-                    <th className="p-3">Status</th>
-                    <th className="p-3 text-right">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-white/5">
-                  {events.map((e) => (
-                    <tr key={e.id} className="hover:bg-navy-900/60 transition-colors">
-                      <td className="p-3 font-semibold text-white">{e.title}</td>
-                      <td className="p-3">
-                        <span className="px-2 py-0.5 rounded bg-white/5 text-aws-orange">{e.category}</span>
-                      </td>
-                      <td className="p-3 text-slate-300">{e.venue}</td>
-                      <td className="p-3 text-slate-300">{e.maxSeats} max</td>
-                      <td className="p-3">
-                        <span className="px-2 py-0.5 rounded bg-emerald-950 text-emerald-400">{e.status}</span>
-                      </td>
-                      <td className="p-3 text-right space-x-1.5 whitespace-nowrap">
-                        <button
-                          onClick={() => {
-                            setAttendanceEvent(e);
-                            setShowAddEvent(false);
-                          }}
-                          className="p-1.5 rounded-lg bg-navy-800 hover:bg-navy-700 text-slate-300 hover:text-emerald-400 transition-colors"
-                          title="Take attendance for this event"
-                        >
-                          <ClipboardCheck className="w-3.5 h-3.5" />
-                        </button>
-                        <button
-                          onClick={() => {
-                            setEditingEvent(e);
-                            setShowAddEvent(true);
-                            setAttendanceEvent(null);
-                          }}
-                          className="p-1.5 rounded-lg bg-navy-800 hover:bg-navy-700 text-slate-300 hover:text-aws-orange transition-colors"
-                          title="Edit event, agenda, speakers and prerequisites"
-                        >
-                          <Pencil className="w-3.5 h-3.5" />
-                        </button>
-                        <button
-                          onClick={() => handleDeleteEvent(e.id)}
-                          className="p-1.5 rounded-lg bg-red-950 hover:bg-red-900 text-red-400 transition-colors"
-                          title="Delete Event"
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
-
-        {/* Tab 3: Projects Management */}
-        {activeTab === "projects" && (
-          <div className="space-y-6">
-            <div className="flex items-center justify-between">
-              <h2 className="text-lg font-bold text-white">Cloud Projects Showcase Management</h2>
-              <button
-                onClick={() => setShowAddProject(true)}
-                className="px-4 py-2 rounded-xl bg-aws-orange hover:bg-aws-orange-light text-black font-bold text-xs font-mono flex items-center gap-1.5 shadow-md"
-              >
-                <Plus className="w-4 h-4" />
-                <span>Add Project</span>
-              </button>
-            </div>
-
-            {showAddProject && (
-              <form onSubmit={handleAddProject} className="p-6 rounded-2xl bg-navy-950 border border-aws-orange/40 space-y-4 animate-in fade-in">
-                <h3 className="text-sm font-bold text-aws-orange font-mono">Publish Student Cloud Project</h3>
-                <input
-                  required
-                  placeholder="Project Title"
-                  value={newProject.title}
-                  onChange={(e) => setNewProject({ ...newProject, title: e.target.value })}
-                  className="w-full p-2.5 rounded-xl bg-navy-900 border border-white/10 text-xs text-white"
-                />
-                <input
-                  required
-                  placeholder="One-line Short Summary"
-                  value={newProject.shortDesc}
-                  onChange={(e) => setNewProject({ ...newProject, shortDesc: e.target.value })}
-                  className="w-full p-2.5 rounded-xl bg-navy-900 border border-white/10 text-xs text-white"
-                />
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <textarea
-                    placeholder="Problem Statement"
-                    value={newProject.problem}
-                    onChange={(e) => setNewProject({ ...newProject, problem: e.target.value })}
-                    className="p-2.5 rounded-xl bg-navy-900 border border-white/10 text-xs text-white"
-                    rows={2}
-                  />
-                  <textarea
-                    placeholder="AWS Architecture Solution"
-                    value={newProject.solution}
-                    onChange={(e) => setNewProject({ ...newProject, solution: e.target.value })}
-                    className="p-2.5 rounded-xl bg-navy-900 border border-white/10 text-xs text-white"
-                    rows={2}
-                  />
+        <main className="adm-main space-y-6">
+          {/* ---------------- Overview ---------------- */}
+          {activeTab === "overview" && (
+            <>
+              <div className="adm-stats">
+                <div className="adm-stat">
+                  <div className="adm-eyebrow">Events</div>
+                  <div className="adm-stat-value">{events.length}</div>
+                  <div className="adm-stat-note">{upcoming} upcoming</div>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <input
-                    placeholder="Tech Stack (comma separated)"
-                    value={newProject.technologies}
-                    onChange={(e) => setNewProject({ ...newProject, technologies: e.target.value })}
-                    className="p-2.5 rounded-xl bg-navy-900 border border-white/10 text-xs text-white"
-                  />
-                  <input
-                    placeholder="AWS Services (comma separated)"
-                    value={newProject.awsServices}
-                    onChange={(e) => setNewProject({ ...newProject, awsServices: e.target.value })}
-                    className="p-2.5 rounded-xl bg-navy-900 border border-white/10 text-xs text-white"
-                  />
+                <div className="adm-stat">
+                  <div className="adm-eyebrow">Registrations</div>
+                  <div className="adm-stat-value" style={{ color: "var(--adm-accent)" }}>
+                    {regSummary?.total ?? "—"}
+                  </div>
+                  <div className="adm-stat-note">across all events</div>
                 </div>
-                <div className="flex gap-2 justify-end">
+                <div className="adm-stat">
+                  <div className="adm-eyebrow">Checked in</div>
+                  <div className="adm-stat-value" style={{ color: "var(--adm-ok)" }}>
+                    {regSummary?.present ?? "—"}
+                  </div>
+                  <div className="adm-stat-note">marked present</div>
+                </div>
+                <div className="adm-stat">
+                  <div className="adm-eyebrow">Inquiries</div>
+                  <div className="adm-stat-value">{messages.length}</div>
+                  <div className="adm-stat-note">
+                    {messages.filter((m) => !m.isRead).length} unread
+                  </div>
+                </div>
+              </div>
+
+              <section className="adm-panel">
+                <div className="adm-panel-head">
+                  <span className="adm-eyebrow">Upcoming events</span>
                   <button
                     type="button"
-                    onClick={() => setShowAddProject(false)}
-                    className="px-4 py-1.5 rounded-xl bg-navy-800 text-slate-300 text-xs font-mono"
+                    onClick={() => setActiveTab("events")}
+                    className="adm-btn"
                   >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    className="px-4 py-1.5 rounded-xl bg-aws-orange text-black font-bold text-xs font-mono"
-                  >
-                    Publish Project
+                    MANAGE
                   </button>
                 </div>
-              </form>
-            )}
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {projects.map((p) => (
-                <div key={p.id} className="p-4 rounded-2xl bg-navy-900/70 border border-white/10 flex items-start justify-between gap-4">
-                  <div>
-                    <h4 className="text-sm font-bold text-white">{p.title}</h4>
-                    <p className="text-xs text-slate-400 mt-1 line-clamp-1">{p.shortDesc}</p>
-                    <div className="flex flex-wrap gap-1 mt-2">
-                      {p.awsServices.slice(0, 3).map((s) => (
-                        <span key={s} className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-white/5 text-aws-orange">
-                          {s}
-                        </span>
-                      ))}
-                    </div>
+                {events.length === 0 ? (
+                  <div className="adm-empty">
+                    {eventsLoading ? "Loading…" : "No events yet."}
                   </div>
-                  <button
-                    onClick={() => handleDeleteProject(p.id)}
-                    className="p-2 rounded-lg bg-red-950 hover:bg-red-900 text-red-400 transition-colors shrink-0"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
+                ) : (
+                  <div className="overflow-x-auto adm-scroll">
+                    <table className="adm-table">
+                      <thead>
+                        <tr>
+                          <th>Event</th>
+                          <th>Date</th>
+                          <th>Venue</th>
+                          <th>Seats</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {events.slice(0, 5).map((e) => (
+                          <tr key={e.id}>
+                            <td className="font-semibold">{e.title}</td>
+                            <td className="adm-mono adm-num" style={{ color: "var(--adm-dim)" }}>
+                              {new Date(e.date).toLocaleDateString("en-GB")}
+                            </td>
+                            <td style={{ color: "var(--adm-dim)" }}>{e.venue}</td>
+                            <td className="adm-mono adm-num" style={{ color: "var(--adm-dim)" }}>
+                              {e.maxSeats}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </section>
+            </>
+          )}
 
-        {/* Tab 4: Members Management */}
-        {activeTab === "members" && (
-          <div className="space-y-6">
-            <div className="flex items-center justify-between">
-              <h2 className="text-lg font-bold text-white">Leadership & Team Members</h2>
-              <button
-                onClick={() => setShowAddMember(true)}
-                className="px-4 py-2 rounded-xl bg-aws-orange hover:bg-aws-orange-light text-black font-bold text-xs font-mono flex items-center gap-1.5 shadow-md"
-              >
-                <Plus className="w-4 h-4" />
-                <span>Add Member</span>
-              </button>
-            </div>
+          {/* ---------------- Events ---------------- */}
+          {activeTab === "events" && (
+            <>
+              {eventsError && <div className="adm-alert">{eventsError}</div>}
 
-            {showAddMember && (
-              <form onSubmit={handleAddMember} className="p-6 rounded-2xl bg-navy-950 border border-aws-orange/40 space-y-4 animate-in fade-in">
-                <h3 className="text-sm font-bold text-aws-orange font-mono">Add Member to Club Directory</h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <input
-                    required
-                    placeholder="Full Name"
-                    value={newMember.name}
-                    onChange={(e) => setNewMember({ ...newMember, name: e.target.value })}
-                    className="p-2.5 rounded-xl bg-navy-900 border border-white/10 text-xs text-white"
-                  />
-                  <input
-                    required
-                    placeholder="Position (e.g. DevOps Subhead)"
-                    value={newMember.position}
-                    onChange={(e) => setNewMember({ ...newMember, position: e.target.value })}
-                    className="p-2.5 rounded-xl bg-navy-900 border border-white/10 text-xs text-white"
-                  />
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <select
-                    value={newMember.departmentName}
-                    onChange={(e) => setNewMember({ ...newMember, departmentName: e.target.value })}
-                    className="p-2.5 rounded-xl bg-navy-900 border border-white/10 text-xs text-white"
-                  >
-                    <option value="Executive Board">Executive Board</option>
-                    <option value="Technical Department">Technical Department</option>
-                    <option value="Marketing & Design">Marketing & Design</option>
-                    <option value="Events & Logistics">Events & Logistics</option>
-                    <option value="PR & Corporate Outreach">PR & Corporate Outreach</option>
-                  </select>
-                  <input
-                    placeholder="Skills (comma separated)"
-                    value={newMember.skills}
-                    onChange={(e) => setNewMember({ ...newMember, skills: e.target.value })}
-                    className="p-2.5 rounded-xl bg-navy-900 border border-white/10 text-xs text-white"
-                  />
-                </div>
-                <textarea
-                  required
-                  placeholder="Short Bio"
-                  value={newMember.bio}
-                  onChange={(e) => setNewMember({ ...newMember, bio: e.target.value })}
-                  className="w-full p-2.5 rounded-xl bg-navy-900 border border-white/10 text-xs text-white"
-                  rows={2}
+              {attendanceEvent && (
+                <AttendanceChecklist
+                  event={attendanceEvent}
+                  onClose={() => setAttendanceEvent(null)}
                 />
-                <div className="flex gap-2 justify-end">
+              )}
+
+              {showEditor && (
+                <EventEditor
+                  event={editingEvent}
+                  onSaved={async () => {
+                    await loadEvents();
+                    setShowEditor(false);
+                    setEditingEvent(null);
+                  }}
+                  onCancel={() => {
+                    setShowEditor(false);
+                    setEditingEvent(null);
+                  }}
+                />
+              )}
+
+              <section className="adm-panel">
+                <div className="adm-panel-head">
+                  <span className="adm-eyebrow">All events</span>
                   <button
                     type="button"
-                    onClick={() => setShowAddMember(false)}
-                    className="px-4 py-1.5 rounded-xl bg-navy-800 text-slate-300 text-xs font-mono"
+                    onClick={() => {
+                      setEditingEvent(null);
+                      setShowEditor(true);
+                      setAttendanceEvent(null);
+                    }}
+                    className="adm-btn adm-btn-primary"
                   >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    className="px-4 py-1.5 rounded-xl bg-aws-orange text-black font-bold text-xs font-mono"
-                  >
-                    Save Member
+                    <Plus className="w-3.5 h-3.5" />
+                    <span>NEW EVENT</span>
                   </button>
                 </div>
-              </form>
-            )}
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {members.map((m) => (
-                <div key={m.id} className="p-4 rounded-2xl bg-navy-900/70 border border-white/10 flex items-center justify-between">
-                  <div>
-                    <h4 className="text-sm font-bold text-white">{m.name}</h4>
-                    <div className="text-xs text-aws-orange font-mono">{m.position}</div>
-                    <div className="text-[10px] text-slate-400 font-mono">{m.departmentName}</div>
+                {eventsLoading && events.length === 0 ? (
+                  <div className="adm-empty">
+                    <Loader2 className="w-4 h-4 animate-spin inline mr-2" />
+                    Loading events…
                   </div>
-                  <button
-                    onClick={() => handleDeleteMember(m.id)}
-                    className="p-2 rounded-lg bg-red-950 hover:bg-red-900 text-red-400 transition-colors"
-                  >
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </button>
+                ) : events.length === 0 ? (
+                  <div className="adm-empty">No events yet. Create the first one.</div>
+                ) : (
+                  <div className="overflow-x-auto adm-scroll">
+                    <table className="adm-table">
+                      <thead>
+                        <tr>
+                          <th>Title</th>
+                          <th>Category</th>
+                          <th>Venue</th>
+                          <th>Seats</th>
+                          <th>ECC</th>
+                          <th>Status</th>
+                          <th style={{ textAlign: "right" }}>Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {events.map((e) => (
+                          <tr key={e.id}>
+                            <td className="font-semibold">{e.title}</td>
+                            <td>
+                              <span className="adm-tag">{e.category}</span>
+                            </td>
+                            <td style={{ color: "var(--adm-dim)" }}>{e.venue}</td>
+                            <td className="adm-mono adm-num" style={{ color: "var(--adm-dim)" }}>
+                              {e.maxSeats}
+                            </td>
+                            <td className="adm-mono adm-num">
+                              {e.eccPoints > 0 ? (
+                                <span style={{ color: "var(--adm-accent)" }}>{e.eccPoints}</span>
+                              ) : (
+                                <span style={{ color: "var(--adm-ghost)" }}>—</span>
+                              )}
+                            </td>
+                            <td>
+                              <span
+                                className={`adm-tag ${e.status === "UPCOMING" ? "adm-tag-ok" : ""}`}
+                              >
+                                <span className="adm-dot" />
+                                {e.status}
+                              </span>
+                            </td>
+                            <td>
+                              <div className="flex items-center justify-end gap-1.5">
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setAttendanceEvent(e);
+                                    setShowEditor(false);
+                                  }}
+                                  className="adm-btn adm-btn-icon"
+                                  title="Take attendance"
+                                >
+                                  <ClipboardCheck className="w-3.5 h-3.5" />
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setEditingEvent(e);
+                                    setShowEditor(true);
+                                    setAttendanceEvent(null);
+                                  }}
+                                  className="adm-btn adm-btn-icon"
+                                  title="Edit event"
+                                >
+                                  <Pencil className="w-3.5 h-3.5" />
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => handleDeleteEvent(e.id, e.title)}
+                                  className="adm-btn adm-btn-icon adm-btn-danger"
+                                  title="Delete event"
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </section>
+            </>
+          )}
+
+          {/* ---------------- Walk-in ---------------- */}
+          {activeTab === "walkin" && <WalkInTab events={events} />}
+
+          {/* ---------------- Inquiries ---------------- */}
+          {activeTab === "messages" && (
+            <section className="adm-panel">
+              <div className="adm-panel-head">
+                <span className="adm-eyebrow">Contact form</span>
+              </div>
+              <div className="adm-panel-body space-y-3">
+                <div className="adm-notice">
+                  Showing sample data. Live messages need the messages API, which
+                  is not built yet — submissions are saved in Supabase and
+                  readable from the table editor.
                 </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Tab 5: Contact Messages Management */}
-        {activeTab === "messages" && (
-          <div className="space-y-6">
-            <h2 className="text-lg font-bold text-white">Inbound Inquiries & Sponsorship Leads</h2>
-
-            <div className="space-y-3">
-              {messages.map((msg) => (
-                <div
-                  key={msg.id}
-                  className={`p-5 rounded-2xl border transition-all ${
-                    msg.isRead
-                      ? "bg-navy-900/40 border-white/5 text-slate-400"
-                      : "bg-navy-900/90 border-aws-orange/40 text-white shadow-lg"
-                  }`}
-                >
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2 border-b border-white/5">
-                    <div>
-                      <span className="font-bold text-sm text-white">{msg.name}</span>
-                      <span className="text-xs font-mono text-aws-orange ml-2">({msg.email})</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-[10px] font-mono text-slate-400">
-                        {new Date(msg.createdAt).toLocaleDateString()}
+                {messages.map((m) => (
+                  <article
+                    key={m.id}
+                    className="p-4"
+                    style={{
+                      background: "var(--adm-raised)",
+                      border: "1px solid var(--adm-line)",
+                      borderLeft: m.isRead
+                        ? "3px solid var(--adm-line)"
+                        : "3px solid var(--adm-accent)",
+                    }}
+                  >
+                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                      <span className="font-semibold text-sm">{m.name}</span>
+                      <span className="adm-mono text-[11px]" style={{ color: "var(--adm-faint)" }}>
+                        {m.email}
                       </span>
-                      <button
-                        onClick={() => handleToggleReadMessage(msg.id)}
-                        className="px-2 py-0.5 rounded bg-white/5 hover:bg-white/10 text-[10px] font-mono text-slate-300"
-                      >
-                        {msg.isRead ? "Mark Unread" : "Mark Read"}
-                      </button>
-                      <button
-                        onClick={() => handleDeleteMessage(msg.id)}
-                        className="p-1 rounded bg-red-950 hover:bg-red-900 text-red-400"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
+                      {!m.isRead && <span className="adm-tag adm-tag-accent">New</span>}
                     </div>
-                  </div>
-                  <div className="pt-2">
-                    <div className="text-xs font-bold text-aws-orange-light">{msg.subject}</div>
-                    <p className="text-xs text-slate-300 mt-1 leading-relaxed">{msg.message}</p>
-                  </div>
+                    <div className="adm-mono text-[11px] mt-2" style={{ color: "var(--adm-dim)" }}>
+                      {m.subject}
+                    </div>
+                    <p className="text-xs mt-2 leading-relaxed" style={{ color: "var(--adm-dim)" }}>
+                      {m.message}
+                    </p>
+                  </article>
+                ))}
+              </div>
+            </section>
+          )}
+
+          {/* ---------------- Static content tabs ---------------- */}
+          {(activeTab === "projects" || activeTab === "members" || activeTab === "gallery") && (
+            <section className="adm-panel">
+              <div className="adm-panel-head">
+                <span className="adm-eyebrow">{activeLabel}</span>
+                <span className="adm-tag">Read only</span>
+              </div>
+              <div className="adm-panel-body space-y-4">
+                <div className="adm-notice">
+                  This content lives in <span className="adm-mono">lib/data/initialData.ts</span> and
+                  is edited in code, not here. The Add and Delete controls that used
+                  to sit on this tab only changed the page in front of you — nothing
+                  was ever saved.
                 </div>
-              ))}
-            </div>
-          </div>
-        )}
+
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-px" style={{ background: "var(--adm-line)" }}>
+                  {activeTab === "projects" &&
+                    projects.map((p) => (
+                      <div key={p.id} className="p-4" style={{ background: "var(--adm-panel)" }}>
+                        <div className="font-semibold text-sm">{p.title}</div>
+                        <p className="text-xs mt-1.5 leading-relaxed" style={{ color: "var(--adm-faint)" }}>
+                          {p.shortDesc}
+                        </p>
+                      </div>
+                    ))}
+
+                  {activeTab === "members" &&
+                    members.map((m) => (
+                      <div key={m.id} className="p-4" style={{ background: "var(--adm-panel)" }}>
+                        <div className="font-semibold text-sm">{m.name}</div>
+                        <div className="adm-mono text-[11px] mt-1" style={{ color: "var(--adm-accent)" }}>
+                          {m.position}
+                        </div>
+                      </div>
+                    ))}
+
+                  {activeTab === "gallery" &&
+                    gallery.map((g) => (
+                      <div key={g.id} className="p-4" style={{ background: "var(--adm-panel)" }}>
+                        <div className="font-semibold text-sm">{g.title}</div>
+                        <div className="adm-mono text-[11px] mt-1" style={{ color: "var(--adm-faint)" }}>
+                          {g.category}
+                        </div>
+                      </div>
+                    ))}
+                </div>
+              </div>
+            </section>
+          )}
+        </main>
       </div>
     </div>
   );
