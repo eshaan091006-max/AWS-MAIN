@@ -91,6 +91,31 @@ export interface RegistrationRecord {
   registeredAt: string;
 }
 
+// One column list and one mapper, shared by every read of this table. They
+// were duplicated per query, which is exactly how a new column ends up
+// present in one response shape and missing from another.
+const REGISTRATION_COLUMNS =
+  "id,event_id,event_title,full_name,uid,email,academic_year,stream,college," +
+  "created_at,attended,attended_at,attended_by";
+
+function toRegistrationRow(row: any): RegistrationRow {
+  return {
+    id: row.id,
+    eventId: row.event_id,
+    eventTitle: row.event_title,
+    fullName: row.full_name,
+    uid: row.uid,
+    email: row.email,
+    academicYear: row.academic_year,
+    stream: row.stream,
+    college: row.college,
+    registeredAt: row.created_at,
+    attended: Boolean(row.attended),
+    attendedAt: row.attended_at ?? null,
+    attendedBy: row.attended_by ?? null,
+  };
+}
+
 function describeDbError(error: { code?: string; message: string }, what: string): Error {
   // 42703 is a missing *column*: the schema is present but predates a newer
   // migration. Saying "the tables do not exist" there sends someone looking
@@ -447,9 +472,7 @@ class LocalDataStore {
 
     let query = admin
       .from("event_registrations")
-      .select(
-        "id,event_id,event_title,full_name,uid,email,academic_year,stream,college,created_at,attended,attended_at,attended_by"
-      )
+      .select(REGISTRATION_COLUMNS)
       .order("created_at", { ascending: true })
       .limit(2000);
 
@@ -461,21 +484,86 @@ class LocalDataStore {
       throw describeDbError(error, "registration list");
     }
 
-    return (data ?? []).map((row: any) => ({
-      id: row.id,
-      eventId: row.event_id,
-      eventTitle: row.event_title,
-      fullName: row.full_name,
-      uid: row.uid,
-      email: row.email,
-      academicYear: row.academic_year,
-      stream: row.stream,
-      college: row.college,
-      registeredAt: row.created_at,
-      attended: Boolean(row.attended),
-      attendedAt: row.attended_at ?? null,
-      attendedBy: row.attended_by ?? null,
-    }));
+    return (data ?? []).map(toRegistrationRow);
+  }
+
+  /**
+   * Corrects the details on a registration.
+   *
+   * Exists because the walk-in desk types names under time pressure and a
+   * mistyped UID or email is easier to fix than to explain later. Only the
+   * person's own fields are editable — never the event, which would move a
+   * registration between events and silently change two seat counts.
+   */
+  async updateRegistration(
+    registrationId: string,
+    patch: {
+      firstName?: string;
+      surname?: string;
+      uid?: string;
+      email?: string;
+      academicYear?: string;
+      stream?: string;
+    }
+  ): Promise<RegistrationRow | null> {
+    const admin = getServiceSupabase();
+    if (!admin) throw new Error("Editing registrations requires SUPABASE_SERVICE_ROLE_KEY.");
+
+    const row: Record<string, unknown> = {};
+    if (patch.firstName !== undefined) row.first_name = patch.firstName.trim();
+    if (patch.surname !== undefined) row.last_name = patch.surname.trim() || null;
+    if (patch.uid !== undefined) row.uid = patch.uid.trim();
+    if (patch.email !== undefined) row.email = patch.email.trim().toLowerCase();
+    if (patch.academicYear !== undefined) row.academic_year = patch.academicYear.trim();
+    if (patch.stream !== undefined) row.stream = patch.stream.trim();
+
+    if (Object.keys(row).length === 0) return null;
+
+    const { data, error } = await admin
+      .from("event_registrations")
+      .update(row)
+      .eq("id", registrationId)
+      .select(REGISTRATION_COLUMNS)
+      .maybeSingle();
+
+    if (error) {
+      // Changing an email to one already registered for the same event trips
+      // the unique index. That is a correction the operator has to resolve,
+      // not a server fault.
+      if (error.code === UNIQUE_VIOLATION) {
+        throw new Error("Another registration for this event already uses that email.");
+      }
+      console.error("[supabase] registration update failed:", error.code, error.message);
+      throw describeDbError(error, "registration");
+    }
+
+    return data ? toRegistrationRow(data) : null;
+  }
+
+  /** Removes a registration entirely. Frees the seat it was holding. */
+  async deleteRegistration(registrationId: string): Promise<boolean> {
+    const admin = getServiceSupabase();
+    if (!admin) throw new Error("Deleting registrations requires SUPABASE_SERVICE_ROLE_KEY.");
+
+    // Read the event first so its cached seat count can be dropped afterwards.
+    const { data: existing } = await admin
+      .from("event_registrations")
+      .select("event_id")
+      .eq("id", registrationId)
+      .maybeSingle();
+
+    const { error, count } = await admin
+      .from("event_registrations")
+      .delete({ count: "exact" })
+      .eq("id", registrationId);
+
+    if (error) {
+      console.error("[supabase] registration delete failed:", error.code, error.message);
+      throw describeDbError(error, "registration");
+    }
+
+    if (existing?.event_id) invalidate(seatsKey(existing.event_id));
+    return (count ?? 0) > 0;
   }
 
   /**
@@ -502,9 +590,7 @@ class LocalDataStore {
         attended_by: attended ? markedBy : null,
       })
       .eq("id", registrationId)
-      .select(
-        "id,event_id,event_title,full_name,uid,email,academic_year,stream,college,created_at,attended,attended_at,attended_by"
-      )
+      .select(REGISTRATION_COLUMNS)
       .maybeSingle();
 
     if (error) {
@@ -513,21 +599,7 @@ class LocalDataStore {
     }
     if (!data) return null;
 
-    return {
-      id: data.id,
-      eventId: data.event_id,
-      eventTitle: data.event_title,
-      fullName: data.full_name,
-      uid: data.uid,
-      email: data.email,
-      academicYear: data.academic_year,
-      stream: data.stream,
-      college: data.college,
-      registeredAt: data.created_at,
-      attended: Boolean(data.attended),
-      attendedAt: data.attended_at ?? null,
-      attendedBy: data.attended_by ?? null,
-    };
+    return toRegistrationRow(data);
   }
 
   // ==================== Contact Messages ====================

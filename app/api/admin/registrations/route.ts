@@ -91,11 +91,39 @@ export async function PATCH(req: Request) {
     if (!id) {
       return NextResponse.json({ error: "Registration id is required." }, { status: 400 });
     }
-    if (typeof body.attended !== "boolean") {
-      return NextResponse.json({ error: "attended must be true or false." }, { status: 400 });
+    // Two shapes on one verb: flipping attendance, and correcting details.
+    // They are separated so an attendance tick can never quietly rewrite a
+    // name, and an edit can never silently mark someone present.
+    if (typeof body.attended === "boolean") {
+      const updated = await db.setAttendance(id, body.attended, markedBy);
+      if (!updated) {
+        return NextResponse.json({ error: "Registration not found." }, { status: 404 });
+      }
+      return NextResponse.json({ success: true, data: updated }, { headers: NO_STORE });
     }
 
-    const updated = await db.setAttendance(id, body.attended, markedBy);
+    const patch: Record<string, string> = {};
+    for (const field of ["firstName", "surname", "uid", "email", "academicYear", "stream"]) {
+      if (body[field] !== undefined) patch[field] = String(body[field]);
+    }
+
+    if (Object.keys(patch).length === 0) {
+      return NextResponse.json(
+        { error: "Nothing to update. Send attended, or at least one detail." },
+        { status: 400 }
+      );
+    }
+    if (patch.firstName !== undefined && !patch.firstName.trim()) {
+      return NextResponse.json({ error: "Name cannot be empty." }, { status: 400 });
+    }
+    if (patch.uid !== undefined && !patch.uid.trim()) {
+      return NextResponse.json({ error: "UID cannot be empty." }, { status: 400 });
+    }
+    if (patch.email !== undefined && !EMAIL_RE.test(patch.email.trim())) {
+      return NextResponse.json({ error: "Enter a valid email address." }, { status: 400 });
+    }
+
+    const updated = await db.updateRegistration(id, patch);
     if (!updated) {
       return NextResponse.json({ error: "Registration not found." }, { status: 404 });
     }
@@ -220,6 +248,35 @@ export async function POST(req: Request) {
     console.error("[api/admin/registrations] POST failed:", error?.message);
     return NextResponse.json(
       { error: error?.message || "Failed to register." },
+      { status: 500 }
+    );
+  }
+}
+
+/**
+ * Removes a registration.
+ *
+ * Destructive and not undoable, so the id has to be explicit — there is no
+ * bulk form of this. Deleting frees the seat the registration was holding.
+ */
+export async function DELETE(req: Request) {
+  try {
+    const { searchParams } = new URL(req.url);
+    const id = searchParams.get("id");
+    if (!id) {
+      return NextResponse.json({ error: "Registration id is required." }, { status: 400 });
+    }
+
+    const removed = await db.deleteRegistration(id);
+    if (!removed) {
+      return NextResponse.json({ error: "Registration not found." }, { status: 404 });
+    }
+
+    return NextResponse.json({ success: true }, { headers: NO_STORE });
+  } catch (error: any) {
+    console.error("[api/admin/registrations] DELETE failed:", error?.message);
+    return NextResponse.json(
+      { error: error?.message || "Failed to delete registration." },
       { status: 500 }
     );
   }

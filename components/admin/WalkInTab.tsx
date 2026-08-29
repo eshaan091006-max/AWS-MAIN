@@ -1,18 +1,12 @@
 "use client";
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { CheckCircle2, Loader2, UserPlus, Info } from "lucide-react";
+import { Loader2, UserPlus, Info } from "lucide-react";
 import { EventData } from "@/lib/data/initialData";
+import { RegistrationRow, type RosterRow } from "@/components/admin/RegistrationRow";
 
 interface Props {
   events: EventData[];
-}
-
-interface RosterRow {
-  id: string;
-  fullName: string;
-  uid: string;
-  attended: boolean;
 }
 
 interface Roster {
@@ -320,25 +314,18 @@ export function WalkInTab({ events }: Props) {
           ) : (
             <ul className="space-y-1.5">
               {roster.latest.map((r) => (
-                <li
+                <RegistrationRow
                   key={r.id}
-                  className="flex items-center gap-2 text-[11px] p-2"
-                  style={{ background: "var(--adm-raised)", border: "1px solid var(--adm-line)" }}
-                >
-                  <CheckCircle2
-                    className="w-3.5 h-3.5 shrink-0"
-                    style={{ color: r.attended ? "var(--adm-ok)" : "var(--adm-ghost)" }}
-                  />
-                  <span className="font-semibold truncate">{r.fullName}</span>
-                  <span className="ml-auto adm-mono text-[10px] shrink-0" style={{ color: "var(--adm-faint)" }}>
-                    {r.uid}
-                  </span>
-                </li>
+                  row={r}
+                  onSaved={() => loadRoster(eventId)}
+                  onError={setError}
+                />
               ))}
             </ul>
           )}
           <p className="adm-hint">
-            Read from the database, so this survives a refresh.
+            Read from the database. Use the pencil to fix a typo, or the bin to
+            remove a registration and free its seat.
           </p>
         </div>
       </div>
