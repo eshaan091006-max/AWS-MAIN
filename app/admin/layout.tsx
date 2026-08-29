@@ -18,5 +18,12 @@ export const metadata: Metadata = {
  * surface should not carry marketing navigation.
  */
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
-  return <div className="adm">{children}</div>;
+  return (
+    <div className="adm">
+      {/* Rendered once for the whole console, behind everything, inert. */}
+      <div className="adm-depth" aria-hidden="true" />
+      <div className="adm-horizon" aria-hidden="true" />
+      {children}
+    </div>
+  );
 }
