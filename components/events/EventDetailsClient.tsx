@@ -16,6 +16,10 @@ export function EventDetailsClient({ event, formattedDate }: Props) {
   const [modalOpen, setModalOpen] = useState(false);
   const [copied, setCopied] = useState(false);
 
+  // Same rule the server enforces — registerForEvent refuses a COMPLETED
+  // event and nothing else, so an ONGOING one still takes signups.
+  const registrationClosed = event.status === "COMPLETED";
+
   const { isRegistered, markRegistered } = useRegistered(event.id);
 
   const { registered, maxSeats, isFull, refresh: refreshSeats } = useSeatCount(
@@ -100,17 +104,21 @@ export function EventDetailsClient({ event, formattedDate }: Props) {
         </div>
 
         {/* Action Button */}
-        {event.status === "UPCOMING" && isRegistered ? (
+        {registrationClosed ? (
+          <div className="w-full py-2.5 rounded-2xl bg-navy-950 text-slate-400 text-center text-xs font-mono border border-white/10">
+            Registration Closed (Completed)
+          </div>
+        ) : isRegistered ? (
           <div className="w-full py-3 rounded-2xl bg-emerald-950/60 border border-emerald-500/40 text-emerald-300 text-center text-xs font-mono font-bold uppercase tracking-widest flex items-center justify-center gap-2">
             <CheckCircle2 className="w-4 h-4" />
             <span>Already Registered</span>
           </div>
-        ) : event.status === "UPCOMING" && isFull ? (
+        ) : isFull ? (
           <div className="w-full py-3 rounded-2xl bg-navy-950 border border-slate-600/50 text-slate-300 text-center text-xs font-mono font-bold uppercase tracking-widest flex items-center justify-center gap-2 grayscale">
             <Lock className="w-4 h-4" />
             <span>Slots Booked</span>
           </div>
-        ) : event.status === "UPCOMING" ? (
+        ) : (
           <button
             onClick={() => setModalOpen(true)}
             className="w-full py-3 rounded-2xl bg-gradient-to-r from-aws-orange to-amber-600 hover:from-amber-500 hover:to-aws-orange text-black font-bold text-xs shadow-xl shadow-aws-orange/20 transition-all flex items-center justify-center gap-2"
@@ -118,10 +126,6 @@ export function EventDetailsClient({ event, formattedDate }: Props) {
             <Sparkles className="w-4 h-4 stroke-[2.5]" />
             <span>RSVP Free Seat Now</span>
           </button>
-        ) : (
-          <div className="w-full py-2.5 rounded-2xl bg-navy-950 text-slate-400 text-center text-xs font-mono border border-white/10">
-            Registration Closed (Completed)
-          </div>
         )}
 
         <button

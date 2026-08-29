@@ -17,6 +17,11 @@ interface EventCardProps {
 export function EventCard({ event, featured }: EventCardProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  // Matches the server: registerForEvent refuses only a COMPLETED event, so an
+  // ONGOING one still takes signups. Gating the UI on UPCOMING instead hid both
+  // the register button and the full state on any event already under way.
+  const registrationClosed = event.status === "COMPLETED";
+
   // Previously this rendered the build-time seed, so a card could advertise
   // free seats for an event that had filled up since the last deploy.
   const { isRegistered, markRegistered } = useRegistered(event.id);
@@ -129,17 +134,24 @@ export function EventCard({ event, featured }: EventCardProps) {
 
           {/* Action buttons */}
           <div className="mt-5 flex items-center gap-2.5">
-            {event.status === "UPCOMING" && isRegistered ? (
+            {registrationClosed ? (
+                <Link
+                  href={`/events/${event.slug}`}
+                  className="flex-1 py-2 px-3 rounded-xl bg-navy-800 hover:bg-navy-700 text-slate-300 text-xs font-semibold transition-all text-center border border-white/10"
+                >
+                  View Recap &amp; Slides
+                </Link>
+              ) : isRegistered ? (
               <div className="flex-1 py-2 px-3 rounded-xl bg-emerald-950/60 border border-emerald-500/40 text-emerald-300 text-xs font-mono font-bold text-center flex items-center justify-center gap-1.5">
                 <CheckCircle2 className="w-3.5 h-3.5" />
                 <span>Already Registered</span>
               </div>
-            ) : event.status === "UPCOMING" && isFull ? (
+            ) : isFull ? (
               <div className="flex-1 py-2 px-3 rounded-xl bg-navy-950 border border-slate-600/50 text-slate-400 text-xs font-mono font-bold text-center flex items-center justify-center gap-1.5 grayscale">
                 <Lock className="w-3.5 h-3.5" />
                 <span>Slots Booked</span>
               </div>
-            ) : event.status === "UPCOMING" ? (
+            ) : (
               <button
                 onClick={() => setIsModalOpen(true)}
                 className="flex-1 py-2 px-3 rounded-xl bg-gradient-to-r from-aws-orange to-amber-600 hover:from-amber-500 hover:to-aws-orange text-black font-bold text-xs shadow-md shadow-aws-orange/15 transition-all flex items-center justify-center gap-1.5"
@@ -147,14 +159,7 @@ export function EventCard({ event, featured }: EventCardProps) {
                 <Sparkles className="w-3.5 h-3.5" />
                 <span>Register Now</span>
               </button>
-            ) : (
-              <Link
-                href={`/events/${event.slug}`}
-                className="flex-1 py-2 px-3 rounded-xl bg-navy-800 hover:bg-navy-700 text-slate-300 text-xs font-semibold transition-all text-center border border-white/10"
-              >
-                View Recap & Slides
-              </Link>
-            )}
+              )}
 
             <Link
               href={`/events/${event.slug}`}
