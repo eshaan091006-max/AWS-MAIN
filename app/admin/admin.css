@@ -42,7 +42,8 @@ body:has(.adm) {
      placeholders and empty-value dashes only. */
   --adm-text: #f4f4f5;   /* 18.2:1 */
   --adm-dim: #9a9aa4;    /*  7.2:1 */
-  --adm-faint: #80808b;  /*  5.0:1 */
+  --adm-faint: #8d8d98;  /*  raised with the ground: the grid and sweep are
+                            brighter now, and 4.68:1 left no headroom */
   --adm-ghost: #6e6e79;  /*  3.7:1 — placeholders only */
 
   /* Signal */
@@ -108,8 +109,8 @@ body:has(.adm) {
   right: -75%;
   height: 140%;
   background-image:
-    linear-gradient(to right, rgba(255, 255, 255, 0.055) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(255, 255, 255, 0.055) 1px, transparent 1px);
+    linear-gradient(to right, rgba(255, 153, 0, 0.16) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 153, 0, 0.16) 1px, transparent 1px);
   background-size: 56px 56px;
   animation-duration: 26s;
   animation-timing-function: linear;
@@ -127,8 +128,8 @@ body:has(.adm) {
   transform: rotateX(76deg);
   transform-origin: 50% 100%;
   animation-name: adm-drift-floor;
-  mask-image: linear-gradient(to top, #000 0%, transparent 62%);
-  -webkit-mask-image: linear-gradient(to top, #000 0%, transparent 62%);
+  mask-image: linear-gradient(to top, #000 0%, rgba(0,0,0,0.35) 45%, transparent 85%);
+  -webkit-mask-image: linear-gradient(to top, #000 0%, rgba(0,0,0,0.35) 45%, transparent 85%);
 }
 
 /* Ceiling. The pair is what reads as a corridor rather than a floor tilt. */
@@ -137,8 +138,8 @@ body:has(.adm) {
   transform: rotateX(-76deg);
   transform-origin: 50% 0%;
   animation-name: adm-drift-ceiling;
-  mask-image: linear-gradient(to bottom, #000 0%, transparent 62%);
-  -webkit-mask-image: linear-gradient(to bottom, #000 0%, transparent 62%);
+  mask-image: linear-gradient(to bottom, #000 0%, rgba(0,0,0,0.35) 45%, transparent 85%);
+  -webkit-mask-image: linear-gradient(to bottom, #000 0%, rgba(0,0,0,0.35) 45%, transparent 85%);
 }
 
 /* One warm bloom on the horizon, so the depth has a light source rather than
@@ -151,9 +152,9 @@ body:has(.adm) {
   background:
     radial-gradient(
       120% 55% at 50% 50%,
-      rgba(255, 153, 0, 0.07) 0%,
-      rgba(255, 153, 0, 0.02) 34%,
-      transparent 68%
+      rgba(255, 153, 0, 0.20) 0%,
+      rgba(255, 106, 0, 0.08) 30%,
+      transparent 66%
     );
 }
 
@@ -297,8 +298,8 @@ body:has(.adm) {
   color: var(--adm-text);
   background: linear-gradient(
     90deg,
-    rgba(255, 153, 0, 0.09) 0%,
-    rgba(255, 153, 0, 0) 70%
+    rgba(255, 153, 0, 0.28) 0%,
+    rgba(255, 153, 0, 0) 78%
   );
   border-left-color: var(--adm-accent);
 }
@@ -381,7 +382,7 @@ body:has(.adm) {
   border: 1px solid var(--adm-line);
   /* A single lit edge. Gives the panel a top surface without a shadow, which
      at zero radius would just look like a smudge. */
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.045);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
 }
 
 .adm-panel-head {
@@ -404,7 +405,7 @@ body:has(.adm) {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   border: 1px solid var(--adm-line);
   background: rgba(8, 8, 10, 0.82);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.045);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
 }
 
 @media (min-width: 900px) {
@@ -431,7 +432,7 @@ body:has(.adm) {
 
 .adm-stat-value {
   font-family: var(--font-display), sans-serif;
-  font-size: 34px;
+  font-size: 40px;
   font-weight: 800;
   line-height: 1;
   letter-spacing: -0.02em;
@@ -779,8 +780,8 @@ body:has(.adm) {
   pointer-events: none;
   background: repeating-linear-gradient(
     to bottom,
-    rgba(255, 255, 255, 0.016) 0px,
-    rgba(255, 255, 255, 0.016) 1px,
+    rgba(255, 255, 255, 0.045) 0px,
+    rgba(255, 255, 255, 0.045) 1px,
     transparent 1px,
     transparent 3px
   );
@@ -818,26 +819,27 @@ body:has(.adm) {
 .adm-panel::after {
   content: "";
   position: absolute;
-  width: 9px;
-  height: 9px;
+  width: 18px;
+  height: 18px;
   pointer-events: none;
   border-color: var(--adm-accent);
-  opacity: 0.55;
+  opacity: 0.9;
+  filter: drop-shadow(0 0 6px rgba(255, 153, 0, 0.7));
   transition: opacity 200ms;
 }
 
 .adm-panel::before {
   top: -1px;
   left: -1px;
-  border-top: 1px solid;
-  border-left: 1px solid;
+  border-top: 2px solid;
+  border-left: 2px solid;
 }
 
 .adm-panel::after {
   bottom: -1px;
   right: -1px;
-  border-bottom: 1px solid;
-  border-right: 1px solid;
+  border-bottom: 2px solid;
+  border-right: 2px solid;
 }
 
 .adm-panel:hover::before,
@@ -859,7 +861,7 @@ body:has(.adm) {
 }
 
 .adm-navitem[data-active="true"] {
-  box-shadow: inset 0 0 24px rgba(255, 153, 0, 0.07);
+  box-shadow: inset 0 0 30px rgba(255, 153, 0, 0.18);
 }
 
 /* A light travelling down the active tab's marker rule. */
@@ -904,7 +906,7 @@ body:has(.adm) {
 }
 
 .adm-stat-value {
-  text-shadow: 0 0 26px rgba(255, 255, 255, 0.14);
+  text-shadow: 0 0 34px rgba(255, 255, 255, 0.3);
 }
 
 /* A hairline that fills to show the value's share of its ceiling.
@@ -1013,9 +1015,10 @@ body:has(.adm) {
    ground so it needs no extra element and cannot cover content. */
 .adm-panel[data-lit="true"] {
   background-image: radial-gradient(
-    260px circle at var(--adm-mx, 50%) var(--adm-my, 50%),
-    rgba(255, 153, 0, 0.055),
-    transparent 68%
+    420px circle at var(--adm-mx, 50%) var(--adm-my, 50%),
+    rgba(255, 153, 0, 0.16),
+    rgba(255, 153, 0, 0.04) 40%,
+    transparent 70%
   );
 }
 
@@ -1148,4 +1151,106 @@ button.adm-stat:hover .adm-stat-value {
   .adm-palette {
     animation: none;
   }
+}
+
+/* ---------- Viewport frame ---------- */
+
+/*
+ * Corner brackets on the screen itself, not on a panel.
+ *
+ * This is the element that makes the console read as an instrument at a
+ * glance, before you have looked at anything in particular. Fixed and inert.
+ */
+.adm-frame {
+  position: fixed;
+  inset: 0;
+  z-index: 45;
+  pointer-events: none;
+}
+
+.adm-frame span {
+  position: absolute;
+  width: 26px;
+  height: 26px;
+  border: 2px solid var(--adm-accent);
+  opacity: 0.75;
+  filter: drop-shadow(0 0 8px rgba(255, 153, 0, 0.8));
+}
+
+.adm-frame span:nth-child(1) { top: 10px;    left: 10px;    border-right: 0; border-bottom: 0; }
+.adm-frame span:nth-child(2) { top: 10px;    right: 10px;   border-left: 0;  border-bottom: 0; }
+.adm-frame span:nth-child(3) { bottom: 10px; left: 10px;    border-right: 0; border-top: 0; }
+.adm-frame span:nth-child(4) { bottom: 10px; right: 10px;   border-left: 0;  border-top: 0; }
+
+/* A hairline running the full width under the header, pulsing slowly, so the
+   console reads as powered rather than static. */
+.adm-header::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--adm-accent) 20%,
+    #fff 50%,
+    var(--adm-accent) 80%,
+    transparent
+  );
+  opacity: 0.5;
+  animation: adm-breathe 4s ease-in-out infinite;
+}
+
+.adm-header {
+  position: sticky;
+  overflow: visible;
+}
+
+@keyframes adm-breathe {
+  0%, 100% { opacity: 0.25; }
+  50%      { opacity: 0.8; }
+}
+
+/* ---------- Scan sweep ---------- */
+
+/*
+ * A bright line crossing the screen every few seconds.
+ *
+ * Slow and infrequent on purpose: a fast repeating sweep over a table is
+ * genuinely hard to read past, and this console is where someone works a
+ * check-in queue.
+ */
+.adm-sweep {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 140px;
+  z-index: 44;
+  pointer-events: none;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    rgba(255, 153, 0, 0.05) 45%,
+    rgba(255, 255, 255, 0.09) 50%,
+    rgba(255, 153, 0, 0.05) 55%,
+    transparent
+  );
+  animation: adm-sweep 7s linear infinite;
+  will-change: transform;
+}
+
+@keyframes adm-sweep {
+  0%   { transform: translate3d(0, -140px, 0); opacity: 0; }
+  8%   { opacity: 1; }
+  92%  { opacity: 1; }
+  100% { transform: translate3d(0, 100vh, 0); opacity: 0; }
+}
+
+/* Decoration only; the frame stays, the movement goes. */
+@media (prefers-reduced-motion: reduce) {
+  .adm-sweep { display: none; }
+  .adm-header::after { animation: none; opacity: 0.6; }
 }
