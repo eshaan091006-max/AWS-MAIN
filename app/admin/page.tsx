@@ -22,7 +22,6 @@ import {
 import {
   INITIAL_PROJECTS,
   INITIAL_TEAM_MEMBERS,
-  INITIAL_GALLERY,
   INITIAL_CONTACT_MESSAGES,
   EventData,
 } from "@/lib/data/initialData";
@@ -33,6 +32,7 @@ import { StatusStrip } from "@/components/admin/StatusStrip";
 import { ConsoleInteractions } from "@/components/admin/ConsoleInteractions";
 import { CustomCursor } from "@/components/admin/CustomCursor";
 import { MotionToggle } from "@/components/admin/MotionToggle";
+import { GalleryTab } from "@/components/admin/GalleryTab";
 import { CommandPalette, type Command } from "@/components/admin/CommandPalette";
 
 type Tab =
@@ -66,7 +66,6 @@ export default function AdminPage() {
   // React state, so the data vanished on refresh while looking saved.
   const projects = INITIAL_PROJECTS;
   const members = INITIAL_TEAM_MEMBERS;
-  const gallery = INITIAL_GALLERY;
   const messages = INITIAL_CONTACT_MESSAGES;
 
   const loadEvents = useCallback(async () => {
@@ -136,7 +135,7 @@ export default function AdminPage() {
     { id: "messages", label: "Inquiries", icon: Mail, count: messages.length },
     { id: "projects", label: "Projects", icon: FolderGit2, count: projects.length },
     { id: "members", label: "Leadership", icon: Users, count: members.length },
-    { id: "gallery", label: "Gallery", icon: Camera, count: gallery.length },
+    { id: "gallery", label: "Gallery", icon: Camera },
   ];
 
   const activeLabel = tabs.find((t) => t.id === activeTab)?.label ?? "";
@@ -525,6 +524,8 @@ export default function AdminPage() {
           {/* ---------------- Walk-in ---------------- */}
           {activeTab === "walkin" && <WalkInTab events={events} />}
 
+          {activeTab === "gallery" && <GalleryTab />}
+
           {/* ---------------- Inquiries ---------------- */}
           {activeTab === "messages" && (
             <section className="adm-panel">
@@ -569,7 +570,7 @@ export default function AdminPage() {
           )}
 
           {/* ---------------- Static content tabs ---------------- */}
-          {(activeTab === "projects" || activeTab === "members" || activeTab === "gallery") && (
+          {(activeTab === "projects" || activeTab === "members") && (
             <section className="adm-panel">
               <div className="adm-panel-head">
                 <span className="adm-eyebrow">{activeLabel}</span>
@@ -604,15 +605,6 @@ export default function AdminPage() {
                       </div>
                     ))}
 
-                  {activeTab === "gallery" &&
-                    gallery.map((g) => (
-                      <div key={g.id} className="p-4" style={{ background: "var(--adm-panel)" }}>
-                        <div className="font-semibold text-sm">{g.title}</div>
-                        <div className="adm-mono text-[11px] mt-1" style={{ color: "var(--adm-faint)" }}>
-                          {g.category}
-                        </div>
-                      </div>
-                    ))}
                 </div>
               </div>
             </section>

@@ -443,6 +443,117 @@ class LocalDataStore {
   }
 
 
+  // ==================== Gallery ====================
+
+  private toGalleryItem(row: any): GalleryImageData {
+    return {
+      id: row.id,
+      title: row.title,
+      description: row.description ?? "",
+      category: row.category,
+      imageUrl: row.image_url,
+      date: row.date,
+      featured: Boolean(row.featured),
+    };
+  }
+
+  /** Gallery entries, newest first. Falls back to the seed if unreachable. */
+  async listGallery(): Promise<GalleryImageData[]> {
+    if (!isSupabaseConfigured) return this.gallery;
+    const client = getWriteSupabase();
+    if (!client) return this.gallery;
+
+    const { data, error } = await client
+      .from("gallery")
+      .select("*")
+      .order("date", { ascending: false });
+
+    if (error) {
+      if (error.code && SCHEMA_MISSING_CODES.includes(error.code)) {
+        warnOnce(
+          "gallery-table-missing",
+          "[supabase] No gallery table yet — serving seed entries. Run supabase/schema.sql."
+        );
+      } else {
+        console.error("[supabase] gallery read failed:", error.code, error.message);
+      }
+      return this.gallery;
+    }
+    return (data ?? []).map((r) => this.toGalleryItem(r));
+  }
+
+  async createGalleryItem(
+    input: Omit<GalleryImageData, "id">
+  ): Promise<GalleryImageData> {
+    const client = getServiceSupabase();
+    if (!client) throw new Error("Creating gallery entries requires SUPABASE_SERVICE_ROLE_KEY.");
+
+    const { data, error } = await client
+      .from("gallery")
+      .insert({
+        id: `gal-${Date.now()}`,
+        title: input.title,
+        description: input.description,
+        category: input.category,
+        image_url: input.imageUrl,
+        date: input.date,
+        featured: input.featured,
+      })
+      .select()
+      .single();
+
+    if (error) {
+      console.error("[supabase] gallery insert failed:", error.code, error.message);
+      throw describeDbError(error, "gallery entry");
+    }
+    return this.toGalleryItem(data);
+  }
+
+  async updateGalleryItem(
+    id: string,
+    patch: Partial<Omit<GalleryImageData, "id">>
+  ): Promise<GalleryImageData | null> {
+    const client = getServiceSupabase();
+    if (!client) throw new Error("Editing gallery entries requires SUPABASE_SERVICE_ROLE_KEY.");
+
+    const row: Record<string, unknown> = { updated_at: new Date().toISOString() };
+    if (patch.title !== undefined) row.title = patch.title;
+    if (patch.description !== undefined) row.description = patch.description;
+    if (patch.category !== undefined) row.category = patch.category;
+    if (patch.imageUrl !== undefined) row.image_url = patch.imageUrl;
+    if (patch.date !== undefined) row.date = patch.date;
+    if (patch.featured !== undefined) row.featured = patch.featured;
+
+    const { data, error } = await client
+      .from("gallery")
+      .update(row)
+      .eq("id", id)
+      .select()
+      .maybeSingle();
+
+    if (error) {
+      console.error("[supabase] gallery update failed:", error.code, error.message);
+      throw describeDbError(error, "gallery entry");
+    }
+    return data ? this.toGalleryItem(data) : null;
+  }
+
+  async deleteGalleryItem(id: string): Promise<boolean> {
+    const client = getServiceSupabase();
+    if (!client) throw new Error("Deleting gallery entries requires SUPABASE_SERVICE_ROLE_KEY.");
+
+    const { error, count } = await client
+      .from("gallery")
+      .delete({ count: "exact" })
+      .eq("id", id);
+
+    if (error) {
+      console.error("[supabase] gallery delete failed:", error.code, error.message);
+      throw describeDbError(error, "gallery entry");
+    }
+    return (count ?? 0) > 0;
+  }
+
   // ==================== Registrations (admin) ====================
 
   /**

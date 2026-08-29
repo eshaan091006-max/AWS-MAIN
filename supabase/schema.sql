@@ -195,6 +195,44 @@ end $$;
 
 
 -- =================================================================
+-- 3a. GALLERY
+--
+-- Photo entries, managed from the admin area. Public content like events, so
+-- readable by anyone and writable only by the service role.
+-- =================================================================
+create table if not exists public.gallery (
+  id          text primary key,
+  title       text not null,
+  description text not null default '',
+  category    text not null default 'EVENTS'
+                check (category in ('WORKSHOPS','HACKATHONS','TEAM','EVENTS','COMMUNITY')),
+  image_url   text not null,
+  date        timestamptz not null default now(),
+  featured    boolean not null default false,
+  created_at  timestamptz not null default now(),
+  updated_at  timestamptz not null default now()
+);
+
+create index if not exists gallery_date_idx on public.gallery (date desc);
+
+-- Seeded from lib/data/initialData.ts, generated rather than retyped so the
+-- two cannot drift. ON CONFLICT DO NOTHING keeps re-runs safe and never
+-- overwrites an edit made in the admin area.
+insert into public.gallery (id, title, description, category, image_url, date, featured)
+values
+  ('gal-1', 'AWS Cloud Day Inauguration Keynote', 'Over 350 students gathered at the Xavier auditorium for the annual cloud kickoff.', 'EVENTS', 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?q=80&w=1200&auto=format&fit=crop', '2026-03-12', true),
+  ('gal-2', 'Hands-on Serverless Lab Session', 'Students building live Lambda functions and API Gateway endpoints.', 'WORKSHOPS', 'https://images.unsplash.com/photo-1531482615713-2afd69097998?q=80&w=1200&auto=format&fit=crop', '2026-02-18', true),
+  ('gal-3', 'CloudHacks Grand Finale Judging', 'Jury evaluating architecture diagrams and high-availability setups.', 'HACKATHONS', 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=1200&auto=format&fit=crop', '2025-11-20', true),
+  ('gal-4', 'Core Executive Team Strategy Meeting', 'Planning upcoming certification study cohorts and industrial guest lectures.', 'TEAM', 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=1200&auto=format&fit=crop', '2026-01-10', false),
+  ('gal-5', 'AWS Community Mixer & Mentorship', 'Senior cloud engineers reviewing resumes and offering architecture tips.', 'COMMUNITY', 'https://images.unsplash.com/photo-1511632765486-a01980e01a18?q=80&w=1200&auto=format&fit=crop', '2025-12-05', false),
+  ('gal-6', 'Container & Kubernetes Bootcamp', 'Deep dive into Docker images, microservices, and cluster management.', 'WORKSHOPS', 'https://images.unsplash.com/photo-1515187029135-18ee286d815b?q=80&w=1200&auto=format&fit=crop', '2025-10-15', false),
+  ('gal-7', 'Hackathon Winning Team Celebration', 'Awarding AWS exam vouchers and prizes to the top 3 innovating teams.', 'HACKATHONS', 'https://images.unsplash.com/photo-1517048676732-d65bc937f952?q=80&w=1200&auto=format&fit=crop', '2025-11-21', false),
+  ('gal-8', 'Student Induction & Welcome Drive', 'Welcoming 150+ new cloud enthusiasts into the SXC AWS family.', 'COMMUNITY', 'https://images.unsplash.com/photo-1523240795612-9a054b0db644?q=80&w=1200&auto=format&fit=crop', '2025-08-25', false)
+on conflict (id) do nothing;
+
+
+
+-- =================================================================
 -- 4. ROW LEVEL SECURITY
 --
 -- Both tables are write-only for the public anon key: anyone may submit
@@ -216,6 +254,15 @@ create policy "Events are publicly readable"
 
 grant select on public.events to anon, authenticated;
 revoke insert, update, delete on public.events from anon, authenticated;
+
+alter table public.gallery enable row level security;
+
+drop policy if exists "Gallery is publicly readable" on public.gallery;
+create policy "Gallery is publicly readable"
+  on public.gallery for select to anon, authenticated using (true);
+
+grant select on public.gallery to anon, authenticated;
+revoke insert, update, delete on public.gallery from anon, authenticated;
 
 -- Registrations are NOT insertable directly. Every signup goes through
 -- register_for_event() below, which holds a lock while it checks the
