@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { CheckCircle2, Loader2, UserPlus, Info } from "lucide-react";
 import { EventData } from "@/lib/data/initialData";
 
@@ -8,9 +8,17 @@ interface Props {
   events: EventData[];
 }
 
-interface Result {
-  name: string;
-  alreadyRegistered: boolean;
+interface RosterRow {
+  id: string;
+  fullName: string;
+  uid: string;
+  attended: boolean;
+}
+
+interface Roster {
+  total: number;
+  present: number;
+  latest: RosterRow[];
 }
 
 const YEARS = ["FY", "SY", "TY", "PG Part 1", "PG Part 2"];
@@ -42,16 +50,47 @@ export function WalkInTab({ events }: Props) {
   const [form, setForm] = useState({ ...EMPTY });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [recent, setRecent] = useState<Result[]>([]);
   // Only offered once the server has actually refused for capacity, so it is
   // a considered decision rather than a checkbox someone leaves ticked.
   const [canOverride, setCanOverride] = useState(false);
   const [allowOverCapacity, setAllowOverCapacity] = useState(false);
   const firstFieldRef = useRef<HTMLInputElement>(null);
 
+  // Read back from the server rather than kept in component state. An earlier
+  // version logged each save into local state labelled "this session", which
+  // emptied on refresh and read as though the registrations had been lost.
+  // What the desk needs to see is what is actually stored.
+  const [roster, setRoster] = useState<Roster | null>(null);
+
+  const selected = upcoming.find((e) => e.id === eventId) ?? null;
+  const atCapacity = Boolean(roster && selected && roster.total >= selected.maxSeats);
+
+  const loadRoster = useCallback(async (id: string) => {
+    if (!id) return;
+    try {
+      const res = await fetch(`/api/admin/registrations?eventId=${encodeURIComponent(id)}`, {
+        cache: "no-store",
+      });
+      if (!res.ok) return;
+      const json = await res.json();
+      setRoster({
+        total: json.summary?.total ?? 0,
+        present: json.summary?.present ?? 0,
+        latest: (json.data ?? []).slice(-6).reverse(),
+      });
+    } catch {
+      // A missing roster must not block taking a registration.
+    }
+  }, []);
+
   useEffect(() => {
     if (!eventId && upcoming.length > 0) setEventId(upcoming[0].id);
   }, [upcoming, eventId]);
+
+  useEffect(() => {
+    setRoster(null);
+    loadRoster(eventId);
+  }, [eventId, loadRoster]);
 
   const set = (patch: Partial<typeof form>) => setForm((f) => ({ ...f, ...patch }));
 
@@ -72,10 +111,7 @@ export function WalkInTab({ events }: Props) {
         throw new Error(json.error || "Could not register.");
       }
 
-      const name = `${form.firstName} ${form.surname}`.trim();
-      // Newest first, capped — this is a working log for the current session,
-      // not a record. The attendance list is the record.
-      setRecent((prev) => [{ name, alreadyRegistered: json.alreadyRegistered }, ...prev].slice(0, 8));
+      await loadRoster(eventId);
 
       setForm({ ...EMPTY, academicYear: form.academicYear, stream: form.stream });
       // Reset the override every time: admitting one extra person must not
@@ -235,36 +271,75 @@ export function WalkInTab({ events }: Props) {
       </form>
 
       <div className="lg:col-span-2 space-y-3">
+        {/* Capacity is shown before the officer types, not discovered after a
+            failed submit. This event sitting over its limit is exactly why
+            walk-ins were silently refused. */}
+        {roster && selected && (
+          <div className="adm-panel p-4">
+            <div className="adm-eyebrow">Registered</div>
+            <div className="flex items-baseline gap-2 mt-2">
+              <span
+                className="adm-num font-display font-extrabold leading-none"
+                style={{
+                  fontSize: 30,
+                  color: atCapacity ? "var(--adm-warn)" : "var(--adm-text)",
+                }}
+              >
+                {roster.total}
+              </span>
+              <span className="adm-mono text-xs" style={{ color: "var(--adm-faint)" }}>
+                / {selected.maxSeats}
+              </span>
+              <span className="adm-tag adm-tag-ok ml-auto">
+                {roster.present} present
+              </span>
+            </div>
+            {atCapacity && (
+              <p className="adm-hint" style={{ color: "var(--adm-warn)" }}>
+                At capacity. Registering anyone else needs the override, which
+                appears once you submit.
+              </p>
+            )}
+          </div>
+        )}
+
         <div className="adm-notice flex gap-3">
-          <Info className="w-4 h-4 text-aws-orange shrink-0 mt-0.5" />
-          <p className="text-[11px] text-slate-400 leading-relaxed">
-            If this email already registered online, they are not added twice — they
-            are simply marked present. Seat limits still apply.
+          <Info className="w-4 h-4 shrink-0 mt-0.5" style={{ color: "var(--adm-accent)" }} />
+          <p className="leading-relaxed">
+            Someone who already registered online is not added twice — they are
+            marked present instead.
           </p>
         </div>
 
         <div className="adm-panel p-4">
-          <h3 className="adm-eyebrow mb-3">
-            This session
-          </h3>
-          {recent.length === 0 ? (
-            <p className="text-[11px] font-mono text-slate-500">Nobody checked in yet.</p>
+          <h3 className="adm-eyebrow mb-3">Latest registrations</h3>
+          {!roster ? (
+            <p className="adm-hint">Loading…</p>
+          ) : roster.latest.length === 0 ? (
+            <p className="adm-hint">Nobody has registered for this event yet.</p>
           ) : (
             <ul className="space-y-1.5">
-              {recent.map((r, i) => (
+              {roster.latest.map((r) => (
                 <li
-                  key={i}
-                  className="flex items-center gap-2 text-[11px] p-2" style={{ background: "var(--adm-raised)", border: "1px solid var(--adm-line)" }}
+                  key={r.id}
+                  className="flex items-center gap-2 text-[11px] p-2"
+                  style={{ background: "var(--adm-raised)", border: "1px solid var(--adm-line)" }}
                 >
-                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                  <span className="text-white font-semibold truncate">{r.name}</span>
-                  <span className="ml-auto text-[10px] font-mono text-slate-500 shrink-0">
-                    {r.alreadyRegistered ? "was registered" : "new"}
+                  <CheckCircle2
+                    className="w-3.5 h-3.5 shrink-0"
+                    style={{ color: r.attended ? "var(--adm-ok)" : "var(--adm-ghost)" }}
+                  />
+                  <span className="font-semibold truncate">{r.fullName}</span>
+                  <span className="ml-auto adm-mono text-[10px] shrink-0" style={{ color: "var(--adm-faint)" }}>
+                    {r.uid}
                   </span>
                 </li>
               ))}
             </ul>
           )}
+          <p className="adm-hint">
+            Read from the database, so this survives a refresh.
+          </p>
         </div>
       </div>
     </div>
