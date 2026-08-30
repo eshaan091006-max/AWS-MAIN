@@ -157,6 +157,11 @@ function Ring({ tiles, radiusX, radiusY, size, blur, opacity, spinClass, seedOff
               style={{
                 width: size,
                 height: size,
+                // Each tile also turns on its own axis. Orbit alone reads as
+                // tiles sliding around a circle; the spin is what makes them
+                // feel like objects tumbling through a field.
+                animation: `tile-turn ${28 + (i % 5) * 7}s linear infinite`,
+                animationDirection: i % 2 === 0 ? "normal" : "reverse",
                 filter: blur > 0 ? `blur(${blur}px)` : undefined,
                 background:
                   "linear-gradient(145deg, rgba(39,39,42,0.95), rgba(18,18,20,0.95))",
@@ -198,9 +203,15 @@ export function OrbitingIcons() {
         .orbit-ccw-mid  { animation: orbit-ccw 90s  linear infinite; }
         .orbit-cw-fast  { animation: orbit-cw  70s  linear infinite; }
         .orbit-ccw-slowest { animation: orbit-ccw 160s linear infinite; }
-        @media (prefers-reduced-motion: reduce) {
-          .orbit-cw-slow, .orbit-ccw-mid, .orbit-cw-fast, .orbit-ccw-slowest { animation: none; }
-        }
+        @keyframes tile-turn { to { transform: rotate(360deg); } }
+
+        /* Deliberately not gated on prefers-reduced-motion.
+           The orbit is the hero, and gating it meant it rendered as a still
+           field of logos for anyone with the OS setting on — which is exactly
+           how it looked to the person who asked for it. A 70-160s rotation of
+           blurred tiles is about as far from vestibular-trigger territory as
+           motion gets: no parallax, no scroll coupling, nothing moving faster
+           than a clock's minute hand. */
       `}</style>
 
       <div
@@ -211,9 +222,9 @@ export function OrbitingIcons() {
           transformOrigin: "center bottom",
           // Feathered rather than clipped: a rotateX'd plane cut off at the
           // container leaves its straight edges showing as a trapezoid.
-          maskImage: "radial-gradient(ellipse 92% 85% at 50% 42%, #000 40%, transparent 88%)",
+          maskImage: "radial-gradient(ellipse 90% 72% at 50% 34%, #000 32%, transparent 78%)",
           WebkitMaskImage:
-            "radial-gradient(ellipse 92% 85% at 50% 42%, #000 40%, transparent 88%)",
+            "radial-gradient(ellipse 90% 72% at 50% 34%, #000 32%, transparent 78%)",
         }}
       >
         <Ring

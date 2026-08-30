@@ -1,10 +1,11 @@
 "use client";
 
 import React, { useRef, useState } from "react";
-import { Send, CheckCircle, HelpCircle, ChevronDown, Loader2 } from "lucide-react";
+import { Send, CheckCircle, ChevronDown, Loader2 } from "lucide-react";
 import confetti from "canvas-confetti";
 import { siteConfig } from "@/config/site";
 import { ContactHero } from "@/components/ui/contact-hero";
+import { LiquidButton } from "@/components/ui/liquid-button";
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
@@ -93,13 +94,12 @@ export default function ContactPage() {
       <section className="max-w-[1750px] mx-auto px-4 sm:px-8 lg:px-12 xl:px-16">
         <div className="max-w-3xl mx-auto">
           <div ref={formRef} className="scroll-mt-28">
-            <div className="p-8 sm:p-10 rounded-3xl bg-navy-900/80 border border-aws-orange/30 backdrop-blur-2xl shadow-2xl space-y-6">
-              <div>
-                <h2 className="text-2xl font-bold text-white">Send Us a Message</h2>
-                <p className="text-xs text-slate-400 font-mono mt-1">
-                  We typically respond within 24 hours to all student and partner inquiries.
-                </p>
-              </div>
+            {/* No heading and no card. The hero already said "reach the club";
+                announcing "Send Us a Message" over a form that is visibly a
+                message form was saying it a third time, and the orange-bordered
+                panel is what made the page look like two pages stapled
+                together. */}
+            <div className="space-y-6">
 
               {submitted ? (
                 <div className="p-8 rounded-2xl bg-navy-950 border border-emerald-500/40 text-center space-y-4">
@@ -178,23 +178,26 @@ export default function ContactPage() {
                     />
                   </div>
 
-                  <button
+                  <LiquidButton
                     type="submit"
                     disabled={loading}
-                    className="w-full py-3 rounded-xl bg-gradient-to-r from-aws-orange to-amber-600 hover:from-amber-500 hover:to-aws-orange text-black font-bold text-xs shadow-xl shadow-aws-orange/20 flex items-center justify-center gap-2 transition-all disabled:opacity-50"
+                    size="md"
+                    className="w-full disabled:opacity-60"
                   >
                     {loading ? (
                       <>
                         <Loader2 className="w-4 h-4 animate-spin" />
-                        <span>Sending to AWS Serverless API...</span>
+                        {/* "Sending to AWS Serverless API" described the
+                            plumbing, not what is happening to the message. */}
+                        <span>Sending…</span>
                       </>
                     ) : (
                       <>
                         <Send className="w-4 h-4 stroke-[2.2]" />
-                        <span>Dispatch Message</span>
+                        <span>Send message</span>
                       </>
                     )}
-                  </button>
+                  </LiquidButton>
                 </form>
               )}
             </div>
@@ -203,42 +206,58 @@ export default function ContactPage() {
         </div>
       </section>
 
-      {/* Frequently Asked Questions Accordion */}
-      <section className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-20">
-        <div className="text-center mb-10">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-mono font-bold bg-aws-orange/15 text-aws-orange border border-aws-orange/30 mb-2">
-            <HelpCircle className="w-3.5 h-3.5" />
-            <span>GOT QUESTIONS?</span>
-          </div>
-          <h2 className="text-2xl sm:text-3xl font-bold text-white">Frequently Asked Questions</h2>
-        </div>
-
-        <div className="space-y-3">
-          {faqs.map((faq, idx) => {
-            const isOpen = openFaq === idx;
-            return (
-              <div
-                key={idx}
-                className="rounded-2xl bg-navy-900/70 border border-white/10 overflow-hidden transition-colors"
+      {/* FAQ. Two columns, hairline rules, no card chrome — the question list
+          is the content, and boxing each row was fighting it. */}
+      <section className="max-w-6xl mx-auto px-4 sm:px-8 lg:px-12 pt-28">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16">
+          <div className="lg:col-span-4">
+            <h2 className="text-4xl sm:text-5xl font-display font-black text-white tracking-tight">
+              FAQs
+            </h2>
+            <p className="text-base text-zinc-400 mt-3">Your questions answered</p>
+            <p className="text-sm text-zinc-500 mt-6 leading-relaxed">
+              Can&apos;t find what you&apos;re looking for?{" "}
+              <button
+                type="button"
+                onClick={() => formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })}
+                className="text-zinc-300 underline underline-offset-4 hover:text-aws-orange transition-colors"
               >
-                <button
-                  onClick={() => setOpenFaq(isOpen ? null : idx)}
-                  className="w-full p-4 text-left flex items-center justify-between text-xs sm:text-sm font-semibold text-white hover:text-aws-orange transition-colors"
-                >
-                  <span>{faq.q}</span>
-                  <ChevronDown
-                    className={`w-4 h-4 text-aws-orange transition-transform duration-200 shrink-0 ml-2 ${isOpen ? "rotate-180" : ""
-                      }`}
-                  />
-                </button>
-                {isOpen && (
-                  <div className="px-4 pb-4 pt-1 text-xs text-slate-300 leading-relaxed border-t border-white/5 bg-navy-950/40">
-                    {faq.a}
+                Send us a message
+              </button>{" "}
+              and we&apos;ll get back to you.
+            </p>
+          </div>
+
+          <div className="lg:col-span-8">
+            {faqs.map((faq, idx) => {
+              const isOpen = openFaq === idx;
+              return (
+                <div key={idx} className="border-b border-white/10">
+                  <button
+                    onClick={() => setOpenFaq(isOpen ? null : idx)}
+                    aria-expanded={isOpen}
+                    className="w-full py-5 text-left flex items-center justify-between gap-4 group"
+                  >
+                    <span className="text-base text-white group-hover:text-aws-orange transition-colors">
+                      {faq.q}
+                    </span>
+                    <ChevronDown
+                      className={`w-4 h-4 text-zinc-500 shrink-0 transition-transform duration-300 ${isOpen ? "rotate-180" : ""}`}
+                    />
+                  </button>
+                  {/* Grid-rows trick: animates open and closed without needing a
+                      fixed height, which an answer of unknown length cannot have. */}
+                  <div
+                    className={`grid transition-all duration-300 ease-out ${isOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}
+                  >
+                    <div className="overflow-hidden">
+                      <p className="pb-5 pr-8 text-sm text-zinc-400 leading-relaxed">{faq.a}</p>
+                    </div>
                   </div>
-                )}
-              </div>
-            );
-          })}
+                </div>
+              );
+            })}
+          </div>
         </div>
       </section>
     </div>
