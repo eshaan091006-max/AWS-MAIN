@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { Mail, MessageSquare, MapPin, Send, CheckCircle, Sparkles, Github, Linkedin, Instagram, HelpCircle, ChevronDown, Loader2, CalendarDays, Cloud, ExternalLink } from "lucide-react";
 import confetti from "canvas-confetti";
 import { siteConfig } from "@/config/site";
+import { ContactHero } from "@/components/ui/contact-hero";
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
@@ -70,24 +71,10 @@ export default function ContactPage() {
   };
 
   return (
-    <div className="relative pt-28 pb-20 overflow-hidden">
-      {/* Header */}
-      <section className="max-w-[1750px] mx-auto px-4 sm:px-8 lg:px-12 xl:px-16 pt-8 pb-12">
-        <div className="text-center max-w-3xl mx-auto space-y-4">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-mono font-bold bg-aws-orange/15 text-aws-orange border border-aws-orange/30">
-            <Mail className="w-3.5 h-3.5" />
-            <span>GET IN TOUCH</span>
-          </div>
-
-          <h1 className="text-4xl sm:text-5xl font-extrabold text-white tracking-tight">
-            Join the Community & <span className="text-gradient-orange">Let&apos;s Build Together</span>
-          </h1>
-
-          <p className="text-base text-slate-300 leading-relaxed">
-            Have a project idea? Want to collaborate on a workshop? Or looking to break into AWS cloud engineering? Reach out to the SXC AWS team.
-          </p>
-        </div>
-      </section>
+    <div className="relative pb-20 overflow-hidden">
+      {/* The channel grid lives in the hero now; the form below is still the
+          way to send an actual message, and still writes to Supabase. */}
+      <ContactHero />
 
       {/* Main Grid: Form + Info */}
       <section className="max-w-[1750px] mx-auto px-4 sm:px-8 lg:px-12 xl:px-16">
