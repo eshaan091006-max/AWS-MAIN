@@ -39,19 +39,6 @@ function warnOnce(key: string, message: string) {
   console.warn(message);
 }
 
-/**
- * A list that knows where it came from.
- *
- * The seed fallback keeps pages rendering during an outage, but in the admin
- * console it is actively misleading: the rows look editable, and every delete
- * fails with a database error the row itself gave no warning about. Callers
- * that offer write controls check `live` and say so.
- */
-export interface SourcedList<T> {
-  items: T[];
-  live: boolean;
-}
-
 const SEATS_TTL_MS = 20_000;
 const seatsKey = (eventId: string) => `seats:${eventId}`;
 
@@ -471,10 +458,10 @@ class LocalDataStore {
   }
 
   /** Gallery entries, newest first. Falls back to the seed if unreachable. */
-  async listGallery(): Promise<SourcedList<GalleryImageData>> {
-    if (!isSupabaseConfigured) return { items: this.gallery, live: false };
+  async listGallery(): Promise<GalleryImageData[]> {
+    if (!isSupabaseConfigured) return this.gallery;
     const client = getWriteSupabase();
-    if (!client) return { items: this.gallery, live: false };
+    if (!client) return this.gallery;
 
     const { data, error } = await client
       .from("gallery")
@@ -490,9 +477,9 @@ class LocalDataStore {
       } else {
         console.error("[supabase] gallery read failed:", error.code, error.message);
       }
-      return { items: this.gallery, live: false };
+      return this.gallery;
     }
-    return { items: (data ?? []).map((r) => this.toGalleryItem(r)), live: true };
+    return (data ?? []).map((r) => this.toGalleryItem(r));
   }
 
   async createGalleryItem(
@@ -596,10 +583,10 @@ class LocalDataStore {
   }
 
   /** Every project, featured first. Falls back to the seed if unreachable. */
-  async listProjects(): Promise<SourcedList<ProjectData>> {
-    if (!isSupabaseConfigured) return { items: this.projects, live: false };
+  async listProjects(): Promise<ProjectData[]> {
+    if (!isSupabaseConfigured) return this.projects;
     const client = getWriteSupabase();
-    if (!client) return { items: this.projects, live: false };
+    if (!client) return this.projects;
 
     const { data, error } = await client
       .from("projects")
@@ -616,9 +603,9 @@ class LocalDataStore {
       } else {
         console.error("[supabase] projects read failed:", error.code, error.message);
       }
-      return { items: this.projects, live: false };
+      return this.projects;
     }
-    return { items: (data ?? []).map((r) => this.toProject(r)), live: true };
+    return (data ?? []).map((r) => this.toProject(r));
   }
 
   async createProject(input: Omit<ProjectData, "id">): Promise<ProjectData> {
@@ -732,10 +719,10 @@ class LocalDataStore {
   }
 
   /** Team members in display order. Falls back to the seed if unreachable. */
-  async listTeamMembers(): Promise<SourcedList<TeamMemberData>> {
-    if (!isSupabaseConfigured) return { items: this.teamMembers, live: false };
+  async listTeamMembers(): Promise<TeamMemberData[]> {
+    if (!isSupabaseConfigured) return this.teamMembers;
     const client = getWriteSupabase();
-    if (!client) return { items: this.teamMembers, live: false };
+    if (!client) return this.teamMembers;
 
     const { data, error } = await client
       .from("team_members")
@@ -752,9 +739,9 @@ class LocalDataStore {
       } else {
         console.error("[supabase] team members read failed:", error.code, error.message);
       }
-      return { items: this.teamMembers, live: false };
+      return this.teamMembers;
     }
-    return { items: (data ?? []).map((r) => this.toTeamMember(r)), live: true };
+    return (data ?? []).map((r) => this.toTeamMember(r));
   }
 
   async createTeamMember(input: Omit<TeamMemberData, "id">): Promise<TeamMemberData> {

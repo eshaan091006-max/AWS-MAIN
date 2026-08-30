@@ -3,20 +3,14 @@
 import React, { useEffect, useState } from "react";
 
 interface Props {
-  /** Null while the first fetch is in flight. */
-  dbConnected: boolean | null;
   signedInAs: string | null;
 }
 
 /**
- * The readout along the top of the console.
- *
- * Every field is real: a live clock, the actual database reachability, and who
- * is signed in. A status strip that displays invented telemetry is worse than
- * no strip, because it trains you to ignore the one place a genuine problem
- * would appear.
+ * The readout along the top of the console: a live clock and who is signed in.
+ * Both are real values, not invented telemetry.
  */
-export function StatusStrip({ dbConnected, signedInAs }: Props) {
+export function StatusStrip({ signedInAs }: Props) {
   const [now, setNow] = useState<Date | null>(null);
 
   useEffect(() => {
@@ -38,21 +32,6 @@ export function StatusStrip({ dbConnected, signedInAs }: Props) {
   return (
     <div className="adm-status">
       <span className="adm-status-item">
-        <span
-          className="adm-pulse"
-          data-state={dbConnected === false ? "down" : "up"}
-          aria-hidden="true"
-        />
-        <span>
-          {dbConnected === null ? "CHECKING" : dbConnected ? "DB LINKED" : "DB DOWN"}
-        </span>
-      </span>
-
-      <span className="adm-status-item hidden sm:flex" style={{ color: "var(--adm-ghost)" }}>
-        /
-      </span>
-
-      <span className="adm-status-item hidden sm:flex">
         <span style={{ color: "var(--adm-ghost)" }}>{date}</span>
         <span
           className="adm-num"

@@ -58,7 +58,6 @@ export default function AdminPage() {
 
   const [signedInAs, setSignedInAs] = useState<string | null>(null);
   const [regSummary, setRegSummary] = useState<{ total: number; present: number } | null>(null);
-  const [dbConnected, setDbConnected] = useState<boolean | null>(null);
   const [msgSummary, setMsgSummary] = useState<{ total: number; unread: number } | null>(null);
 
   const loadEvents = useCallback(async () => {
@@ -69,10 +68,8 @@ export default function AdminPage() {
       const json = await res.json();
       if (!res.ok) throw new Error(json.error || "Could not load events.");
       setEvents(json.data ?? []);
-      setDbConnected(true);
     } catch (err: any) {
       setEventsError(err.message);
-      setDbConnected(false);
     } finally {
       setEventsLoading(false);
     }
@@ -275,7 +272,7 @@ export default function AdminPage() {
           </div>
 
           <div className="hidden md:block flex-1 min-w-0 px-4">
-            <StatusStrip dbConnected={dbConnected} signedInAs={signedInAs} />
+            <StatusStrip signedInAs={signedInAs} />
           </div>
 
           <div className="flex items-center gap-2 shrink-0">
