@@ -19,6 +19,9 @@ import { siteConfig } from "@/config/site";
 import { EventCard } from "@/components/events/EventCard";
 import { teamHierarchy } from "@/config/teamHierarchy";
 import { db } from "@/lib/db";
+import { Boxes } from "@/components/ui/background-boxes";
+import { ScrollProgress } from "@/components/ui/scroll-progress";
+import { Reveal } from "@/components/ui/reveal";
 
 export const metadata = {
   title: "SXC AWS Group — Build. Deploy. Scale. | St. Xavier's College",
@@ -87,9 +90,23 @@ export default async function HomePage() {
 
   return (
     <div className="relative">
+      <ScrollProgress />
+
       {/* ============================ HERO ============================ */}
-      <section id="top" className="relative px-4 sm:px-8 lg:px-12 pt-36 pb-24 sm:pt-44 sm:pb-32">
-        <div className="max-w-3xl mx-auto text-center space-y-7">
+      <section
+        id="top"
+        className="relative isolate overflow-hidden px-4 sm:px-8 lg:px-12 pt-36 pb-24 sm:pt-44 sm:pb-32"
+      >
+        {/* The interactive grid. Sits at the bottom of the stack so the mask
+            above can vignette it and the copy above that stays readable. */}
+        <Boxes />
+
+        {/* Vignette. The radial mask is transparent in the middle and opaque at
+            the edges, so the grid fades out instead of ending on a hard line.
+            pointer-events-none is what keeps the boxes hoverable through it. */}
+        <div className="absolute inset-0 w-full h-full bg-navy-950 z-10 pointer-events-none [mask-image:radial-gradient(ellipse_72%_62%_at_50%_46%,transparent_15%,black_82%)] [-webkit-mask-image:radial-gradient(ellipse_72%_62%_at_50%_46%,transparent_15%,black_82%)]" />
+
+        <div className="relative z-20 max-w-3xl mx-auto text-center space-y-7 pointer-events-none [&_a]:pointer-events-auto [&_button]:pointer-events-auto">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/[0.04] border border-white/10 text-xs font-mono font-semibold text-zinc-300 backdrop-blur-sm">
             <span className="w-1.5 h-1.5 rounded-full bg-aws-orange" />
             <span>Official AWS Student Community · SXC</span>
@@ -153,7 +170,8 @@ export default async function HomePage() {
             sub="A student-led technical community making cloud computing accessible, practical and genuinely exciting — whatever you're studying."
           />
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mt-14">
+          <Reveal delay={0.08}>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mt-14">
             <article className="p-8 rounded-2xl bg-white/[0.02] border border-white/[0.07] backdrop-blur-sm space-y-4 hover:border-white/[0.14] transition-colors">
               <div className="w-11 h-11 rounded-xl bg-aws-orange/10 border border-aws-orange/25 flex items-center justify-center text-aws-orange">
                 <Target className="w-5 h-5 stroke-[2.2]" />
@@ -203,6 +221,7 @@ export default async function HomePage() {
               </ul>
             </article>
           </div>
+          </Reveal>
         </div>
       </section>
 
@@ -216,7 +235,8 @@ export default async function HomePage() {
             sub="Six things every member gets, from their first login to their first deployed architecture."
           />
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-px mt-14 bg-white/[0.06] rounded-2xl overflow-hidden border border-white/[0.06]">
+          <Reveal delay={0.08}>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-px mt-14 bg-white/[0.06] rounded-2xl overflow-hidden border border-white/[0.06]">
             {perks.map((perk, i) => {
               const Icon = perk.icon;
               return (
@@ -238,6 +258,7 @@ export default async function HomePage() {
               );
             })}
           </div>
+          </Reveal>
         </div>
       </section>
 
@@ -252,11 +273,13 @@ export default async function HomePage() {
           />
 
           {featuredEvents.length > 0 ? (
+            <Reveal delay={0.08}>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-14">
               {featuredEvents.map((event) => (
                 <EventCard key={event.id} event={event} featured />
               ))}
             </div>
+          </Reveal>
           ) : (
             <div className="mt-14 p-10 rounded-2xl bg-white/[0.02] border border-white/[0.07] text-center backdrop-blur-sm">
               <Calendar className="w-8 h-8 text-zinc-600 mx-auto mb-3" />
@@ -288,7 +311,8 @@ export default async function HomePage() {
             sub={`${teamHierarchy.chairperson.name} chairs the group, with ${teamHierarchy.faculty.members.length} faculty mentors and ${departments.length} departments running events, tech, design and outreach.`}
           />
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-px mt-14 bg-white/[0.06] rounded-2xl overflow-hidden border border-white/[0.06]">
+          <Reveal delay={0.08}>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-px mt-14 bg-white/[0.06] rounded-2xl overflow-hidden border border-white/[0.06]">
             {departments.map((dept) => (
               <article key={dept.id} className="bg-navy-950/85 p-6 backdrop-blur-sm">
                 <div className="text-[10px] font-mono uppercase tracking-widest text-aws-orange mb-2">
@@ -307,6 +331,7 @@ export default async function HomePage() {
               </article>
             ))}
           </div>
+          </Reveal>
 
           <div className="flex justify-center mt-10">
             <Link
@@ -383,7 +408,7 @@ function SectionHeading({
   sub: string;
 }) {
   return (
-    <div className="max-w-2xl">
+    <Reveal className="max-w-2xl">
       <div className="text-[11px] font-mono uppercase tracking-[0.2em] text-aws-orange mb-4">
         {eyebrow}
       </div>
@@ -391,6 +416,6 @@ function SectionHeading({
         {title} <span className="text-gradient-orange">{highlight}</span>
       </h2>
       <p className="text-sm sm:text-base text-zinc-400 mt-4 leading-relaxed">{sub}</p>
-    </div>
+    </Reveal>
   );
 }
