@@ -5,6 +5,7 @@ import { SiGmail, SiInstagram, SiMeetup, SiDiscord, SiWhatsapp } from "react-ico
 import { FaAws, FaLinkedin } from "react-icons/fa6";
 import type { IconType } from "react-icons";
 import { contactChannels } from "@/config/contactChannels";
+import { Cloud } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { OrbitingIcons } from "@/components/ui/orbiting-icons";
 
@@ -52,7 +53,12 @@ interface Particle {
  *     leave several loops running over the same canvas, each clearing what the
  *     others drew.
  */
-export function ContactHero() {
+interface ContactHeroProps {
+  /** Hands the typed address to the real contact form below. */
+  onStart: (email: string) => void;
+}
+
+export function ContactHero({ onStart }: ContactHeroProps) {
   // A channel with no URL is not set up yet. Rendering it as a dead link is
   // worse than not offering it — see config/contactChannels.ts.
   const channels = contactChannels.filter((c) => c.url);
@@ -61,6 +67,14 @@ export function ContactHero() {
   const particlesRef = useRef<Particle[]>([]);
   const frameRef = useRef<number | null>(null);
   const [celebrating, setCelebrating] = useState<string | null>(null);
+  const [email, setEmail] = useState("");
+
+  const handleStart = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email) return;
+    onStart(email);
+    setEmail("");
+  };
 
   // Keeps the backing store matched to the CSS size and the device pixel ratio.
   // Without the DPR step the confetti renders soft and slightly wrong-sized on
@@ -233,33 +247,60 @@ export function ContactHero() {
         aria-hidden="true"
       />
 
-      <div className="relative z-20 w-full min-h-[86vh] flex flex-col items-center justify-end px-4 pt-40 pb-20 gap-5 text-center">
-        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/[0.04] border border-white/10 text-xs font-mono font-semibold text-zinc-300 backdrop-blur-sm">
-          <span className="w-1.5 h-1.5 rounded-full bg-aws-orange" />
-          <span>We reply to everything</span>
+      {/* Content stack, mirroring the reference: app tile, headline, one line
+          of support, then a single pill. Bottom-anchored so the orbit has the
+          upper two thirds of the section to itself. */}
+      <div className="relative z-20 w-full min-h-[88vh] flex flex-col items-center justify-end px-4 pt-40 pb-24 gap-6 text-center">
+        {/* The club mark, as an app icon. */}
+        <div className="w-16 h-16 rounded-2xl overflow-hidden ring-1 ring-white/10 shadow-2xl bg-aws-orange flex items-center justify-center">
+          <Cloud className="w-9 h-9 text-black" strokeWidth={2.2} />
         </div>
 
-        <h1 className="text-5xl sm:text-6xl font-display font-black tracking-tight leading-[1.03] text-white">
-          Let&apos;s build <span className="text-gradient-orange">together.</span>
+        <h1 className="text-5xl md:text-6xl font-display font-black tracking-tight text-white leading-[1.05]">
+          Let&apos;s build together.
         </h1>
 
-        <p className="text-base sm:text-lg text-zinc-400 max-w-xl leading-relaxed">
-          Questions about joining, speaking, sponsoring, or collaborating — pick
-          whichever channel you actually use.
+        <p className="text-lg font-medium text-zinc-400">
+          Reach the club however you like.
         </p>
 
-        {/* Channel grid */}
-        <div className="relative w-full max-w-3xl mt-6">
-          {/* One canvas for the whole grid. Overflows the grid box on purpose so
-              particles can arc past the cards instead of being clipped at the
-              edge, and ignores pointer events so it never eats a click. */}
+        {/* Pill. The reference captures an email here; so does this, except it
+            hands the address to the real form below rather than a setTimeout
+            that throws it away. */}
+        <form
+          onSubmit={handleStart}
+          className="w-full max-w-md mt-2 relative h-[60px]"
+        >
+          <input
+            type="email"
+            required
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="name@email.com"
+            aria-label="Your email address"
+            className="w-full h-[60px] pl-6 pr-[150px] rounded-full outline-none transition-shadow duration-200 bg-navy-700 text-white placeholder-zinc-500 focus:ring-2 focus:ring-aws-orange/60"
+            style={{ boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.1)" }}
+          />
+          <div className="absolute top-[6px] right-[6px] bottom-[6px]">
+            <button
+              type="submit"
+              className="h-full px-6 rounded-full font-semibold text-black bg-aws-orange hover:brightness-110 active:scale-95 transition-all flex items-center justify-center min-w-[130px]"
+            >
+              Get in touch
+            </button>
+          </div>
+        </form>
+
+        {/* Channels, as a compact row. The full-size cards used to live here and
+            the page carried a second copy of the same four links in a sidebar;
+            this is now the only place they appear. */}
+        <div className="relative mt-4">
           <canvas
             ref={canvasRef}
             aria-hidden="true"
-            className="pointer-events-none absolute -inset-x-20 -top-24 -bottom-16 w-[calc(100%+10rem)] h-[calc(100%+10rem)] z-30"
+            className="pointer-events-none absolute -inset-x-32 -top-32 -bottom-24 w-[calc(100%+16rem)] h-[calc(100%+14rem)] z-30"
           />
-
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+          <div className="relative flex flex-wrap items-center justify-center gap-2.5">
             {channels.map((channel) => {
               const Icon = ICONS[channel.id];
               const isMail = channel.url.startsWith("mailto:");
@@ -269,44 +310,29 @@ export function ContactHero() {
                   key={channel.id}
                   href={channel.url}
                   onClick={(e) => celebrate(e, channel)}
+                  title={`${channel.label} — ${channel.handle}`}
+                  aria-label={`${channel.label}: ${channel.handle}`}
                   // mailto: must not open a tab — a blank window is left behind
                   // when the mail client takes over.
                   {...(isMail ? {} : { target: "_blank", rel: "noopener noreferrer" })}
                   className={cn(
-                    "group relative flex flex-col items-center gap-2 px-4 py-5 rounded-2xl",
-                    "bg-white/[0.03] border border-white/[0.08] backdrop-blur-sm",
-                    "transition-all duration-300 hover:-translate-y-1 hover:bg-white/[0.06]",
+                    "group relative flex items-center gap-2 pl-3.5 pr-4 py-2.5 rounded-full",
+                    "bg-white/[0.05] border border-white/10 backdrop-blur-sm",
+                    "transition-all duration-300 hover:-translate-y-0.5 hover:bg-white/[0.09]",
                     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-aws-orange/70"
                   )}
                   style={{ ["--brand" as string]: channel.color }}
                 >
-                  {/* Brand-coloured bloom, hover only. Sits behind the content and
-                      ignores pointer events so it never eats the click. */}
-                  <span
-                    aria-hidden="true"
-                    className={cn(
-                      "pointer-events-none absolute inset-0 rounded-2xl transition-opacity duration-300",
-                      isCelebrating ? "opacity-100" : "opacity-0 group-hover:opacity-100"
-                    )}
-                    style={{
-                      background:
-                        "radial-gradient(120px circle at 50% 0%, color-mix(in srgb, var(--brand) 26%, transparent), transparent 70%)",
-                      boxShadow: "inset 0 0 0 1px color-mix(in srgb, var(--brand) 34%, transparent)",
-                    }}
-                  />
-
-                  {/* Celebration rings, staggered so they read as a ripple
-                      rather than one thick stroke. */}
                   {isCelebrating && (
                     <span aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-visible">
                       {[0, 0.15, 0.3].map((delay) => (
                         <span
                           key={delay}
-                          // Circles, not rounded rectangles. A card-shaped ring
-                          // scaled up puts long straight edges across its
-                          // neighbours, and the section clips them into stray
-                          // lines rather than anything that reads as a ripple.
-                          className="contact-ring absolute top-1/2 left-1/2 w-40 h-40 rounded-full border-2"
+                          // Circles, not pill-shaped rings. A stretched ring
+                          // scaled up lays long straight edges across its
+                          // neighbours and the section clips them into stray
+                          // lines rather than anything resembling a ripple.
+                          className="contact-ring absolute top-1/2 left-1/2 w-28 h-28 rounded-full border-2"
                           style={{
                             borderColor: "color-mix(in srgb, var(--brand) 70%, transparent)",
                             animationDelay: `${delay}s`,
@@ -315,11 +341,10 @@ export function ContactHero() {
                       ))}
                     </span>
                   )}
-
                   {Icon && (
                     <Icon
                       className={cn(
-                        "relative w-6 h-6 transition-colors duration-300",
+                        "relative w-4 h-4 transition-colors duration-300",
                         isCelebrating
                           ? "contact-pop text-[color:var(--brand)]"
                           : "text-zinc-400 group-hover:text-[color:var(--brand)]"
@@ -327,9 +352,8 @@ export function ContactHero() {
                       aria-hidden="true"
                     />
                   )}
-                  <span className="relative text-sm font-semibold text-white">{channel.label}</span>
-                  <span className="relative text-[11px] text-zinc-500 truncate max-w-full">
-                    {channel.handle}
+                  <span className="relative text-xs font-semibold text-zinc-200">
+                    {channel.label}
                   </span>
                 </a>
               );

@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
-import { Mail, MessageSquare, MapPin, Send, CheckCircle, Sparkles, Github, Linkedin, Instagram, HelpCircle, ChevronDown, Loader2, CalendarDays, Cloud, ExternalLink } from "lucide-react";
+import React, { useRef, useState } from "react";
+import { Send, CheckCircle, HelpCircle, ChevronDown, Loader2 } from "lucide-react";
 import confetti from "canvas-confetti";
 import { siteConfig } from "@/config/site";
 import { ContactHero } from "@/components/ui/contact-hero";
@@ -17,6 +17,19 @@ export default function ContactPage() {
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [openFaq, setOpenFaq] = useState<number | null>(0);
+  const formRef = useRef<HTMLDivElement>(null);
+
+  // The hero pill collects an address and hands it here, rather than being a
+  // second form that posts somewhere of its own. One submit path, one place the
+  // message can actually go.
+  const startFromHero = (email: string) => {
+    setFormData((prev) => ({ ...prev, email }));
+    formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    // Focus the first thing still empty, so the pill genuinely saves a step.
+    window.setTimeout(() => {
+      formRef.current?.querySelector<HTMLInputElement>('input[type="text"]')?.focus();
+    }, 500);
+  };
 
   const faqs = [
     {
@@ -74,13 +87,12 @@ export default function ContactPage() {
     <div className="relative pb-20 overflow-hidden">
       {/* The channel grid lives in the hero now; the form below is still the
           way to send an actual message, and still writes to Supabase. */}
-      <ContactHero />
+      <ContactHero onStart={startFromHero} />
 
       {/* Main Grid: Form + Info */}
       <section className="max-w-[1750px] mx-auto px-4 sm:px-8 lg:px-12 xl:px-16">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
-          {/* Left Column: Contact Form */}
-          <div className="lg:col-span-7">
+        <div className="max-w-3xl mx-auto">
+          <div ref={formRef} className="scroll-mt-28">
             <div className="p-8 sm:p-10 rounded-3xl bg-navy-900/80 border border-aws-orange/30 backdrop-blur-2xl shadow-2xl space-y-6">
               <div>
                 <h2 className="text-2xl font-bold text-white">Send Us a Message</h2>
@@ -188,96 +200,6 @@ export default function ContactPage() {
             </div>
           </div>
 
-          {/* Right Column: Community Prompts & Socials */}
-          <div className="lg:col-span-5 space-y-6">
-            {/* Why Reach Out Card */}
-            <div className="p-8 rounded-3xl bg-navy-900/70 border border-white/10 backdrop-blur-xl shadow-xl space-y-4">
-              <h3 className="text-lg font-bold text-white">Join the Conversation</h3>
-              <p className="text-xs text-slate-300 leading-relaxed">
-                Connect with fellow cloud enthusiasts, AWS learners, and builders. Join our community to discover events, collaborate on projects, get AWS guidance, and grow your cloud skills together.
-              </p>
-
-              {/* Primary join actions. Both leave the site, so both are
-                  rel="noopener noreferrer" — without noopener the opened tab
-                  can reach back through window.opener. */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
-                <a
-                  href={siteConfig.links.meetup}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="group p-3.5 rounded-2xl bg-gradient-to-r from-aws-orange to-amber-600 hover:from-amber-500 hover:to-aws-orange text-black flex items-center gap-3 transition-all shadow-lg shadow-aws-orange/20"
-                >
-                  <div className="w-8 h-8 rounded-lg bg-black/15 flex items-center justify-center shrink-0">
-                    <CalendarDays className="w-4 h-4" />
-                  </div>
-                  <div className="min-w-0">
-                    <div className="text-[10px] font-mono uppercase opacity-70">Meetup Group</div>
-                    <div className="text-xs font-bold truncate">Join our Meetup</div>
-                  </div>
-                  <ExternalLink className="w-3.5 h-3.5 ml-auto shrink-0 opacity-70 group-hover:opacity-100" />
-                </a>
-
-                <a
-                  href={siteConfig.links.awsBuilder}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="group p-3.5 rounded-2xl bg-navy-950/80 hover:bg-navy-800 border border-aws-orange/30 hover:border-aws-orange/60 text-white flex items-center gap-3 transition-all"
-                >
-                  <div className="w-8 h-8 rounded-lg bg-aws-orange/20 text-aws-orange flex items-center justify-center shrink-0">
-                    <Cloud className="w-4 h-4" />
-                  </div>
-                  <div className="min-w-0">
-                    <div className="text-[10px] font-mono uppercase text-slate-400">AWS Builder</div>
-                    <div className="text-xs font-bold truncate">Create your Builder ID</div>
-                  </div>
-                  <ExternalLink className="w-3.5 h-3.5 ml-auto shrink-0 text-slate-500 group-hover:text-aws-orange" />
-                </a>
-              </div>
-
-              <div className="space-y-3 pt-2">
-                <div className="p-3 rounded-2xl bg-navy-950/80 border border-white/5 flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-aws-orange/20 text-aws-orange flex items-center justify-center shrink-0">
-                    <Mail className="w-4 h-4" />
-                  </div>
-                  <div className="overflow-hidden">
-                    <div className="text-[10px] font-mono text-slate-400 uppercase">Direct Email</div>
-                    <div className="text-xs font-semibold text-white truncate">{siteConfig.links.email}</div>
-                  </div>
-                </div>
-
-                <div className="p-3 rounded-2xl bg-navy-950/80 border border-white/5 flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-blue-500/20 text-blue-400 flex items-center justify-center shrink-0">
-                    <MapPin className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <div className="text-[10px] font-mono text-slate-400 uppercase">Campus Location</div>
-                    <div className="text-xs font-semibold text-white">St. Xavier&apos;s College,Fort, Mumbai</div>
-                  </div>
-                </div>
-
-                <a
-                  href={siteConfig.links.instagram}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="group p-3 rounded-2xl bg-navy-950/80 border border-white/5 hover:border-pink-400/40 flex items-center gap-3 transition-colors"
-                >
-                  <div className="w-8 h-8 rounded-lg bg-pink-500/20 text-pink-400 flex items-center justify-center shrink-0">
-                    <Instagram className="w-4 h-4" />
-                  </div>
-                  <div className="min-w-0">
-                    <div className="text-[10px] font-mono text-slate-400 uppercase">Instagram</div>
-                    <div className="text-xs font-semibold text-white group-hover:text-pink-300 transition-colors truncate">
-                      AWS SXC
-                    </div>
-                  </div>
-                  <ExternalLink className="w-3.5 h-3.5 ml-auto shrink-0 text-slate-500 group-hover:text-pink-300" />
-                </a>
-              </div>
-
-              {/* Social Channels */}
-
-            </div>
-          </div>
         </div>
       </section>
 
