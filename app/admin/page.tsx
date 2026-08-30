@@ -20,8 +20,6 @@ import {
   Users,
 } from "lucide-react";
 import {
-  INITIAL_PROJECTS,
-  INITIAL_TEAM_MEMBERS,
   INITIAL_CONTACT_MESSAGES,
   EventData,
 } from "@/lib/data/initialData";
@@ -33,6 +31,8 @@ import { ConsoleInteractions } from "@/components/admin/ConsoleInteractions";
 import { CustomCursor } from "@/components/admin/CustomCursor";
 import { MotionToggle } from "@/components/admin/MotionToggle";
 import { GalleryTab } from "@/components/admin/GalleryTab";
+import { ProjectsTab } from "@/components/admin/ProjectsTab";
+import { TeamTab } from "@/components/admin/TeamTab";
 import { CommandPalette, type Command } from "@/components/admin/CommandPalette";
 
 type Tab =
@@ -64,8 +64,6 @@ export default function AdminPage() {
   // Static content, authored in lib/data/initialData.ts. Shown read-only —
   // these tabs used to offer Add and Delete buttons that only ever mutated
   // React state, so the data vanished on refresh while looking saved.
-  const projects = INITIAL_PROJECTS;
-  const members = INITIAL_TEAM_MEMBERS;
   const messages = INITIAL_CONTACT_MESSAGES;
 
   const loadEvents = useCallback(async () => {
@@ -133,8 +131,8 @@ export default function AdminPage() {
     { id: "events", label: "Events", icon: Calendar, count: events.length },
     { id: "walkin", label: "Walk-in Desk", icon: UserPlus },
     { id: "messages", label: "Inquiries", icon: Mail, count: messages.length },
-    { id: "projects", label: "Projects", icon: FolderGit2, count: projects.length },
-    { id: "members", label: "Leadership", icon: Users, count: members.length },
+    { id: "projects", label: "Projects", icon: FolderGit2 },
+    { id: "members", label: "Leadership", icon: Users },
     { id: "gallery", label: "Gallery", icon: Camera },
   ];
 
@@ -569,46 +567,9 @@ export default function AdminPage() {
             </section>
           )}
 
-          {/* ---------------- Static content tabs ---------------- */}
-          {(activeTab === "projects" || activeTab === "members") && (
-            <section className="adm-panel">
-              <div className="adm-panel-head">
-                <span className="adm-eyebrow">{activeLabel}</span>
-                <span className="adm-tag">Read only</span>
-              </div>
-              <div className="adm-panel-body space-y-4">
-                <div className="adm-notice">
-                  This content lives in <span className="adm-mono">lib/data/initialData.ts</span> and
-                  is edited in code, not here. The Add and Delete controls that used
-                  to sit on this tab only changed the page in front of you — nothing
-                  was ever saved.
-                </div>
+          {activeTab === "projects" && <ProjectsTab />}
 
-                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-px" style={{ background: "var(--adm-line)" }}>
-                  {activeTab === "projects" &&
-                    projects.map((p) => (
-                      <div key={p.id} className="p-4" style={{ background: "var(--adm-panel)" }}>
-                        <div className="font-semibold text-sm">{p.title}</div>
-                        <p className="text-xs mt-1.5 leading-relaxed" style={{ color: "var(--adm-faint)" }}>
-                          {p.shortDesc}
-                        </p>
-                      </div>
-                    ))}
-
-                  {activeTab === "members" &&
-                    members.map((m) => (
-                      <div key={m.id} className="p-4" style={{ background: "var(--adm-panel)" }}>
-                        <div className="font-semibold text-sm">{m.name}</div>
-                        <div className="adm-mono text-[11px] mt-1" style={{ color: "var(--adm-accent)" }}>
-                          {m.position}
-                        </div>
-                      </div>
-                    ))}
-
-                </div>
-              </div>
-            </section>
-          )}
+          {activeTab === "members" && <TeamTab />}
         </main>
       </div>
     </div>

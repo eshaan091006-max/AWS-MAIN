@@ -233,6 +233,84 @@ on conflict (id) do nothing;
 
 
 -- =================================================================
+-- 3b. PROJECTS
+-- =================================================================
+create table if not exists public.projects (
+  id            text primary key,
+  title         text not null,
+  slug          text unique not null,
+  short_desc    text not null default '',
+  problem       text not null default '',
+  solution      text not null default '',
+  technologies  text[] not null default '{}',
+  aws_services  text[] not null default '{}',
+  image_url     text not null default '',
+  github_url    text not null default '',
+  live_demo_url text not null default '',
+  is_featured   boolean not null default false,
+  -- Team credits are a list of {name, role, avatarUrl}. jsonb rather than a
+  -- join table: they are only ever read and written whole, with the project.
+  members       jsonb not null default '[]'::jsonb,
+  created_at    timestamptz not null default now(),
+  updated_at    timestamptz not null default now()
+);
+
+-- Seeded from lib/data/initialData.ts, generated rather than retyped.
+insert into public.projects (
+  id, title, slug, short_desc, problem, solution, technologies, aws_services,
+  image_url, github_url, live_demo_url, is_featured, members
+) values
+  ('proj-1', 'CloudPulse: Multi-Region Distributed Observability', 'cloudpulse-observability', 'Real-time automated telemetry and drift detection engine for multi-region AWS cloud infrastructures.', 'Student and startup teams often suffer unexpected cloud bill spikes and unmonitored infrastructure downtime due to complex CloudWatch configurations.', 'CloudPulse aggregates CloudWatch metrics, AWS Cost Explorer API, and VPC Flow Logs into a unified high-speed dashboard with Telegram & Discord alerting bots.', ARRAY['Next.js','TypeScript','Python','Tailwind CSS','Terraform']::text[], ARRAY['AWS Lambda','Amazon DynamoDB','Amazon CloudWatch','Amazon SNS','Amazon S3','AWS EventBridge']::text[], 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=1200&auto=format&fit=crop', 'https://github.com/sxc-aws-club/cloudpulse', 'https://cloudpulse.sxcaws.club', true, '[{"name": "Aarav Sharma", "role": "Cloud Architect", "avatarUrl": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=200&auto=format&fit=crop"}, {"name": "Vikramaditya Banerjee", "role": "Backend Engineer", "avatarUrl": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=200&auto=format&fit=crop"}, {"name": "Ishita Bose", "role": "UI/UX Designer", "avatarUrl": "https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=200&auto=format&fit=crop"}]'::jsonb),
+  ('proj-2', 'AutoScalerX: Smart EKS Kubernetes Auto-Tuner', 'autoscaler-x-eks', 'Reinforcement-learning driven predictive pod autoscaler that cuts AWS EC2 cluster compute costs by 42%.', 'Standard Kubernetes HPA (Horizontal Pod Autoscaler) relies on reactive CPU metrics, resulting in slow scale-ups during sudden traffic surges and wasted compute idle time.', 'AutoScalerX uses machine learning time-series forecasting on historical traffic to pre-provision EC2 spot instances 3 minutes ahead of demand bursts.', ARRAY['Python','PySpark','Docker','FastAPI','Kubernetes','Prometheus']::text[], ARRAY['Amazon EKS','Amazon EC2 Spot','Amazon Athena','Amazon S3','AWS Glue']::text[], 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?q=80&w=1200&auto=format&fit=crop', 'https://github.com/sxc-aws-club/autoscaler-x', 'https://autoscalerx.sxcaws.club', true, '[{"name": "Devanshu Patel", "role": "DevOps Lead", "avatarUrl": "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?q=80&w=200&auto=format&fit=crop"}, {"name": "Rhea Sen", "role": "Systems Engineer", "avatarUrl": "https://images.unsplash.com/photo-1580489944761-15a19d654956?q=80&w=200&auto=format&fit=crop"}]'::jsonb),
+  ('proj-3', 'CloudDocs AI: Serverless Knowledge Intelligence Engine', 'clouddocs-ai-knowledge-engine', 'Intelligent document retrieval and automated compliance auditor powered by Amazon Bedrock and Claude 3.5.', 'Navigating thousands of pages of college syllabus, academic research, and AWS documentation manually takes hours of tedious searching.', 'CloudDocs AI automatically parses PDFs using Amazon Textract, creates high-dimensional vector embeddings, and delivers instant, cited semantic answers.', ARRAY['Next.js','TypeScript','LangChain','Python','Tailwind CSS']::text[], ARRAY['Amazon Bedrock','Amazon Textract','Amazon Aurora PostgreSQL (pgvector)','AWS Lambda','Amazon S3']::text[], 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1200&auto=format&fit=crop', 'https://github.com/sxc-aws-club/clouddocs-ai', 'https://clouddocs.sxcaws.club', true, '[{"name": "Sneha Mukherjee", "role": "AI Lead", "avatarUrl": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=200&auto=format&fit=crop"}, {"name": "Aarav Sharma", "role": "Full-Stack Dev", "avatarUrl": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=200&auto=format&fit=crop"}]'::jsonb),
+  ('proj-4', 'EduCloud: Instant Sandbox Labs for Students', 'educloud-student-sandbox', 'Ephemeral, cost-governed cloud lab environments provisioned on-demand with automatic teardown.', 'Students frequently incur accidental charges on personal cloud accounts while practicing for AWS certifications.', 'EduCloud allocates isolated sandbox AWS accounts with pre-budgeted $5 limits, active IAM permission boundaries, and 2-hour auto-destruction triggers.', ARRAY['Next.js','Go','AWS CDK','PostgreSQL','Docker']::text[], ARRAY['AWS Organizations','AWS IAM','AWS Lambda','Amazon DynamoDB','Amazon API Gateway']::text[], 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=1200&auto=format&fit=crop', 'https://github.com/sxc-aws-club/educloud', 'https://educloud.sxcaws.club', false, '[{"name": "Kabir Mehta", "role": "Project Lead", "avatarUrl": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=200&auto=format&fit=crop"}, {"name": "Ananya Roy", "role": "FinOps & Security", "avatarUrl": "https://images.unsplash.com/photo-1517841905240-472988babdf9?q=80&w=200&auto=format&fit=crop"}]'::jsonb)
+on conflict (id) do nothing;
+
+
+-- =================================================================
+-- 3c. TEAM MEMBERS
+-- =================================================================
+create table if not exists public.team_members (
+  id              text primary key,
+  name            text not null,
+  position        text not null default '',
+  department_id   text not null default '',
+  department_name text not null default '',
+  bio             text not null default '',
+  photo_url       text not null default '',
+  linkedin        text not null default '',
+  github          text not null default '',
+  email           text not null default '',
+  is_executive    boolean not null default false,
+  skills          text[] not null default '{}',
+  sort_order      integer not null default 0,
+  created_at      timestamptz not null default now(),
+  updated_at      timestamptz not null default now()
+);
+
+create index if not exists team_members_order_idx
+  on public.team_members (sort_order, name);
+
+-- Seeded from lib/data/initialData.ts, generated rather than retyped.
+insert into public.team_members (
+  id, name, position, department_id, department_name, bio, photo_url,
+  linkedin, github, email, is_executive, skills, sort_order
+) values
+  ('member-1', 'Aarav Sharma', 'President & AWS Community Lead', 'dept-1', 'Executive Board', 'AWS Certified Solutions Architect with a passion for serverless microservices and distributed computing. Leading 500+ student innovators.', 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=600&auto=format&fit=crop', 'https://linkedin.com/in/aaravsharma-aws', 'https://github.com/aaravsharma-cloud', 'president@sxcaws.club', true, ARRAY['AWS Solutions Architecture','Terraform','Kubernetes','Next.js']::text[], 1),
+  ('member-2', 'Rhea Sen', 'Vice President', 'dept-1', 'Executive Board', 'DevOps specialist and cloud-native researcher. Driving student certification programs and industry hackathons.', 'https://images.unsplash.com/photo-1580489944761-15a19d654956?q=80&w=600&auto=format&fit=crop', 'https://linkedin.com/in/rheasen-cloud', 'https://github.com/rheasen', 'vp@sxcaws.club', true, ARRAY['CI/CD Pipelines','Docker','AWS Lambda','Python']::text[], 2),
+  ('member-3', 'Kabir Mehta', 'Secretary & Operations Head', 'dept-1', 'Executive Board', 'Managing institutional partnerships, AWS Academy curricula, and inter-collegiate tech symposiums.', 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=600&auto=format&fit=crop', 'https://linkedin.com/in/kabirmehta', 'https://github.com/kabirmehta', 'secretary@sxcaws.club', true, ARRAY['Cloud Economics','Event Strategy','PostgreSQL','AWS IAM']::text[], 3),
+  ('member-4', 'Ananya Roy', 'Treasurer & Cloud FinOps Lead', 'dept-1', 'Executive Board', 'Focused on AWS Cost Optimization, AWS Budgets, and financial management for club hackathons and cloud credits.', 'https://images.unsplash.com/photo-1517841905240-472988babdf9?q=80&w=600&auto=format&fit=crop', 'https://linkedin.com/in/ananyaroy', 'https://github.com/ananyaroy', 'treasurer@sxcaws.club', true, ARRAY['AWS Cost Explorer','CloudWatch','FinOps','Python']::text[], 4),
+  ('member-5', 'Vikramaditya Banerjee', 'Technical Head & Cloud Architect', 'dept-2', 'Technical Department', 'Specializing in high-throughput distributed systems, event-driven backends, and multi-tenant AWS architectures.', 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=600&auto=format&fit=crop', 'https://linkedin.com/in/vikram-banerjee', 'https://github.com/vikrambanerjee', 'tech@sxcaws.club', false, ARRAY['Amazon ECS/EKS','DynamoDB','EventBridge','Go','TypeScript']::text[], 5),
+  ('member-6', 'Sneha Mukherjee', 'AI/ML Lead & Cloud Researcher', 'dept-2', 'Technical Department', 'Building generative AI pipelines on Amazon Bedrock, SageMaker distributed training, and LLM orchestration.', 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=600&auto=format&fit=crop', 'https://linkedin.com/in/snehamukherjee', 'https://github.com/snehamukherjee', 'aiml@sxcaws.club', false, ARRAY['Amazon Bedrock','SageMaker','PyTorch','LangChain','Vector DBs']::text[], 6),
+  ('member-7', 'Devanshu Patel', 'DevOps & Infrastructure Subhead', 'dept-2', 'Technical Department', 'Automating cloud infrastructure with Terraform, AWS CDK, GitHub Actions, and Prometheus monitoring.', 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?q=80&w=600&auto=format&fit=crop', 'https://linkedin.com/in/devanshupatel', 'https://github.com/devanshupatel', 'devops@sxcaws.club', false, ARRAY['Terraform','AWS CDK','Docker','GitHub Actions','Grafana']::text[], 7),
+  ('member-8', 'Ishita Bose', 'Design & Creative Head', 'dept-3', 'Marketing & Design', 'Crafting futuristic UI/UX aesthetics, 3D cloud visuals, and cyberpunk branding for SXC AWS Club.', 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=600&auto=format&fit=crop', 'https://linkedin.com/in/ishitabose', 'https://github.com/ishitabose', 'design@sxcaws.club', false, ARRAY['Figma','Three.js','Motion Graphics','Tailwind CSS']::text[], 8),
+  ('member-9', 'Rohan Varma', 'Events & Hackathons Head', 'dept-4', 'Events & Operations', 'Directing large-scale technical hackathons, AWS game days, and interactive hands-on coding challenges.', 'https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?q=80&w=600&auto=format&fit=crop', 'https://linkedin.com/in/rohanvarma', 'https://github.com/rohanvarma', 'events@sxcaws.club', false, ARRAY['AWS GameDay','Hackathon Organization','Public Speaking']::text[], 9),
+  ('member-10', 'Pooja Hegde', 'PR & Industry Outreach Head', 'dept-5', 'PR & Corporate Outreach', 'Fostering relations with AWS Heroes, AWS User Groups, and leading tech employers for internships.', 'https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?q=80&w=600&auto=format&fit=crop', 'https://linkedin.com/in/poojahegde-pr', 'https://github.com/poojahegde', 'pr@sxcaws.club', false, ARRAY['Corporate Relations','Sponsorships','AWS User Groups']::text[], 10)
+on conflict (id) do nothing;
+
+
+
+-- =================================================================
 -- 4. ROW LEVEL SECURITY
 --
 -- Both tables are write-only for the public anon key: anyone may submit
@@ -263,6 +341,22 @@ create policy "Gallery is publicly readable"
 
 grant select on public.gallery to anon, authenticated;
 revoke insert, update, delete on public.gallery from anon, authenticated;
+
+alter table public.projects enable row level security;
+alter table public.team_members enable row level security;
+
+drop policy if exists "Projects are publicly readable" on public.projects;
+create policy "Projects are publicly readable"
+  on public.projects for select to anon, authenticated using (true);
+
+drop policy if exists "Team members are publicly readable" on public.team_members;
+create policy "Team members are publicly readable"
+  on public.team_members for select to anon, authenticated using (true);
+
+grant select on public.projects to anon, authenticated;
+grant select on public.team_members to anon, authenticated;
+revoke insert, update, delete on public.projects from anon, authenticated;
+revoke insert, update, delete on public.team_members from anon, authenticated;
 
 -- Registrations are NOT insertable directly. Every signup goes through
 -- register_for_event() below, which holds a lock while it checks the

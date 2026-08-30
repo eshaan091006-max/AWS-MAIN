@@ -554,6 +554,278 @@ class LocalDataStore {
     return (count ?? 0) > 0;
   }
 
+  // ==================== Projects ====================
+
+  private toProject(row: any): ProjectData {
+    return {
+      id: row.id,
+      title: row.title,
+      slug: row.slug,
+      shortDesc: row.short_desc ?? "",
+      problem: row.problem ?? "",
+      solution: row.solution ?? "",
+      technologies: row.technologies ?? [],
+      awsServices: row.aws_services ?? [],
+      imageUrl: row.image_url ?? "",
+      githubUrl: row.github_url ?? "",
+      liveDemoUrl: row.live_demo_url ?? "",
+      isFeatured: Boolean(row.is_featured),
+      // jsonb comes back as whatever was stored. Anything that is not an array
+      // of objects is dropped rather than handed to the UI to crash on.
+      members: Array.isArray(row.members)
+        ? row.members.map((m: any) => ({
+            name: String(m?.name ?? ""),
+            role: String(m?.role ?? ""),
+            avatarUrl: String(m?.avatarUrl ?? ""),
+          }))
+        : [],
+    };
+  }
+
+  /** Every project, featured first. Falls back to the seed if unreachable. */
+  async listProjects(): Promise<ProjectData[]> {
+    if (!isSupabaseConfigured) return this.projects;
+    const client = getWriteSupabase();
+    if (!client) return this.projects;
+
+    const { data, error } = await client
+      .from("projects")
+      .select("*")
+      .order("is_featured", { ascending: false })
+      .order("title", { ascending: true });
+
+    if (error) {
+      if (error.code && SCHEMA_MISSING_CODES.includes(error.code)) {
+        warnOnce(
+          "projects-table-missing",
+          "[supabase] No projects table yet — serving seed entries. Run supabase/schema.sql."
+        );
+      } else {
+        console.error("[supabase] projects read failed:", error.code, error.message);
+      }
+      return this.projects;
+    }
+    return (data ?? []).map((r) => this.toProject(r));
+  }
+
+  async createProject(input: Omit<ProjectData, "id">): Promise<ProjectData> {
+    const client = getServiceSupabase();
+    if (!client) throw new Error("Creating projects requires SUPABASE_SERVICE_ROLE_KEY.");
+
+    const { data, error } = await client
+      .from("projects")
+      .insert({
+        id: `proj-${Date.now()}`,
+        title: input.title,
+        slug: input.slug,
+        short_desc: input.shortDesc,
+        problem: input.problem,
+        solution: input.solution,
+        technologies: input.technologies,
+        aws_services: input.awsServices,
+        image_url: input.imageUrl,
+        github_url: input.githubUrl,
+        live_demo_url: input.liveDemoUrl,
+        is_featured: input.isFeatured,
+        members: input.members,
+      })
+      .select()
+      .single();
+
+    if (error) {
+      console.error("[supabase] project insert failed:", error.code, error.message);
+      // The slug is unique, so two projects cannot collide silently. The
+      // generic message would leave someone guessing which field to change.
+      if (error.code === UNIQUE_VIOLATION) {
+        throw new Error("A project with that slug already exists. Pick a different slug.");
+      }
+      throw describeDbError(error, "project");
+    }
+    return this.toProject(data);
+  }
+
+  async updateProject(
+    id: string,
+    patch: Partial<Omit<ProjectData, "id">>
+  ): Promise<ProjectData | null> {
+    const client = getServiceSupabase();
+    if (!client) throw new Error("Editing projects requires SUPABASE_SERVICE_ROLE_KEY.");
+
+    const row: Record<string, unknown> = { updated_at: new Date().toISOString() };
+    if (patch.title !== undefined) row.title = patch.title;
+    if (patch.slug !== undefined) row.slug = patch.slug;
+    if (patch.shortDesc !== undefined) row.short_desc = patch.shortDesc;
+    if (patch.problem !== undefined) row.problem = patch.problem;
+    if (patch.solution !== undefined) row.solution = patch.solution;
+    if (patch.technologies !== undefined) row.technologies = patch.technologies;
+    if (patch.awsServices !== undefined) row.aws_services = patch.awsServices;
+    if (patch.imageUrl !== undefined) row.image_url = patch.imageUrl;
+    if (patch.githubUrl !== undefined) row.github_url = patch.githubUrl;
+    if (patch.liveDemoUrl !== undefined) row.live_demo_url = patch.liveDemoUrl;
+    if (patch.isFeatured !== undefined) row.is_featured = patch.isFeatured;
+    if (patch.members !== undefined) row.members = patch.members;
+
+    const { data, error } = await client
+      .from("projects")
+      .update(row)
+      .eq("id", id)
+      .select()
+      .maybeSingle();
+
+    if (error) {
+      console.error("[supabase] project update failed:", error.code, error.message);
+      if (error.code === UNIQUE_VIOLATION) {
+        throw new Error("A project with that slug already exists. Pick a different slug.");
+      }
+      throw describeDbError(error, "project");
+    }
+    return data ? this.toProject(data) : null;
+  }
+
+  async deleteProject(id: string): Promise<boolean> {
+    const client = getServiceSupabase();
+    if (!client) throw new Error("Deleting projects requires SUPABASE_SERVICE_ROLE_KEY.");
+
+    const { error, count } = await client
+      .from("projects")
+      .delete({ count: "exact" })
+      .eq("id", id);
+
+    if (error) {
+      console.error("[supabase] project delete failed:", error.code, error.message);
+      throw describeDbError(error, "project");
+    }
+    return (count ?? 0) > 0;
+  }
+
+  // ==================== Team members ====================
+
+  private toTeamMember(row: any): TeamMemberData {
+    return {
+      id: row.id,
+      name: row.name,
+      position: row.position ?? "",
+      departmentId: row.department_id ?? "",
+      departmentName: row.department_name ?? "",
+      bio: row.bio ?? "",
+      photoUrl: row.photo_url ?? "",
+      linkedin: row.linkedin ?? "",
+      github: row.github ?? "",
+      email: row.email ?? "",
+      isExecutive: Boolean(row.is_executive),
+      skills: row.skills ?? [],
+      order: row.sort_order ?? 0,
+    };
+  }
+
+  /** Team members in display order. Falls back to the seed if unreachable. */
+  async listTeamMembers(): Promise<TeamMemberData[]> {
+    if (!isSupabaseConfigured) return this.teamMembers;
+    const client = getWriteSupabase();
+    if (!client) return this.teamMembers;
+
+    const { data, error } = await client
+      .from("team_members")
+      .select("*")
+      .order("sort_order", { ascending: true })
+      .order("name", { ascending: true });
+
+    if (error) {
+      if (error.code && SCHEMA_MISSING_CODES.includes(error.code)) {
+        warnOnce(
+          "team-members-table-missing",
+          "[supabase] No team_members table yet — serving seed entries. Run supabase/schema.sql."
+        );
+      } else {
+        console.error("[supabase] team members read failed:", error.code, error.message);
+      }
+      return this.teamMembers;
+    }
+    return (data ?? []).map((r) => this.toTeamMember(r));
+  }
+
+  async createTeamMember(input: Omit<TeamMemberData, "id">): Promise<TeamMemberData> {
+    const client = getServiceSupabase();
+    if (!client) throw new Error("Creating team members requires SUPABASE_SERVICE_ROLE_KEY.");
+
+    const { data, error } = await client
+      .from("team_members")
+      .insert({
+        id: `member-${Date.now()}`,
+        name: input.name,
+        position: input.position,
+        department_id: input.departmentId,
+        department_name: input.departmentName,
+        bio: input.bio,
+        photo_url: input.photoUrl,
+        linkedin: input.linkedin,
+        github: input.github,
+        email: input.email,
+        is_executive: input.isExecutive,
+        skills: input.skills,
+        sort_order: input.order,
+      })
+      .select()
+      .single();
+
+    if (error) {
+      console.error("[supabase] team member insert failed:", error.code, error.message);
+      throw describeDbError(error, "team member");
+    }
+    return this.toTeamMember(data);
+  }
+
+  async updateTeamMember(
+    id: string,
+    patch: Partial<Omit<TeamMemberData, "id">>
+  ): Promise<TeamMemberData | null> {
+    const client = getServiceSupabase();
+    if (!client) throw new Error("Editing team members requires SUPABASE_SERVICE_ROLE_KEY.");
+
+    const row: Record<string, unknown> = { updated_at: new Date().toISOString() };
+    if (patch.name !== undefined) row.name = patch.name;
+    if (patch.position !== undefined) row.position = patch.position;
+    if (patch.departmentId !== undefined) row.department_id = patch.departmentId;
+    if (patch.departmentName !== undefined) row.department_name = patch.departmentName;
+    if (patch.bio !== undefined) row.bio = patch.bio;
+    if (patch.photoUrl !== undefined) row.photo_url = patch.photoUrl;
+    if (patch.linkedin !== undefined) row.linkedin = patch.linkedin;
+    if (patch.github !== undefined) row.github = patch.github;
+    if (patch.email !== undefined) row.email = patch.email;
+    if (patch.isExecutive !== undefined) row.is_executive = patch.isExecutive;
+    if (patch.skills !== undefined) row.skills = patch.skills;
+    if (patch.order !== undefined) row.sort_order = patch.order;
+
+    const { data, error } = await client
+      .from("team_members")
+      .update(row)
+      .eq("id", id)
+      .select()
+      .maybeSingle();
+
+    if (error) {
+      console.error("[supabase] team member update failed:", error.code, error.message);
+      throw describeDbError(error, "team member");
+    }
+    return data ? this.toTeamMember(data) : null;
+  }
+
+  async deleteTeamMember(id: string): Promise<boolean> {
+    const client = getServiceSupabase();
+    if (!client) throw new Error("Deleting team members requires SUPABASE_SERVICE_ROLE_KEY.");
+
+    const { error, count } = await client
+      .from("team_members")
+      .delete({ count: "exact" })
+      .eq("id", id);
+
+    if (error) {
+      console.error("[supabase] team member delete failed:", error.code, error.message);
+      throw describeDbError(error, "team member");
+    }
+    return (count ?? 0) > 0;
+  }
+
   // ==================== Registrations (admin) ====================
 
   /**
