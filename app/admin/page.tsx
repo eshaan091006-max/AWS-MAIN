@@ -20,7 +20,6 @@ import {
   Users,
 } from "lucide-react";
 import {
-  INITIAL_CONTACT_MESSAGES,
   EventData,
 } from "@/lib/data/initialData";
 import { EventEditor } from "@/components/admin/EventEditor";
@@ -29,8 +28,8 @@ import { WalkInTab } from "@/components/admin/WalkInTab";
 import { StatusStrip } from "@/components/admin/StatusStrip";
 import { ConsoleInteractions } from "@/components/admin/ConsoleInteractions";
 import { CustomCursor } from "@/components/admin/CustomCursor";
-import { MotionToggle } from "@/components/admin/MotionToggle";
 import { GalleryTab } from "@/components/admin/GalleryTab";
+import { InquiriesTab } from "@/components/admin/InquiriesTab";
 import { ProjectsTab } from "@/components/admin/ProjectsTab";
 import { TeamTab } from "@/components/admin/TeamTab";
 import { CommandPalette, type Command } from "@/components/admin/CommandPalette";
@@ -60,11 +59,7 @@ export default function AdminPage() {
   const [signedInAs, setSignedInAs] = useState<string | null>(null);
   const [regSummary, setRegSummary] = useState<{ total: number; present: number } | null>(null);
   const [dbConnected, setDbConnected] = useState<boolean | null>(null);
-
-  // Static content, authored in lib/data/initialData.ts. Shown read-only —
-  // these tabs used to offer Add and Delete buttons that only ever mutated
-  // React state, so the data vanished on refresh while looking saved.
-  const messages = INITIAL_CONTACT_MESSAGES;
+  const [msgSummary, setMsgSummary] = useState<{ total: number; unread: number } | null>(null);
 
   const loadEvents = useCallback(async () => {
     setEventsLoading(true);
@@ -94,14 +89,30 @@ export default function AdminPage() {
     }
   }, []);
 
+  const loadMessageSummary = useCallback(async () => {
+    try {
+      const res = await fetch("/api/admin/messages", { cache: "no-store" });
+      if (!res.ok) return;
+      const json = await res.json();
+      const rows = json.data ?? [];
+      setMsgSummary({
+        total: rows.length,
+        unread: rows.filter((m: { isRead: boolean }) => !m.isRead).length,
+      });
+    } catch {
+      // A missing headline number should not break the console.
+    }
+  }, []);
+
   useEffect(() => {
     loadEvents();
     loadSummary();
+    loadMessageSummary();
     fetch("/api/admin/me", { cache: "no-store" })
       .then((r) => (r.ok ? r.json() : null))
       .then((j) => j?.user && setSignedInAs(j.user.displayName || j.user.username))
       .catch(() => {});
-  }, [loadEvents, loadSummary]);
+  }, [loadEvents, loadSummary, loadMessageSummary]);
 
   const handleDeleteEvent = async (id: string, title: string) => {
     if (!window.confirm(`Delete "${title}"? Registrations are kept, but it disappears from the site.`)) {
@@ -130,7 +141,7 @@ export default function AdminPage() {
     { id: "overview", label: "Overview", icon: LayoutGrid },
     { id: "events", label: "Events", icon: Calendar, count: events.length },
     { id: "walkin", label: "Walk-in Desk", icon: UserPlus },
-    { id: "messages", label: "Inquiries", icon: Mail, count: messages.length },
+    { id: "messages", label: "Inquiries", icon: Mail },
     { id: "projects", label: "Projects", icon: FolderGit2 },
     { id: "members", label: "Leadership", icon: Users },
     { id: "gallery", label: "Gallery", icon: Camera },
@@ -268,7 +279,6 @@ export default function AdminPage() {
           </div>
 
           <div className="flex items-center gap-2 shrink-0">
-            <MotionToggle />
             <button
               type="button"
               onClick={() => {
@@ -329,9 +339,9 @@ export default function AdminPage() {
                 </div>
                 <button type="button" className="adm-stat" data-index="04" onClick={() => setActiveTab("messages")}>
                   <div className="adm-eyebrow">Inquiries</div>
-                  <div className="adm-stat-value">{messages.length}</div>
+                  <div className="adm-stat-value">{msgSummary?.total ?? "—"}</div>
                   <div className="adm-stat-note">
-                    {messages.filter((m) => !m.isRead).length} unread
+                    {msgSummary ? `${msgSummary.unread} unread` : "from the contact form"}
                   </div>
                 </button>
               </div>
@@ -525,47 +535,7 @@ export default function AdminPage() {
           {activeTab === "gallery" && <GalleryTab />}
 
           {/* ---------------- Inquiries ---------------- */}
-          {activeTab === "messages" && (
-            <section className="adm-panel">
-              <div className="adm-panel-head">
-                <span className="adm-eyebrow">Contact form</span>
-              </div>
-              <div className="adm-panel-body space-y-3">
-                <div className="adm-notice">
-                  Showing sample data. Live messages need the messages API, which
-                  is not built yet — submissions are saved in Supabase and
-                  readable from the table editor.
-                </div>
-                {messages.map((m) => (
-                  <article
-                    key={m.id}
-                    className="p-4"
-                    style={{
-                      background: "var(--adm-raised)",
-                      border: "1px solid var(--adm-line)",
-                      borderLeft: m.isRead
-                        ? "3px solid var(--adm-line)"
-                        : "3px solid var(--adm-accent)",
-                    }}
-                  >
-                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-                      <span className="font-semibold text-sm">{m.name}</span>
-                      <span className="adm-mono text-[11px]" style={{ color: "var(--adm-faint)" }}>
-                        {m.email}
-                      </span>
-                      {!m.isRead && <span className="adm-tag adm-tag-accent">New</span>}
-                    </div>
-                    <div className="adm-mono text-[11px] mt-2" style={{ color: "var(--adm-dim)" }}>
-                      {m.subject}
-                    </div>
-                    <p className="text-xs mt-2 leading-relaxed" style={{ color: "var(--adm-dim)" }}>
-                      {m.message}
-                    </p>
-                  </article>
-                ))}
-              </div>
-            </section>
-          )}
+          {activeTab === "messages" && <InquiriesTab />}
 
           {activeTab === "projects" && <ProjectsTab />}
 

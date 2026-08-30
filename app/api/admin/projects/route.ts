@@ -141,8 +141,10 @@ function refreshPublic() {
 
 export async function GET() {
   try {
-    const data = await db.listProjects();
-    return NextResponse.json({ success: true, data });
+    const { items, live } = await db.listProjects();
+    // `live: false` means these are seed rows, not database rows: every
+    // write control on them will fail until the schema is run.
+    return NextResponse.json({ success: true, data: items, live });
   } catch (err: any) {
     console.error("[api/admin/projects] GET failed:", err?.message);
     return NextResponse.json({ error: "Failed to load projects." }, { status: 500 });

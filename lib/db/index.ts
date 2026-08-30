@@ -39,6 +39,19 @@ function warnOnce(key: string, message: string) {
   console.warn(message);
 }
 
+/**
+ * A list that knows where it came from.
+ *
+ * The seed fallback keeps pages rendering during an outage, but in the admin
+ * console it is actively misleading: the rows look editable, and every delete
+ * fails with a database error the row itself gave no warning about. Callers
+ * that offer write controls check `live` and say so.
+ */
+export interface SourcedList<T> {
+  items: T[];
+  live: boolean;
+}
+
 const SEATS_TTL_MS = 20_000;
 const seatsKey = (eventId: string) => `seats:${eventId}`;
 
@@ -458,10 +471,10 @@ class LocalDataStore {
   }
 
   /** Gallery entries, newest first. Falls back to the seed if unreachable. */
-  async listGallery(): Promise<GalleryImageData[]> {
-    if (!isSupabaseConfigured) return this.gallery;
+  async listGallery(): Promise<SourcedList<GalleryImageData>> {
+    if (!isSupabaseConfigured) return { items: this.gallery, live: false };
     const client = getWriteSupabase();
-    if (!client) return this.gallery;
+    if (!client) return { items: this.gallery, live: false };
 
     const { data, error } = await client
       .from("gallery")
@@ -477,9 +490,9 @@ class LocalDataStore {
       } else {
         console.error("[supabase] gallery read failed:", error.code, error.message);
       }
-      return this.gallery;
+      return { items: this.gallery, live: false };
     }
-    return (data ?? []).map((r) => this.toGalleryItem(r));
+    return { items: (data ?? []).map((r) => this.toGalleryItem(r)), live: true };
   }
 
   async createGalleryItem(
@@ -583,10 +596,10 @@ class LocalDataStore {
   }
 
   /** Every project, featured first. Falls back to the seed if unreachable. */
-  async listProjects(): Promise<ProjectData[]> {
-    if (!isSupabaseConfigured) return this.projects;
+  async listProjects(): Promise<SourcedList<ProjectData>> {
+    if (!isSupabaseConfigured) return { items: this.projects, live: false };
     const client = getWriteSupabase();
-    if (!client) return this.projects;
+    if (!client) return { items: this.projects, live: false };
 
     const { data, error } = await client
       .from("projects")
@@ -603,9 +616,9 @@ class LocalDataStore {
       } else {
         console.error("[supabase] projects read failed:", error.code, error.message);
       }
-      return this.projects;
+      return { items: this.projects, live: false };
     }
-    return (data ?? []).map((r) => this.toProject(r));
+    return { items: (data ?? []).map((r) => this.toProject(r)), live: true };
   }
 
   async createProject(input: Omit<ProjectData, "id">): Promise<ProjectData> {
@@ -719,10 +732,10 @@ class LocalDataStore {
   }
 
   /** Team members in display order. Falls back to the seed if unreachable. */
-  async listTeamMembers(): Promise<TeamMemberData[]> {
-    if (!isSupabaseConfigured) return this.teamMembers;
+  async listTeamMembers(): Promise<SourcedList<TeamMemberData>> {
+    if (!isSupabaseConfigured) return { items: this.teamMembers, live: false };
     const client = getWriteSupabase();
-    if (!client) return this.teamMembers;
+    if (!client) return { items: this.teamMembers, live: false };
 
     const { data, error } = await client
       .from("team_members")
@@ -739,9 +752,9 @@ class LocalDataStore {
       } else {
         console.error("[supabase] team members read failed:", error.code, error.message);
       }
-      return this.teamMembers;
+      return { items: this.teamMembers, live: false };
     }
-    return (data ?? []).map((r) => this.toTeamMember(r));
+    return { items: (data ?? []).map((r) => this.toTeamMember(r)), live: true };
   }
 
   async createTeamMember(input: Omit<TeamMemberData, "id">): Promise<TeamMemberData> {
@@ -1090,6 +1103,41 @@ class LocalDataStore {
       isRead: row.is_read,
       createdAt: row.created_at,
     })) as ContactMessageData[];
+  }
+
+  /** Marks one message read or unread. Returns false if the id is unknown. */
+  async setMessageRead(id: string, isRead: boolean): Promise<boolean> {
+    const admin = getServiceSupabase();
+    if (!admin) throw new Error("Updating messages requires SUPABASE_SERVICE_ROLE_KEY.");
+
+    const { data, error } = await admin
+      .from("contact_messages")
+      .update({ is_read: isRead })
+      .eq("id", id)
+      .select("id")
+      .maybeSingle();
+
+    if (error) {
+      console.error("[supabase] message update failed:", error.code, error.message);
+      throw describeDbError(error, "message");
+    }
+    return Boolean(data);
+  }
+
+  async deleteMessage(id: string): Promise<boolean> {
+    const admin = getServiceSupabase();
+    if (!admin) throw new Error("Deleting messages requires SUPABASE_SERVICE_ROLE_KEY.");
+
+    const { error, count } = await admin
+      .from("contact_messages")
+      .delete({ count: "exact" })
+      .eq("id", id);
+
+    if (error) {
+      console.error("[supabase] message delete failed:", error.code, error.message);
+      throw describeDbError(error, "message");
+    }
+    return (count ?? 0) > 0;
   }
 
   // ==================== Other Stores ====================

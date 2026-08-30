@@ -121,10 +121,8 @@ body:has(.adm) {
 /* Floor */
 .adm-depth::before {
   bottom: -58%;
-  /* Stated statically as well as in the keyframes. With the animation
-     suppressed for reduced motion, this is what keeps the plane in
-     perspective — otherwise those users get a flat rectangle, which removes
-     the design rather than the movement. */
+  /* Stated statically as well as in the keyframes, so the plane is already in
+     perspective on the first paint rather than snapping into it. */
   transform: rotateX(76deg);
   transform-origin: 50% 100%;
   animation-name: adm-drift-floor;
@@ -178,15 +176,10 @@ body:has(.adm) {
   to   { transform: rotateX(-76deg) translate3d(0, 56px, 0); }
 }
 
-/* Motion is decorative and nothing depends on it; the perspective is not
-   motion, so it stays. */
-@media (prefers-reduced-motion: reduce) {
-  html:not(.adm-motion-on) .adm-depth::before,
-  html:not(.adm-motion-on) .adm-depth::after {
-    animation: none;
-    will-change: auto;
-  }
-}
+/* The console opts into its motion unconditionally, by request: it is the
+   whole point of this UI, and gating it on the OS setting left it looking
+   like a plain black page on machines where reduced motion is on. Nothing
+   here conveys information through movement, so no readout is lost. */
 
 /* Content sits above the depth layer. */
 .adm-shell {
@@ -964,18 +957,6 @@ body:has(.adm) {
   50%      { opacity: 0.25; }
 }
 
-/* Motion is decoration here; the readouts stay either way. */
-@media (prefers-reduced-motion: reduce) {
-  html:not(.adm-motion-on) .adm-navitem[data-active="true"]::after,
-  html:not(.adm-motion-on) .adm-pulse {
-    animation: none;
-  }
-  html:not(.adm-motion-on) .adm-navitem[data-active="true"]::after {
-    opacity: 0.5;
-    transform: none;
-  }
-}
-
 /* ---------- Pointer-driven depth ---------- */
 
 /*
@@ -1000,13 +981,6 @@ body:has(.adm) {
     0
   );
   transition: transform 340ms cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  html:not(.adm-motion-on) .adm-depth,
-  html:not(.adm-motion-on) .adm-horizon {
-    transition: none;
-  }
 }
 
 /* ---------- Panel spotlight ---------- */
@@ -1146,13 +1120,6 @@ button.adm-stat:hover .adm-stat-value {
   to   { opacity: 1; transform: none; }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  html:not(.adm-motion-on) .adm-palette-backdrop,
-  html:not(.adm-motion-on) .adm-palette {
-    animation: none;
-  }
-}
-
 /* ---------- Viewport frame ---------- */
 
 /*
@@ -1211,11 +1178,6 @@ button.adm-stat:hover .adm-stat-value {
 @keyframes adm-breathe {
   0%, 100% { opacity: 0.25; }
   50%      { opacity: 0.8; }
-}
-
-/* Decoration only; the frame stays, the movement goes. */
-@media (prefers-reduced-motion: reduce) {
-  html:not(.adm-motion-on) .adm-header::after { animation: none; opacity: 0.6; }
 }
 
 /* ---------- Floating solids ---------- */
@@ -1389,20 +1351,5 @@ html.adm-has-cursor .adm textarea {
   background: rgba(255, 153, 0, 0.25);
 }
 
-@media (prefers-reduced-motion: reduce) {
-  html:not(.adm-motion-on) .adm-cube { animation: none; }
-  html:not(.adm-motion-on) .adm-obj,
-  html:not(.adm-motion-on) .adm-panel { transition: none; }
-}
-
-/* Turning motion off explicitly stops everything, whatever the OS says. */
-html.adm-motion-off .adm-cube,
-html.adm-motion-off .adm-depth::before,
-html.adm-motion-off .adm-depth::after,
-html.adm-motion-off .adm-navitem[data-active="true"]::after,
-html.adm-motion-off .adm-pulse,
-html.adm-motion-off .adm-header::after {
-  animation: none !important;
-}
 
 

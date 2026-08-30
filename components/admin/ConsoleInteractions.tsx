@@ -24,8 +24,6 @@ export function ConsoleInteractions() {
     const root = document.querySelector<HTMLElement>(".adm");
     if (!root) return;
 
-    // Honour the OS setting: no camera drift for anyone who asked for stillness.
-    const stillness = window.matchMedia("(prefers-reduced-motion: reduce)");
     // Coarse pointers have no hover, so a cursor spotlight is meaningless and
     // the listener would only cost battery.
     const fine = window.matchMedia("(pointer: fine)");
@@ -42,25 +40,12 @@ export function ConsoleInteractions() {
       const w = window.innerWidth || 1;
       const h = window.innerHeight || 1;
 
-      // The console's own toggle wins over the OS setting in both directions;
-      // with neither set, the OS decides.
-      const root2 = document.documentElement;
-      const motionOn = root2.classList.contains("adm-motion-on");
-      const motionOff = root2.classList.contains("adm-motion-off");
-      const allowDrift = motionOn || (!motionOff && !stillness.matches);
-
-      if (allowDrift) {
-        // -1..1, then damped. Full range would swing the vanishing point far
-        // enough to be motion sickness rather than depth.
-        const px = (e.clientX / w - 0.5) * 2;
-        const py = (e.clientY / h - 0.5) * 2;
-        root.style.setProperty("--adm-px", px.toFixed(3));
-        root.style.setProperty("--adm-py", py.toFixed(3));
-      } else {
-        // Park it centred rather than leaving whatever offset was last set.
-        root.style.setProperty("--adm-px", "0");
-        root.style.setProperty("--adm-py", "0");
-      }
+      // -1..1, then damped. Full range would swing the vanishing point far
+      // enough to be motion sickness rather than depth.
+      const px = (e.clientX / w - 0.5) * 2;
+      const py = (e.clientY / h - 0.5) * 2;
+      root.style.setProperty("--adm-px", px.toFixed(3));
+      root.style.setProperty("--adm-py", py.toFixed(3));
 
       const panel = (e.target as Element | null)?.closest?.(".adm-panel") as HTMLElement | null;
       if (panel) {

@@ -35,6 +35,8 @@ export function GalleryTab() {
   const [creating, setCreating] = useState(false);
   const [form, setForm] = useState({ ...EMPTY });
   const [saving, setSaving] = useState(false);
+  // False when the API served seed rows because the table is missing.
+  const [live, setLive] = useState(true);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -44,6 +46,7 @@ export function GalleryTab() {
       const json = await res.json();
       if (!res.ok) throw new Error(json.error || "Could not load the gallery.");
       setItems(json.data ?? []);
+      setLive(json.live !== false);
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -120,6 +123,16 @@ export function GalleryTab() {
   return (
     <div className="space-y-6">
       {error && <div className="adm-alert">{error}</div>}
+
+      {!live && (
+        <div className="adm-notice">
+          <strong>Sample data — nothing here is saved yet.</strong> The{" "}
+          <span className="adm-mono">gallery</span> table does not exist in Supabase,
+          so these rows come from the built-in seed and every add, edit and delete
+          will fail. Run <span className="adm-mono">supabase/schema.sql</span> in the
+          Supabase SQL Editor, then reload.
+        </div>
+      )}
 
       {formOpen && (
         <form onSubmit={save} className="adm-panel p-6 space-y-4">

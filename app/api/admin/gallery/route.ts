@@ -89,8 +89,10 @@ function refreshPublic() {
 
 export async function GET() {
   try {
-    const data = await db.listGallery();
-    return NextResponse.json({ success: true, data });
+    const { items, live } = await db.listGallery();
+    // `live: false` means these are seed rows, not database rows: every
+    // write control on them will fail until the schema is run.
+    return NextResponse.json({ success: true, data: items, live });
   } catch (err: any) {
     console.error("[api/admin/gallery] GET failed:", err?.message);
     return NextResponse.json({ error: "Failed to load the gallery." }, { status: 500 });
