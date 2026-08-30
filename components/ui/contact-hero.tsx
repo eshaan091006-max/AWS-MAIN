@@ -6,6 +6,7 @@ import { FaAws, FaLinkedin } from "react-icons/fa6";
 import type { IconType } from "react-icons";
 import { contactChannels } from "@/config/contactChannels";
 import { cn } from "@/lib/utils";
+import { OrbitingIcons } from "@/components/ui/orbiting-icons";
 
 const ICONS: Record<string, IconType> = {
   gmail: SiGmail,
@@ -28,9 +29,9 @@ interface Particle {
 }
 
 /**
- * The contact page header, built on the waitlist-hero layout: three slowly
- * counter-rotating discs behind a bottom-anchored stack, with a gradient that
- * dissolves the whole thing into the page background.
+ * The contact page header, built on the waitlist-hero layout: three
+ * counter-rotating rings of icon tiles behind a bottom-anchored stack, with a
+ * gradient that dissolves the whole thing into the page background.
  *
  * The celebration — confetti burst, expanding rings, icon pop — is the
  * waitlist-hero's submit-success moment, moved onto the channel cards. It fires
@@ -43,8 +44,9 @@ interface Particle {
  *     which on a live contact page silently discards whatever someone types.
  *     The real Supabase form is directly below this.
  *   - The rotating layers were three PNGs hotlinked from framerusercontent.com,
- *     someone else's Framer CDN. CSS gradients here: no network, no third
- *     party, and tintable to the site palette.
+ *     someone else's Framer CDN. Rebuilt from real elements in OrbitingIcons:
+ *     no cross-origin requests for decoration, and the icons can be ones that
+ *     mean something here.
  *   - One canvas and one animation loop for the whole grid rather than one per
  *     card. The original creates a fresh rAF loop per burst, so rapid clicks
  *     leave several loops running over the same canvas, each clearing what the
@@ -191,11 +193,6 @@ export function ContactHero() {
   return (
     <section className="relative w-full overflow-hidden">
       <style>{`
-        @keyframes contact-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-        @keyframes contact-spin-reverse { from { transform: rotate(0deg); } to { transform: rotate(-360deg); } }
-        .contact-disc-cw  { animation: contact-spin 60s linear infinite; }
-        .contact-disc-ccw { animation: contact-spin-reverse 75s linear infinite; }
-
         @keyframes contact-ring {
           0%   { transform: translate(-50%, -50%) scale(0.35); opacity: 0.85; }
           100% { transform: translate(-50%, -50%) scale(1.6);  opacity: 0; }
@@ -218,84 +215,25 @@ export function ContactHero() {
         }
         .contact-pop { animation: contact-pop 0.6s cubic-bezier(0.175,0.885,0.32,1.275); }
 
-        /* Ambient rotation is the only thing gated here. The burst and the rings
-           answer a click the person just made, which is feedback rather than
-           decoration, and suppressing it would leave the tap feeling dead. */
-        @media (prefers-reduced-motion: reduce) {
-          .contact-disc-cw, .contact-disc-ccw { animation: none; }
-        }
+        /* No reduced-motion gate on the burst or the rings: they answer a click
+           the person just made, which is feedback rather than decoration, and
+           suppressing it would leave the tap feeling dead. The ambient orbit is
+           gated, inside OrbitingIcons. */
       `}</style>
 
-      {/* Rotating backdrop. rotateX lays the discs down into a shallow plane so
-          they read as a horizon rather than as flat circles on the screen. */}
-      <div
-        className="absolute inset-0 w-full h-full pointer-events-none"
-        style={{
-          perspective: "1200px",
-          transform: "perspective(1200px) rotateX(15deg)",
-          transformOrigin: "center bottom",
-          // Clipping a rotateX'd plane leaves its straight edges visible as a
-          // trapezoid sitting on the page. Feathering the layer instead means
-          // the light just runs out, with no boundary to notice.
-          maskImage: "radial-gradient(ellipse 75% 70% at 50% 40%, #000 35%, transparent 78%)",
-          WebkitMaskImage: "radial-gradient(ellipse 75% 70% at 50% 40%, #000 35%, transparent 78%)",
-        }}
-        aria-hidden="true"
-      >
-        <div className="absolute inset-0 contact-disc-cw">
-          <div
-            className="absolute top-1/2 left-1/2 rounded-full"
-            style={{
-              width: "1600px",
-              height: "1600px",
-              transform: "translate(-50%, -50%)",
-              background:
-                "conic-gradient(from 0deg, transparent 0deg, rgba(99,102,241,0.20) 60deg, transparent 140deg, rgba(255,153,0,0.16) 220deg, transparent 300deg)",
-              filter: "blur(60px)",
-            }}
-          />
-        </div>
-
-        <div className="absolute inset-0 contact-disc-ccw">
-          <div
-            className="absolute top-1/2 left-1/2 rounded-full"
-            style={{
-              width: "1000px",
-              height: "1000px",
-              transform: "translate(-50%, -50%)",
-              background:
-                "conic-gradient(from 120deg, transparent 0deg, rgba(167,139,250,0.24) 80deg, transparent 180deg, rgba(255,153,0,0.14) 280deg, transparent 340deg)",
-              filter: "blur(50px)",
-            }}
-          />
-        </div>
-
-        <div className="absolute inset-0 contact-disc-cw">
-          <div
-            className="absolute top-1/2 left-1/2 rounded-full"
-            style={{
-              width: "620px",
-              height: "620px",
-              transform: "translate(-50%, -50%)",
-              background:
-                "radial-gradient(circle, rgba(255,153,0,0.22) 0%, rgba(255,153,0,0.06) 45%, transparent 70%)",
-              filter: "blur(30px)",
-            }}
-          />
-        </div>
-      </div>
+      <OrbitingIcons />
 
       {/* Dissolves the backdrop into the page so the section has no hard edge. */}
       <div
         className="absolute inset-0 z-10 pointer-events-none"
         style={{
           background:
-            "linear-gradient(to top, #09090b 8%, rgba(9,9,11,0.82) 42%, transparent 100%)",
+            "linear-gradient(to top, #09090b 3%, rgba(9,9,11,0.62) 34%, rgba(9,9,11,0.25) 62%, transparent 92%)",
         }}
         aria-hidden="true"
       />
 
-      <div className="relative z-20 w-full flex flex-col items-center justify-end px-4 pt-44 pb-20 gap-5 text-center">
+      <div className="relative z-20 w-full min-h-[86vh] flex flex-col items-center justify-end px-4 pt-40 pb-20 gap-5 text-center">
         <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/[0.04] border border-white/10 text-xs font-mono font-semibold text-zinc-300 backdrop-blur-sm">
           <span className="w-1.5 h-1.5 rounded-full bg-aws-orange" />
           <span>We reply to everything</span>
