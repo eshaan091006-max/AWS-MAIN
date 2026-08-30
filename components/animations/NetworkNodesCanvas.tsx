@@ -36,11 +36,14 @@ export function NetworkNodesCanvas() {
     }[] = [];
 
     const colors = [
-      "rgba(255, 153, 0, 0.6)",
-      "rgba(255, 179, 71, 0.4)",
-      "rgba(0, 115, 187, 0.5)",
-      "rgba(0, 229, 255, 0.4)",
-      "rgba(255, 255, 255, 0.3)",
+      "rgba(255, 153, 0, 0.55)",
+      "rgba(255, 179, 71, 0.35)",
+      // Indigo and violet in place of the old AWS blue and cyan: the field sits
+      // behind everything, and two more hues down there were competing with the
+      // one colour that is supposed to mean "clickable".
+      "rgba(99, 102, 241, 0.45)",
+      "rgba(167, 139, 250, 0.35)",
+      "rgba(255, 255, 255, 0.25)",
     ];
 
     for (let i = 0; i < particleCount; i++) {

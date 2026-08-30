@@ -4,19 +4,21 @@
 
 @layer base {
   :root {
-    --background: #060a14;
-    --foreground: #f8fafc;
-    --card: #0c142b;
-    --card-foreground: #f8fafc;
+    --background: #09090b;
+    --foreground: #fafafa;
+    --card: #18181b;
+    --card-foreground: #fafafa;
     --primary: #ff9900;
     --primary-foreground: #000000;
-    --secondary: #1e293b;
-    --secondary-foreground: #f8fafc;
-    --muted: #1e293b;
-    --muted-foreground: #94a3b8;
+    --secondary: #27272a;
+    --secondary-foreground: #fafafa;
+    --muted: #27272a;
+    --muted-foreground: #a1a1aa;
     --accent: #ff9900;
     --accent-foreground: #000000;
-    --border: rgba(255, 153, 0, 0.15);
+    /* A neutral hairline rather than a tinted one: an orange border on every
+       card made the accent ordinary. Orange is now reserved for actions. */
+    --border: rgba(255, 255, 255, 0.08);
     --ring: #ff9900;
   }
 
@@ -46,6 +48,18 @@
  */
 html {
   background-color: var(--background);
+  /* Anchor nav on a one-page site: without scroll-padding the fixed navbar
+     covers the heading you just jumped to. Held back for anyone who asked for
+     reduced motion — a long smooth scroll is exactly the kind of movement that
+     setting exists to stop. */
+  scroll-behavior: smooth;
+  scroll-padding-top: 6.5rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
 }
 
 body {
@@ -63,7 +77,7 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-  background: #060a14;
+  background: #09090b;
 }
 
 html.light ::-webkit-scrollbar-track {
@@ -71,7 +85,7 @@ html.light ::-webkit-scrollbar-track {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #1e293b;
+  background: #27272a;
   border-radius: 4px;
 }
 

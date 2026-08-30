@@ -79,7 +79,7 @@ export default async function EventDetailPage({ params }: Props) {
             className="object-cover"
             priority
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#060A14] via-navy-950/60 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-navy-950 via-navy-950/60 to-transparent" />
 
           {/* Hero Overlay Content */}
           <div className="absolute bottom-0 left-0 right-0 p-6 sm:p-10 space-y-3">

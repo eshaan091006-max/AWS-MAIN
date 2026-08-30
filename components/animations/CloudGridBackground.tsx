@@ -2,20 +2,53 @@
 
 import React from "react";
 
+/**
+ * The ambient light behind the whole public site.
+ *
+ * Fixed rather than scrolling, so the light stays put while content moves
+ * through it — the thing that gives a long single-page scroll a sense of depth
+ * instead of reading as one very tall flat document.
+ *
+ * Indigo and violet, with one warm orange pool low down. Nothing here is ever
+ * a control, which is what keeps AWS orange meaning "you can act on this"
+ * everywhere else on the page. The old version mixed AWS blue, cyan and purple
+ * into the same field, which is most of why the accent never stood out.
+ */
 export function CloudGridBackground() {
   return (
-    <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
-      {/* Cyber Grid Lines */}
-      <div className="absolute inset-0 cyber-grid-bg opacity-70" />
+    <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden" aria-hidden="true">
+      {/* Grid, masked to fade before it reaches any edge — a grid that runs to
+          the viewport border reads as a texture bug rather than as depth. */}
+      <div
+        className="absolute inset-0 opacity-[0.4]"
+        style={{
+          backgroundImage:
+            "linear-gradient(to right, rgba(255,255,255,0.035) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.035) 1px, transparent 1px)",
+          backgroundSize: "64px 64px",
+          maskImage: "radial-gradient(ellipse 85% 65% at 50% 35%, #000 25%, transparent 78%)",
+          WebkitMaskImage:
+            "radial-gradient(ellipse 85% 65% at 50% 35%, #000 25%, transparent 78%)",
+        }}
+      />
 
-      {/* Radiant Glowing Orbs */}
-      <div className="absolute -top-40 -left-40 w-[600px] h-[600px] bg-aws-orange/10 rounded-full blur-[140px] animate-pulse-slow" />
-      <div className="absolute top-1/3 -right-40 w-[550px] h-[550px] bg-aws-blue/15 rounded-full blur-[150px] animate-pulse-slow" />
-      <div className="absolute -bottom-40 left-1/3 w-[700px] h-[700px] bg-purple-900/10 rounded-full blur-[160px]" />
-      <div className="absolute top-2/3 right-1/4 w-[400px] h-[400px] bg-aws-cyan/10 rounded-full blur-[130px]" />
+      {/* Three pools, deliberately off-axis. A centred glow reads as a vignette;
+          asymmetry reads as a light source. */}
+      <div
+        className="absolute -top-[25%] left-1/2 -translate-x-1/2 w-[1100px] h-[850px] rounded-full blur-[130px] opacity-[0.15]"
+        style={{ background: "radial-gradient(circle, #6366F1 0%, transparent 65%)" }}
+      />
+      <div
+        className="absolute top-[30%] -left-[15%] w-[750px] h-[750px] rounded-full blur-[150px] opacity-[0.10]"
+        style={{ background: "radial-gradient(circle, #A78BFA 0%, transparent 65%)" }}
+      />
+      <div
+        className="absolute bottom-[-10%] -right-[15%] w-[850px] h-[850px] rounded-full blur-[150px] opacity-[0.08]"
+        style={{ background: "radial-gradient(circle, #FF9900 0%, transparent 65%)" }}
+      />
 
-      {/* Top Gradient Vignette */}
-      <div className="absolute inset-0 bg-gradient-to-b from-[#060A14] via-transparent to-[#060A14] opacity-90" />
+      {/* Vignette, in the page's own background colour so the field never meets
+          the top or bottom of the viewport as a hard edge. */}
+      <div className="absolute inset-0 bg-gradient-to-b from-navy-950 via-transparent to-navy-950 opacity-80" />
     </div>
   );
 }

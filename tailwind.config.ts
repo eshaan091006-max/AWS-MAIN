@@ -32,19 +32,32 @@ const config: Config = {
           purple: "#7928CA",
           pink: "#FF0080",
         },
+        // Retuned from the old blue navy to a true neutral near-black. The
+        // scale keeps its `navy-*` names because 160-odd class names across the
+        // site refer to it; renaming them would be a large diff that changes
+        // nothing you can see. The blue is what made the old palette fight the
+        // orange — neutral greys let one accent read as the only accent.
         navy: {
-          950: "#050811",
-          900: "#080E1E",
-          850: "#0C142B",
-          800: "#111C3D",
-          700: "#1E2F5E",
-          600: "#2B4380",
+          950: "#09090B",
+          900: "#0F0F12",
+          850: "#18181B",
+          800: "#1F1F23",
+          700: "#27272A",
+          600: "#3F3F46",
+        },
+        // Ambient light only — glows, gradient washes, decorative strokes.
+        // Never a button, never a link: those are always AWS orange, so the
+        // one colour that means "you can act on this" stays unambiguous.
+        ambient: {
+          indigo: "#6366F1",
+          violet: "#A78BFA",
+          plum: "#C084FC",
         },
         cyber: {
-          dark: "#050810",
-          card: "rgba(12, 20, 43, 0.7)",
-          "card-hover": "rgba(20, 32, 66, 0.85)",
-          border: "rgba(255, 153, 0, 0.18)",
+          dark: "#09090B",
+          card: "rgba(24, 24, 27, 0.7)",
+          "card-hover": "rgba(39, 39, 42, 0.85)",
+          border: "rgba(255, 255, 255, 0.08)",
           "border-bright": "rgba(255, 153, 0, 0.45)",
           glow: "0 0 25px rgba(255, 153, 0, 0.25)",
         }
@@ -58,8 +71,9 @@ const config: Config = {
         "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
         "gradient-conic": "conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))",
         "aws-gradient": "linear-gradient(135deg, #FF9900 0%, #FF5500 100%)",
-        "cyber-grid": "linear-gradient(to right, rgba(255, 153, 0, 0.05) 1px, transparent 1px), linear-gradient(to bottom, rgba(255, 153, 0, 0.05) 1px, transparent 1px)",
+        "cyber-grid": "linear-gradient(to right, rgba(255, 255, 255, 0.04) 1px, transparent 1px), linear-gradient(to bottom, rgba(255, 255, 255, 0.04) 1px, transparent 1px)",
         "hero-glow": "radial-gradient(600px circle at center, rgba(255, 153, 0, 0.12), transparent 70%)",
+        "ambient-glow": "radial-gradient(900px circle at 50% 0%, rgba(99, 102, 241, 0.14), transparent 65%)",
       },
       animation: {
         "pulse-slow": "pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite",
