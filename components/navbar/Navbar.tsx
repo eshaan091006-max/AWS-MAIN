@@ -7,6 +7,7 @@ import { ArrowUpRight } from "lucide-react";
 import { FaAws } from "react-icons/fa6";
 import { RandomLetterSwap } from "@/components/ui/random-letter-swap";
 import { LiquidMenu } from "@/components/ui/liquid-menu";
+import { scrollToSection, scrollToHashOnLoad } from "@/lib/scrollToSection";
 import { mainNavItems } from "@/config/navigation";
 import { siteConfig } from "@/config/site";
 
@@ -25,6 +26,27 @@ export function Navbar() {
    */
   const hrefFor = (item: { href: string; section?: string }) =>
     item.section ? (onHome ? `#${item.section}` : `/#${item.section}`) : item.href;
+
+  /**
+   * Section links scroll rather than jump.
+   *
+   * Only when the section is on this page — off-home the href is "/#section"
+   * and the click has to fall through to a real navigation, which the landing
+   * effect below then finishes.
+   */
+  const handleSectionClick = (
+    e: React.MouseEvent<HTMLAnchorElement>,
+    item: { section?: string }
+  ) => {
+    if (!item.section || !onHome) return;
+    // Leave modified clicks alone: ctrl/cmd/middle-click means "open elsewhere".
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
+    if (!scrollToSection(item.section)) return;
+
+    e.preventDefault();
+    // Keep the address bar honest without letting the browser jump there.
+    window.history.replaceState(null, "", `#${item.section}`);
+  };
 
   const isItemActive = (item: { href: string; section?: string; owns?: string[] }) => {
     if (item.owns?.some((route) => pathname === route || pathname.startsWith(`${route}/`))) {
@@ -65,6 +87,13 @@ export function Navbar() {
 
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  useEffect(() => {
+    if (!onHome) return;
+    // One frame's grace so the sections have laid out before anything measures.
+    const id = window.setTimeout(() => scrollToHashOnLoad(), 60);
+    return () => window.clearTimeout(id);
+  }, [onHome]);
 
   // Highlights the nav item for whichever section you are looking at.
   //
@@ -143,6 +172,7 @@ export function Navbar() {
                 <Link
                   key={item.title}
                   href={hrefFor(item)}
+                  onClick={(e) => handleSectionClick(e, item)}
                   aria-current={isActive ? "page" : undefined}
                   className={`group relative text-sm font-medium transition-colors ${
                     isActive ? "text-white" : "text-zinc-400 hover:text-white"

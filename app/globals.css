@@ -258,3 +258,34 @@ html.light footer .bg-navy-950 {
 html.embedded .pt-28 {
   padding-top: 1.5rem;
 }
+
+/* Arrival cue.
+   A section flags itself with data-arriving for about a second after the nav
+   scrolls to it, so landing somewhere is acknowledged rather than the page just
+   stopping. Drawn on a ::before behind the content — animating the section
+   itself would move the very thing being scrolled to, and fighting the scroll
+   position mid-animation reads as a stutter. */
+[data-arriving] {
+  position: relative;
+}
+
+[data-arriving]::before {
+  content: "";
+  position: absolute;
+  inset: -1rem 0;
+  pointer-events: none;
+  z-index: 0;
+  border-radius: 1.5rem;
+  background: radial-gradient(
+    ellipse 70% 60% at 50% 40%,
+    rgba(255, 153, 0, 0.10),
+    transparent 70%
+  );
+  animation: section-arrive 1.1s ease-out forwards;
+}
+
+@keyframes section-arrive {
+  0%   { opacity: 0; transform: scale(0.98); }
+  25%  { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; transform: scale(1); }
+}

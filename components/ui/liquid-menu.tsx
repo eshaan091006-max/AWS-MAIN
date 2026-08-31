@@ -6,6 +6,7 @@ import Link from "next/link";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { scrollToSection } from "@/lib/scrollToSection";
 
 export interface LiquidMenuItem {
   title: string;
@@ -125,7 +126,25 @@ export function LiquidMenu({ items, isActive, className }: LiquidMenuProps) {
                       {...(item.external
                         ? { target: "_blank", rel: "noopener noreferrer" }
                         : {})}
-                      onClick={() => setOpen(false)}
+                      onClick={(e) => {
+                        setOpen(false);
+                        // Same eased scroll the desktop nav uses, so the two
+                        // navigations do not behave differently.
+                        const hash = item.href.startsWith("#")
+                          ? item.href.slice(1)
+                          : item.href.startsWith("/#")
+                            ? item.href.slice(2)
+                            : null;
+                        if (!hash || e.metaKey || e.ctrlKey || e.shiftKey) return;
+                        // Wait for the panel to collapse first, or the scroll
+                        // starts while the page is still locked.
+                        window.setTimeout(() => {
+                          if (scrollToSection(hash)) {
+                            window.history.replaceState(null, "", `#${hash}`);
+                          }
+                        }, 180);
+                        e.preventDefault();
+                      }}
                       aria-current={active ? "page" : undefined}
                       className={cn(
                         "block py-1.5 text-center text-xl font-display font-semibold uppercase tracking-wide transition-colors",
