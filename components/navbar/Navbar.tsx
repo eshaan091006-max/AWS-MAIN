@@ -3,9 +3,10 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, X, ArrowUpRight } from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
 import { FaAws } from "react-icons/fa6";
 import { RandomLetterSwap } from "@/components/ui/random-letter-swap";
+import { LiquidMenu } from "@/components/ui/liquid-menu";
 import { mainNavItems } from "@/config/navigation";
 import { siteConfig } from "@/config/site";
 
@@ -13,7 +14,6 @@ export function Navbar() {
   const pathname = usePathname();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isEmbedded, setIsEmbedded] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState("top");
 
   const onHome = pathname === "/";
@@ -174,55 +174,23 @@ export function Navbar() {
               <ArrowUpRight className="w-3.5 h-3.5 stroke-[2.5]" />
             </a>
 
-            {/* Mobile Menu Button */}
-            <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="lg:hidden p-2 rounded-xl bg-white/[0.04] border border-white/10 text-zinc-300 hover:text-aws-orange cursor-pointer"
-            >
-              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-            </button>
           </div>
         </div>
 
-        {/* Mobile Navigation Drawer */}
-        {mobileMenuOpen && (
-          <div className="lg:hidden border-b border-white/[0.07] bg-navy-950/95 backdrop-blur-2xl px-4 pt-4 pb-6 mt-3 animate-in slide-in-from-top duration-200">
-            <div className="grid grid-cols-2 gap-2 mb-4">
-              {mainNavItems.map((item) => {
-                const isActive = isItemActive(item);
-                return (
-                  <Link
-                    key={item.title}
-                    href={hrefFor(item)}
-                    onClick={() => setMobileMenuOpen(false)}
-                    className={`p-2.5 rounded-xl text-xs font-medium border flex items-center justify-between ${isActive
-                      ? "bg-aws-orange text-black border-aws-orange font-bold"
-                      : "bg-white/[0.03] text-zinc-300 border-white/10 hover:border-aws-orange/40"
-                      }`}
-                  >
-                    <span>{item.title}</span>
-                    {item.badge && (
-                      <span className="text-[10px] font-mono px-1 rounded bg-black/20">{item.badge}</span>
-                    )}
-                  </Link>
-                );
-              })}
-            </div>
-
-            <div className="flex flex-col gap-2 pt-2 border-t border-white/10">
-              <a
-                href={siteConfig.links.meetup}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={() => setMobileMenuOpen(false)}
-                className="w-full block py-2.5 rounded-xl bg-aws-orange text-black text-center text-xs font-bold"
-              >
-                Join SXC AWS Group
-              </a>
-            </div>
-          </div>
-        )}
       </header>
+
+      {/* Mobile navigation. A floating trigger that melts open, rather than a
+          drawer pushed down from the header — it stays within thumb reach on a
+          phone instead of sitting at the far top corner. */}
+      <LiquidMenu
+        items={[
+          ...mainNavItems.map((item) => ({ title: item.title, href: hrefFor(item) })),
+          { title: "Join Group", href: siteConfig.links.meetup, external: true },
+        ]}
+        isActive={(item) =>
+          mainNavItems.some((nav) => nav.title === item.title && isItemActive(nav))
+        }
+      />
     </>
   );
 }
