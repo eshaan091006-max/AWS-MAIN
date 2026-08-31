@@ -96,8 +96,16 @@ const STYLES = `
   color: var(--foreground);
 }
 
+/* Centred by inset-x-0 plus text-align, deliberately not by a translate.
+   GSAP animates the transform property on this element for the parallax, which
+   overwrites any transform set in CSS — so a -translate-x-1/2 centering is
+   silently thrown away the moment the tween runs, and the wordmark ends up half
+   its own width to the right and clipped.
+
+   18vw rather than 22vw: at 22vw the wordmark measured 99% of the viewport, so
+   it touched both edges with nothing to spare. */
 .footer-giant-bg-text {
-  font-size: 22vw;
+  font-size: 18vw;
   line-height: 0.75;
   font-weight: 900;
   letter-spacing: -0.05em;
@@ -223,8 +231,8 @@ export interface CinematicFooterProps {
   primaryLinks: { label: string; href: string; icon?: React.ReactNode; external?: boolean }[];
   /** Grouped navigation, rendered as pills. */
   linkGroups: { heading: string; items: { title: string; href: string }[] }[];
-  /** Bottom-left line. */
-  copyright: string;
+  /** Bottom-left line. Omit to leave that side empty. */
+  copyright?: string;
   /** Bottom-right badge text. */
   badge?: React.ReactNode;
 }
@@ -338,7 +346,7 @@ export function CinematicFooter({
 
           <div
             ref={giantTextRef}
-            className="footer-giant-bg-text absolute -bottom-[5vh] left-1/2 -translate-x-1/2 whitespace-nowrap z-0 pointer-events-none select-none"
+            className="footer-giant-bg-text absolute -bottom-[4vh] inset-x-0 text-center whitespace-nowrap z-0 pointer-events-none select-none"
           >
             {wordmark}
           </div>
@@ -405,10 +413,19 @@ export function CinematicFooter({
           </div>
 
           {/* Bottom bar */}
-          <div className="relative z-20 w-full pb-8 px-6 md:px-12 flex flex-col md:flex-row items-center justify-between gap-6">
-            <div className="text-muted-foreground text-[10px] md:text-xs font-semibold tracking-widest uppercase order-2 md:order-1">
-              {copyright}
-            </div>
+          <div
+            className={cn(
+              "relative z-20 w-full pb-8 px-6 md:px-12 flex flex-col md:flex-row items-center gap-6",
+              // With the copyright and badge gone there is one control left, and
+              // justify-between would park it against the left edge.
+              copyright || badge ? "justify-between" : "justify-end"
+            )}
+          >
+            {copyright && (
+              <div className="text-muted-foreground text-[10px] md:text-xs font-semibold tracking-widest uppercase order-2 md:order-1">
+                {copyright}
+              </div>
+            )}
 
             {badge && (
               <div className="footer-glass-pill px-6 py-3 rounded-full flex items-center gap-2 order-1 md:order-2 cursor-default">

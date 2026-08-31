@@ -1,5 +1,5 @@
 import React from "react";
-import { Terminal, Users, ArrowUpRight } from "lucide-react";
+import { Users, ArrowUpRight } from "lucide-react";
 import { siteConfig } from "@/config/site";
 import { footerNavItems } from "@/config/navigation";
 import { CinematicFooter } from "@/components/ui/motion-footer";
@@ -12,6 +12,9 @@ import { CinematicFooter } from "@/components/ui/motion-footer";
  * primary pills are the Meetup and Builder Center links the site already
  * points at. The App Store buttons in the original have no equivalent — this
  * club has no app.
+ *
+ * No copyright line and no tagline badge, by request; the bottom bar is just
+ * the back-to-top control.
  */
 export function Footer() {
   return (
@@ -38,15 +41,6 @@ export function Footer() {
         { heading: "AWS Learning", items: footerNavItems.learn },
         { heading: "Community", items: footerNavItems.community },
       ]}
-      copyright={`© ${new Date().getFullYear()} SXC AWS Group. All rights reserved.`}
-      badge={
-        <>
-          <Terminal className="w-3.5 h-3.5 text-aws-orange" />
-          <span className="text-muted-foreground text-[10px] md:text-xs font-bold uppercase tracking-widest">
-            Learn. Build. Deploy. Scale.
-          </span>
-        </>
-      }
     />
   );
 }
