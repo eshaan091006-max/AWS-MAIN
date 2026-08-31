@@ -19,20 +19,31 @@ import {
   SiLinux,
   SiNodedotjs,
   SiGit,
-  SiTailwindcss,
   SiGraphql,
   SiFigma,
-  SiMongodb,
-  SiRedis,
   SiJavascript,
   SiVercel,
 } from "react-icons/si";
 import { FaAws } from "react-icons/fa6";
 
 interface Tile {
-  Icon: IconType;
+  /** A brand glyph, for anything with one. */
+  Icon?: IconType;
+  /**
+   * A service wordmark, for AWS services.
+   *
+   * react-icons carries no AWS service icons — Simple Icons dropped the Amazon
+   * service set — so EC2, Bedrock, SageMaker and RDS have no glyph to use.
+   * Redrawing the official architecture icons from memory would produce
+   * something subtly wrong wearing AWS's trademark, which is worse than not
+   * drawing them: the wordmark is unambiguous and it is what the AWS console
+   * shows anyway.
+   */
+  label?: string;
   color: string;
 }
+
+const AWS_ORANGE = "#FF9900";
 
 /**
  * Tiles orbiting behind the contact hero: the club's live channels plus the
@@ -63,10 +74,10 @@ const RING_OUTER: Tile[] = [
   { Icon: SiGithub, color: "#F5F5F5" },
   { Icon: SiPostgresql, color: "#4169E1" },
   { Icon: SiFigma, color: "#F24E1E" },
-  { Icon: SiMongodb, color: "#47A248" },
+  { label: "SageMaker", color: AWS_ORANGE },
   { Icon: SiLinux, color: "#FCC624" },
   { Icon: SiGraphql, color: "#E10098" },
-  { Icon: SiRedis, color: "#FF4438" },
+  { label: "RDS", color: AWS_ORANGE },
   { Icon: SiJavascript, color: "#F7DF1E" },
 ];
 
@@ -77,7 +88,7 @@ const RING_MID: Tile[] = [
   { Icon: SiNodedotjs, color: "#5FA04E" },
   { Icon: SiGit, color: "#F05032" },
   { Icon: SiSupabase, color: "#3FCF8E" },
-  { Icon: SiTailwindcss, color: "#06B6D4" },
+  { label: "Bedrock", color: AWS_ORANGE },
   { Icon: SiMeetup, color: "#ED1C40" },
 ];
 
@@ -87,7 +98,7 @@ const RING_INNER: Tile[] = [
   { Icon: SiReact, color: "#61DAFB" },
   { Icon: SiTypescript, color: "#3178C6" },
   { Icon: SiNextdotjs, color: "#F5F5F5" },
-  { Icon: SiPython, color: "#3776AB" },
+  { label: "EC2", color: AWS_ORANGE },
 ];
 
 interface RingSpec {
@@ -233,13 +244,33 @@ export function OrbitingIcons() {
                       animationDirection: i % 2 === 0 ? "normal" : "reverse",
                     }}
                   >
-                    <Icon
-                      style={{
-                        color: tile.color,
-                        width: ring.size * 0.52,
-                        height: ring.size * 0.52,
-                      }}
-                    />
+                    {tile.label ? (
+                      <span
+                        className="font-display font-black leading-none tracking-tight text-center whitespace-nowrap px-1"
+                        style={{
+                          color: tile.color,
+                          // Sized from the name's length rather than a two-step
+                          // guess: at a flat 0.17 "SageMaker" still ran past the
+                          // edge of its tile. 0.6em is about the width of a
+                          // character at this weight, and the 0.30 ceiling stops
+                          // short names like EC2 from filling the whole tile.
+                          fontSize: Math.min(
+                            ring.size * 0.3,
+                            (ring.size * 0.78) / (tile.label.length * 0.6)
+                          ),
+                        }}
+                      >
+                        {tile.label}
+                      </span>
+                    ) : Icon ? (
+                      <Icon
+                        style={{
+                          color: tile.color,
+                          width: ring.size * 0.52,
+                          height: ring.size * 0.52,
+                        }}
+                      />
+                    ) : null}
                   </div>
                 </div>
               );
