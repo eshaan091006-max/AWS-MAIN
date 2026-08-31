@@ -227,6 +227,8 @@ function GalleryScene({
   // React re-render on every animation frame — 120 renders a second, each one
   // rebuilding the whole plane list, for a value only the render loop reads.
   const velocity = useRef(0);
+  const autoPlay = useRef(true);
+  const lastInteraction = useRef(0);
   const groupRef = useRef<THREE.Group>(null);
 
   // The canvas this scene is actually drawing into.
@@ -285,6 +287,10 @@ function GalleryScene({
 
   const nudge = useCallback((amount: number) => {
     velocity.current += amount;
+    // Hand control over while someone is actually driving it; the idle drift
+    // picks up again once they stop.
+    autoPlay.current = false;
+    lastInteraction.current = Date.now();
   }, []);
 
   useEffect(() => {
@@ -341,10 +347,10 @@ function GalleryScene({
   }, [glCanvas, nudge, speed]);
 
   useFrame((state, delta) => {
-    // No idle auto-play. It was pleasant in a demo that owns the screen, but on
-    // a real page it means the gallery starts moving on its own a few seconds
-    // after you stop touching it, including while you are reading something
-    // else. The gallery moves when someone moves it.
+    // Drifts on its own until someone takes over, and resumes a few seconds
+    // after they stop.
+    if (Date.now() - lastInteraction.current > 3000) autoPlay.current = true;
+    if (autoPlay.current) velocity.current += 0.3 * delta;
     velocity.current *= 0.95;
 
     const time = state.clock.getElapsedTime();

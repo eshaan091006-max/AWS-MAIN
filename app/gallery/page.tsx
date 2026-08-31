@@ -29,18 +29,27 @@ export default async function GalleryPage() {
           <GalleryStage images={images} />
         </div>
 
-        {/* Title sits high and left, out of the band the photos travel through.
-            It used to be centred with mix-blend-exclusion, which inverts against
-            whatever is behind it — so every time a photo drifted past, the
-            heading turned into a negative of it and became unreadable. Out of
-            the way and opaque beats clever blending. */}
-        <div className="absolute top-0 left-0 right-0 pt-32 px-6 sm:px-12 lg:px-16 pointer-events-none">
-          <h1 className="font-display text-5xl md:text-7xl font-black tracking-tight text-white drop-shadow-[0_2px_24px_rgba(0,0,0,0.9)]">
-            Gallery
-          </h1>
-          <p className="mt-3 max-w-md text-sm md:text-base text-zinc-300 drop-shadow-[0_2px_12px_rgba(0,0,0,0.9)]">
-            Workshops, hackathons, and the people behind them.
-          </p>
+        {/* Centred over the photos, but drawn normally rather than with
+            mix-blend-exclusion. That blend mode inverts against whatever is
+            behind it, so a photo drifting past turned the heading into a
+            negative of itself. A soft scrim and a shadow keep it readable over
+            anything without the title changing colour as the gallery moves. */}
+        <div className="absolute inset-0 pointer-events-none flex items-center justify-center px-4 text-center">
+          <div className="relative">
+            <div
+              aria-hidden="true"
+              className="absolute -inset-x-24 -inset-y-16 rounded-full blur-2xl"
+              style={{ background: "radial-gradient(ellipse at center, rgba(9,9,11,0.72), transparent 72%)" }}
+            />
+            <div className="relative">
+              <h1 className="font-display text-5xl md:text-7xl font-black tracking-tight text-white drop-shadow-[0_2px_20px_rgba(0,0,0,0.95)]">
+                Gallery
+              </h1>
+              <p className="mt-3 text-sm md:text-base text-zinc-200 drop-shadow-[0_2px_12px_rgba(0,0,0,0.95)]">
+                Workshops, hackathons, and the people behind them.
+              </p>
+            </div>
+          </div>
         </div>
 
         <div className="absolute bottom-6 left-0 right-0 pointer-events-none text-center font-mono uppercase text-[11px] tracking-widest text-zinc-500">
