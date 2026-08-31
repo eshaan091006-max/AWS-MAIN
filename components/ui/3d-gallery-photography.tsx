@@ -38,6 +38,31 @@ interface PlaneData {
 }
 
 const DEFAULT_DEPTH_RANGE = 50;
+
+/**
+ * Frame shapes, cycled by plane index.
+ *
+ * Every source photo is a wide Unsplash crop, so deriving the plane size from
+ * the texture — as the original does — makes all of them the same shape and the
+ * field reads as a stack of identical rectangles. Each frame instead gets a
+ * fixed aspect and scale, and the photo is cover-cropped into it in the shader.
+ *
+ * Cropping rather than stretching: scaling a landscape photo into a portrait
+ * frame by changing the mesh dimensions squashes the people in it.
+ *
+ * The shape belongs to the frame, not to the photo, so a frame keeps its
+ * proportions as images cycle through it instead of resizing mid-flight.
+ */
+const FRAME_PRESETS = [
+  { aspect: 1.5, scale: 1.15 },
+  { aspect: 0.72, scale: 1.0 },
+  { aspect: 1.0, scale: 0.8 },
+  { aspect: 1.78, scale: 1.35 },
+  { aspect: 0.8, scale: 0.7 },
+  { aspect: 1.33, scale: 0.95 },
+  { aspect: 0.62, scale: 1.1 },
+  { aspect: 1.2, scale: 0.72 },
+];
 const MAX_HORIZONTAL_OFFSET = 8;
 const MAX_VERTICAL_OFFSET = 8;
 
@@ -61,6 +86,8 @@ const createClothMaterial = () =>
       time: { value: 0.0 },
       isHovered: { value: 0.0 },
       texelSize: { value: new THREE.Vector2(1 / 1024, 1 / 1024) },
+      uvScale: { value: new THREE.Vector2(1, 1) },
+      uvOffset: { value: new THREE.Vector2(0, 0) },
     },
     vertexShader: `
       uniform float scrollForce;
@@ -98,10 +125,15 @@ const createClothMaterial = () =>
       uniform float blurAmount;
       uniform float scrollForce;
       uniform vec2 texelSize;
+      uniform vec2 uvScale;
+      uniform vec2 uvOffset;
       varying vec2 vUv;
 
       void main() {
-        vec4 color = texture2D(map, vUv);
+        // Cover-crop into the frame's own aspect, so the photo fills it without
+        // being stretched.
+        vec2 uv = vUv * uvScale + uvOffset;
+        vec4 color = texture2D(map, uv);
 
         if (blurAmount > 0.0) {
           vec4 blurred = vec4(0.0);
@@ -110,7 +142,7 @@ const createClothMaterial = () =>
             for (float y = -2.0; y <= 2.0; y += 1.0) {
               vec2 offset = vec2(x, y) * texelSize * blurAmount;
               float weight = 1.0 / (1.0 + length(vec2(x, y)));
-              blurred += texture2D(map, vUv + offset) * weight;
+              blurred += texture2D(map, uv + offset) * weight;
               total += weight;
             }
           }
@@ -128,22 +160,33 @@ function ImagePlane({
   position,
   scale,
   material,
+  frameAspect,
 }: {
   texture: THREE.Texture;
   position: [number, number, number];
   scale: [number, number, number];
   material: THREE.ShaderMaterial;
+  frameAspect: number;
 }) {
   const [isHovered, setIsHovered] = useState(false);
 
   useEffect(() => {
     if (!material || !texture) return;
     material.uniforms.map.value = texture;
+
     const img = texture.image as { width?: number; height?: number } | undefined;
-    if (img?.width && img?.height) {
-      material.uniforms.texelSize.value.set(1 / img.width, 1 / img.height);
-    }
-  }, [material, texture]);
+    if (!img?.width || !img?.height) return;
+    material.uniforms.texelSize.value.set(1 / img.width, 1 / img.height);
+
+    // Cover-fit: take the largest centred rectangle of the source that has the
+    // frame's aspect. Wider source than frame means cropping the sides;
+    // narrower means cropping top and bottom.
+    const sourceAspect = img.width / img.height;
+    const sx = sourceAspect > frameAspect ? frameAspect / sourceAspect : 1;
+    const sy = sourceAspect > frameAspect ? 1 : sourceAspect / frameAspect;
+    material.uniforms.uvScale.value.set(sx, sy);
+    material.uniforms.uvOffset.value.set((1 - sx) / 2, (1 - sy) / 2);
+  }, [material, texture, frameAspect]);
 
   useEffect(() => {
     if (material?.uniforms) {
@@ -184,8 +227,6 @@ function GalleryScene({
   // React re-render on every animation frame — 120 renders a second, each one
   // rebuilding the whole plane list, for a value only the render loop reads.
   const velocity = useRef(0);
-  const autoPlay = useRef(true);
-  const lastInteraction = useRef(0);
   const groupRef = useRef<THREE.Group>(null);
 
   // The canvas this scene is actually drawing into.
@@ -244,8 +285,6 @@ function GalleryScene({
 
   const nudge = useCallback((amount: number) => {
     velocity.current += amount;
-    autoPlay.current = false;
-    lastInteraction.current = Date.now();
   }, []);
 
   useEffect(() => {
@@ -302,8 +341,10 @@ function GalleryScene({
   }, [glCanvas, nudge, speed]);
 
   useFrame((state, delta) => {
-    if (Date.now() - lastInteraction.current > 3000) autoPlay.current = true;
-    if (autoPlay.current) velocity.current += 0.3 * delta;
+    // No idle auto-play. It was pleasant in a demo that owns the screen, but on
+    // a real page it means the gallery starts moving on its own a few seconds
+    // after you stop touching it, including while you are reading something
+    // else. The gallery moves when someone moves it.
     velocity.current *= 0.95;
 
     const time = state.clock.getElapsedTime();
@@ -391,10 +432,9 @@ function GalleryScene({
         const material = materials[i];
         if (!texture || !material) return null;
 
-        const img = texture.image as { width?: number; height?: number } | undefined;
-        const aspect = img?.width && img?.height ? img.width / img.height : 1;
-        const scale: [number, number, number] =
-          aspect > 1 ? [2 * aspect, 2, 1] : [2, 2 / aspect, 1];
+        const frame = FRAME_PRESETS[i % FRAME_PRESETS.length];
+        const height = 2.2 * frame.scale;
+        const scale: [number, number, number] = [height * frame.aspect, height, 1];
 
         return (
           <ImagePlane
@@ -403,6 +443,7 @@ function GalleryScene({
             position={[plane.x, plane.y, plane.z - depthRange / 2]}
             scale={scale}
             material={material}
+            frameAspect={frame.aspect}
           />
         );
       })}

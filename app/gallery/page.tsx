@@ -29,22 +29,22 @@ export default async function GalleryPage() {
           <GalleryStage images={images} />
         </div>
 
-        {/* Title sits over the canvas. mix-blend-exclusion keeps it legible
-            whatever photo happens to drift behind it. */}
-        <div className="absolute inset-0 pointer-events-none flex items-center justify-center px-4 text-center mix-blend-exclusion">
-          <div>
-            <h1 className="font-display text-5xl md:text-7xl font-black tracking-tight text-white">
-              Gallery
-            </h1>
-            <p className="mt-3 text-sm md:text-base text-white/80">
-              Workshops, hackathons, and the people behind them.
-            </p>
-          </div>
+        {/* Title sits high and left, out of the band the photos travel through.
+            It used to be centred with mix-blend-exclusion, which inverts against
+            whatever is behind it — so every time a photo drifted past, the
+            heading turned into a negative of it and became unreadable. Out of
+            the way and opaque beats clever blending. */}
+        <div className="absolute top-0 left-0 right-0 pt-32 px-6 sm:px-12 lg:px-16 pointer-events-none">
+          <h1 className="font-display text-5xl md:text-7xl font-black tracking-tight text-white drop-shadow-[0_2px_24px_rgba(0,0,0,0.9)]">
+            Gallery
+          </h1>
+          <p className="mt-3 max-w-md text-sm md:text-base text-zinc-300 drop-shadow-[0_2px_12px_rgba(0,0,0,0.9)]">
+            Workshops, hackathons, and the people behind them.
+          </p>
         </div>
 
         <div className="absolute bottom-6 left-0 right-0 pointer-events-none text-center font-mono uppercase text-[11px] tracking-widest text-zinc-500">
           <p>Scroll over the photos, drag, or use the arrow keys</p>
-          <p className="opacity-60 mt-1">Drifts on its own after a moment</p>
         </div>
       </section>
 
