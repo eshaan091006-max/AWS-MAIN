@@ -133,10 +133,16 @@ interface RingSpec {
  * that matters is the difference in `ry`, not `rx`.
  *
  *   ring   n   rx   ry  size  swept  tightest in-ring  needs
- *   FAR   12  980  530   104   73.5             277.5  147.1
- *   OUTER 10  670  362    84   59.4             227.5  118.8
- *   MID    8  430  232    64   45.3             182.2   90.5
- *   INNER  6  218  118    48   33.9             123.6   67.9
+ *   FAR   12  608  530   104   73.5             277.5  147.1
+ *   OUTER 10  415  362    84   59.4             227.5  118.8
+ *   MID    8  267  232    64   45.3             182.2   90.5
+ *   INNER  6  135  118    48   33.9             123.6   67.9
+ *
+ * The rx values were pulled in from 980/670/430/218 so the widest ring stays
+ * inside a laptop viewport instead of running off both sides. Collision safety
+ * is unaffected: in-ring spacing is ry * dt, and nested ellipses are closest
+ * along the minor axis, so neither figure depends on rx. The x-gaps that result
+ * — 193, 148, 132 — still clear the 132.9 / 104.7 / 79.2 they need.
  *
  *   FAR→OUTER gap 168 needs 132.9 (+35)
  *   OUTER→MID gap 130 needs 104.7 (+25)
@@ -151,10 +157,10 @@ interface RingSpec {
  * this size, against 84px tiles. Even spacing is what makes the guarantee hold.
  */
 const RINGS: RingSpec[] = [
-  { id: "far", tiles: RING_FAR, rx: 980, ry: 530, size: 104, blur: 9, opacity: 0.5, duration: 150, reverse: false, phase: 0 },
-  { id: "outer", tiles: RING_OUTER, rx: 670, ry: 362, size: 84, blur: 5, opacity: 0.68, duration: 110, reverse: true, phase: 18 },
-  { id: "mid", tiles: RING_MID, rx: 430, ry: 232, size: 64, blur: 2, opacity: 0.8, duration: 85, reverse: false, phase: 9 },
-  { id: "inner", tiles: RING_INNER, rx: 218, ry: 118, size: 48, blur: 0, opacity: 0.9, duration: 65, reverse: true, phase: 27 },
+  { id: "far", tiles: RING_FAR, rx: 608, ry: 530, size: 104, blur: 9, opacity: 0.5, duration: 150, reverse: false, phase: 0 },
+  { id: "outer", tiles: RING_OUTER, rx: 415, ry: 362, size: 84, blur: 5, opacity: 0.68, duration: 110, reverse: true, phase: 18 },
+  { id: "mid", tiles: RING_MID, rx: 267, ry: 232, size: 64, blur: 2, opacity: 0.8, duration: 85, reverse: false, phase: 9 },
+  { id: "inner", tiles: RING_INNER, rx: 135, ry: 118, size: 48, blur: 0, opacity: 0.9, duration: 65, reverse: true, phase: 27 },
 ];
 
 /**
@@ -208,8 +214,13 @@ export function OrbitingIcons() {
           perspective: "1200px",
           transform: "perspective(1200px) rotateX(15deg)",
           transformOrigin: "center bottom",
-          maskImage: "radial-gradient(ellipse 90% 72% at 50% 34%, #000 32%, transparent 78%)",
-          WebkitMaskImage: "radial-gradient(ellipse 90% 72% at 50% 34%, #000 32%, transparent 78%)",
+          // The fade has to finish inside the container, not at its edge.
+          // At 90% wide the mask was still partly opaque where the section ends,
+          // so the outermost tiles were half-visible and then cut off dead
+          // straight by overflow-hidden — and the same hard edge along the
+          // bottom showed as a hairline between this section and the form.
+          maskImage: "radial-gradient(ellipse 58% 60% at 50% 34%, #000 20%, transparent 78%)",
+          WebkitMaskImage: "radial-gradient(ellipse 58% 60% at 50% 34%, #000 20%, transparent 78%)",
         }}
       >
         {RINGS.map((ring) => (

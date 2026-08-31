@@ -19,7 +19,6 @@ import { siteConfig } from "@/config/site";
 import { EventCard } from "@/components/events/EventCard";
 import { teamHierarchy } from "@/config/teamHierarchy";
 import { db } from "@/lib/db";
-import { Boxes } from "@/components/ui/background-boxes";
 import { ScrollProgress } from "@/components/ui/scroll-progress";
 import { Reveal } from "@/components/ui/reveal";
 
@@ -95,18 +94,16 @@ export default async function HomePage() {
       {/* ============================ HERO ============================ */}
       <section
         id="top"
-        className="relative isolate overflow-hidden px-4 sm:px-8 lg:px-12 pt-36 pb-24 sm:pt-44 sm:pb-32"
+        className="relative px-4 sm:px-8 lg:px-12 pt-36 pb-24 sm:pt-44 sm:pb-32"
       >
-        {/* The interactive grid. Sits at the bottom of the stack so the mask
-            above can vignette it and the copy above that stays readable. */}
-        <Boxes />
+        {/* No background of its own.
+            This hero used to stack a skewed Boxes plane on top of the site-wide
+            ambient layer and the constellation canvas — three backgrounds
+            competing, and the plane's own edge cutting a visible diagonal
+            across the section. It now shows the same backdrop as every other
+            page: light pools, a masked grid, and the drifting nodes. */}
 
-        {/* Vignette. The radial mask is transparent in the middle and opaque at
-            the edges, so the grid fades out instead of ending on a hard line.
-            pointer-events-none is what keeps the boxes hoverable through it. */}
-        <div className="absolute inset-0 w-full h-full bg-navy-950 z-10 pointer-events-none [mask-image:radial-gradient(ellipse_72%_62%_at_50%_46%,transparent_15%,black_82%)] [-webkit-mask-image:radial-gradient(ellipse_72%_62%_at_50%_46%,transparent_15%,black_82%)]" />
-
-        <div className="relative z-20 max-w-3xl mx-auto text-center space-y-7 pointer-events-none [&_a]:pointer-events-auto [&_button]:pointer-events-auto">
+        <div className="relative max-w-3xl mx-auto text-center space-y-7">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/[0.04] border border-white/10 text-xs font-mono font-semibold text-zinc-300 backdrop-blur-sm">
             <span className="w-1.5 h-1.5 rounded-full bg-aws-orange" />
             <span>Official AWS Student Community · SXC</span>

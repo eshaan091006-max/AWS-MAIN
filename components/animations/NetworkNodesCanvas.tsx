@@ -67,24 +67,13 @@ export function NetworkNodesCanvas() {
     const render = () => {
       ctx.clearRect(0, 0, width, height);
 
-      // Draw connections
-      for (let i = 0; i < particles.length; i++) {
-        for (let j = i + 1; j < particles.length; j++) {
-          const dx = particles[i].x - particles[j].x;
-          const dy = particles[i].y - particles[j].y;
-          const dist = Math.sqrt(dx * dx + dy * dy);
-
-          if (dist < 130) {
-            const alpha = (1 - dist / 130) * 0.18;
-            ctx.strokeStyle = `rgba(255, 153, 0, ${alpha})`;
-            ctx.lineWidth = 0.8;
-            ctx.beginPath();
-            ctx.moveTo(particles[i].x, particles[i].y);
-            ctx.lineTo(particles[j].x, particles[j].y);
-            ctx.stroke();
-          }
-        }
-      }
+      // No connecting lines.
+      //
+      // They drew faint orange strokes between any two nodes within 130px,
+      // which read as stray hairlines crossing the page — most obviously over
+      // the contact hero, where they cut straight through the orbiting tiles.
+      // Dropping them also removes an O(n^2) pass over every particle pair on
+      // every frame; the drifting points alone are the part worth keeping.
 
       // Draw particles & update position
       for (let i = 0; i < particles.length; i++) {
