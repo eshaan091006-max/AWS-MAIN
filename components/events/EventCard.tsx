@@ -3,11 +3,13 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Calendar, Clock, MapPin, Users, ArrowUpRight, Sparkles, Lock, Award, CheckCircle2 } from "lucide-react";
+import { ArrowUpRight, Award, Check, Lock } from "lucide-react";
 import { EventData } from "@/lib/data/initialData";
 import { RegistrationModal } from "@/components/events/RegistrationModal";
+import { LiquidButton } from "@/components/ui/liquid-button";
 import { useSeatCount } from "@/lib/hooks/useSeatCount";
 import { useRegistered } from "@/lib/hooks/useRegistered";
+import { cn } from "@/lib/utils";
 
 interface EventCardProps {
   event: EventData;
@@ -18,161 +20,147 @@ export function EventCard({ event, featured }: EventCardProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   // Matches the server: registerForEvent refuses only a COMPLETED event, so an
-  // ONGOING one still takes signups. Gating the UI on UPCOMING instead hid both
-  // the register button and the full state on any event already under way.
+  // ONGOING one still takes signups.
   const registrationClosed = event.status === "COMPLETED";
 
-  // Previously this rendered the build-time seed, so a card could advertise
-  // free seats for an event that had filled up since the last deploy.
   const { isRegistered, markRegistered } = useRegistered(event.id);
-
   const { registered, maxSeats, isFull, refresh } = useSeatCount(
     event.id,
     event.currentRegistrations,
     event.maxSeats
   );
 
-  const formattedDate = new Date(event.date).toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
+  const date = new Date(event.date);
+  const day = date.toLocaleDateString("en-GB", { day: "2-digit" });
+  const month = date.toLocaleDateString("en-GB", { month: "short" }).toUpperCase();
+  const filled = maxSeats > 0 ? Math.min(100, (registered / maxSeats) * 100) : 0;
 
   return (
     <>
-      <div
-        className={`group relative rounded-2xl overflow-hidden bg-navy-900/70 border border-white/10 hover:border-aws-orange/50 transition-all duration-300 flex flex-col justify-between shadow-xl ${
-          featured ? "md:grid md:grid-cols-12 md:gap-6" : ""
-        }`}
+      <article
+        className={cn(
+          "group relative flex bg-navy-950/85 backdrop-blur-sm",
+          featured ? "flex-col lg:flex-row" : "flex-col"
+        )}
       >
-        {/* Glow effect on hover */}
-        <div className="absolute inset-0 bg-gradient-to-br from-aws-orange/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
-
-        {/* Image Container */}
-        <div className={`relative overflow-hidden ${featured ? "md:col-span-5 h-64 md:h-full min-h-[220px]" : "h-52 w-full"}`}>
+        {/* Image */}
+        <div
+          className={cn(
+            "relative overflow-hidden shrink-0",
+            featured ? "h-56 lg:h-auto lg:w-[46%]" : "h-44"
+          )}
+        >
           <Image
             src={event.imageUrl}
-            alt={event.title}
+            alt=""
             fill
-            className="object-cover transition-transform duration-500 group-hover:scale-105"
-            sizes="(max-width: 768px) 100vw, 50vw"
+            className="object-cover transition-transform duration-700 group-hover:scale-[1.04]"
+            sizes={featured ? "(max-width: 1024px) 100vw, 46vw" : "(max-width: 768px) 100vw, 33vw"}
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-navy-950 via-navy-950/40 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-navy-950 via-navy-950/30 to-transparent" />
 
-          {/* Badges */}
-          <div className="absolute top-3 left-3 flex items-center gap-2">
-            <span className="px-2.5 py-1 rounded-full text-[10px] font-mono font-bold bg-navy-950/80 backdrop-blur-md text-aws-orange border border-aws-orange/40">
-              {event.category}
-            </span>
-            {event.eccPoints > 0 && (
-              <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-violet-950/85 backdrop-blur-md text-violet-300 border border-violet-400/40 flex items-center gap-1">
-                <Award className="w-3 h-3" />
-                {event.eccPoints} ECC
-              </span>
-            )}
-            {event.status === "UPCOMING" ? (
-              <span className="px-2 py-0.5 rounded-full text-[10px] font-mono bg-emerald-950/80 text-emerald-400 border border-emerald-500/30 flex items-center gap-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
-                Upcoming
-              </span>
-            ) : (
-              <span className="px-2 py-0.5 rounded-full text-[10px] font-mono bg-slate-900/80 text-slate-400 border border-white/10">
-                Completed
-              </span>
-            )}
+          {/* Date, as a stamp rather than another line of text. */}
+          <div className="absolute top-4 left-4 flex flex-col items-center justify-center w-12 h-12 rounded-xl bg-navy-950/85 backdrop-blur-sm border border-white/10">
+            <span className="text-base font-display font-black text-white leading-none">{day}</span>
+            <span className="text-[9px] font-mono text-zinc-500 mt-0.5">{month}</span>
           </div>
+
+          {event.eccPoints > 0 && (
+            <span className="absolute top-4 right-4 inline-flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-mono font-semibold bg-navy-950/85 backdrop-blur-sm text-ambient-violet border border-white/10">
+              <Award className="w-3 h-3" />
+              {event.eccPoints} ECC
+            </span>
+          )}
         </div>
 
-        {/* Content Container */}
-        <div className={`p-5 flex flex-col justify-between flex-1 ${featured ? "md:col-span-7 md:p-6" : ""}`}>
-          <div>
-            {/* Meta info */}
-            <div className="flex flex-wrap items-center gap-3 text-xs text-slate-400 font-mono mb-2">
-              <span className="flex items-center gap-1.5 text-aws-orange-light">
-                <Calendar className="w-3.5 h-3.5 text-aws-orange" />
-                {formattedDate}
-              </span>
-              <span>•</span>
-              <span className="flex items-center gap-1.5">
-                <Clock className="w-3.5 h-3.5 text-slate-400" />
-                {event.time}
-              </span>
-            </div>
+        {/* Body */}
+        <div className={cn("flex flex-col flex-1 p-5", featured && "lg:p-8 lg:justify-center")}>
+          <div className="text-[10px] font-mono uppercase tracking-[0.18em] text-aws-orange">
+            {event.category}
+          </div>
 
-            {/* Title */}
-            <Link href={`/events/${event.slug}`} className="group-hover:text-aws-orange transition-colors">
-              <h3 className="text-lg font-bold text-white leading-snug line-clamp-2">
-                {event.title}
-              </h3>
-            </Link>
+          <Link href={`/events/${event.slug}`} className="mt-2">
+            <h3
+              className={cn(
+                "font-display font-bold text-white leading-snug transition-colors group-hover:text-aws-orange",
+                featured ? "text-2xl lg:text-3xl" : "text-base line-clamp-2"
+              )}
+            >
+              {event.title}
+            </h3>
+          </Link>
 
-            {/* Description */}
-            <p className="text-xs text-slate-300 mt-2 line-clamp-2 leading-relaxed">
+          {/* The blurb is only on the featured card. On a three-up grid it was
+              two clamped lines per tile, which read as noise rather than detail
+              — and the same text is on the event's own page. */}
+          {featured && (
+            <p className="text-sm text-zinc-400 mt-3 leading-relaxed max-w-xl line-clamp-3">
               {event.description}
             </p>
+          )}
 
-            {/* Venue & Capacity */}
-            <div className="mt-4 pt-3 border-t border-white/5 space-y-1.5 text-xs text-slate-400 font-mono">
-              <div className="flex items-center gap-2 truncate">
-                <MapPin className="w-3.5 h-3.5 text-blue-400 shrink-0" />
-                <span className="truncate">{event.venue}</span>
-              </div>
-              <div className="flex items-center justify-between text-[11px]">
-                <div className="flex items-center gap-1.5 text-slate-400">
-                  <Users className="w-3.5 h-3.5 text-slate-500" />
-                  <span>{registered} / {maxSeats} registered</span>
-                </div>
-                <div className="w-20 bg-navy-950 rounded-full h-1.5 overflow-hidden border border-white/5">
-                  <div
-                    className={`h-full rounded-full ${isFull ? "bg-slate-500" : "bg-aws-orange"}`}
-                    style={{ width: `${Math.min(100, (registered / maxSeats) * 100)}%` }}
-                  />
-                </div>
-              </div>
+          <div className="mt-3 text-xs text-zinc-500 font-mono truncate">
+            {event.time} · {event.venue}
+          </div>
+
+          {/* Seats. A hairline meter rather than a labelled bar with its own
+              caption; the number above it already says what it means. */}
+          <div className="mt-4">
+            <div className="flex items-center justify-between text-[11px] font-mono text-zinc-500 mb-1.5">
+              <span>
+                {registered}/{maxSeats} seats
+              </span>
+              {isFull && !registrationClosed && <span className="text-zinc-400">Full</span>}
+            </div>
+            <div className="h-px w-full bg-white/[0.08]">
+              <div
+                className={cn("h-px transition-all duration-500", isFull ? "bg-zinc-600" : "bg-aws-orange")}
+                style={{ width: `${filled}%` }}
+              />
             </div>
           </div>
 
-          {/* Action buttons */}
-          <div className="mt-5 flex items-center gap-2.5">
+          {/* Actions */}
+          <div className="mt-5 flex items-center gap-2">
             {registrationClosed ? (
-                <Link
-                  href={`/events/${event.slug}`}
-                  className="flex-1 py-2 px-3 rounded-xl bg-navy-800 hover:bg-navy-700 text-slate-300 text-xs font-semibold transition-all text-center border border-white/10"
-                >
-                  View Recap &amp; Slides
-                </Link>
-              ) : isRegistered ? (
-              <div className="flex-1 py-2 px-3 rounded-xl bg-emerald-950/60 border border-emerald-500/40 text-emerald-300 text-xs font-mono font-bold text-center flex items-center justify-center gap-1.5">
-                <CheckCircle2 className="w-3.5 h-3.5" />
-                <span>Already Registered</span>
+              <Link
+                href={`/events/${event.slug}`}
+                className="flex-1 py-2.5 px-4 rounded-full border border-white/10 bg-white/[0.03] text-zinc-300 hover:text-white hover:bg-white/[0.07] text-xs font-semibold text-center transition-all"
+              >
+                Recap
+              </Link>
+            ) : isRegistered ? (
+              <div className="flex-1 py-2.5 px-4 rounded-full border border-aws-orange/40 bg-aws-orange/10 text-aws-orange text-xs font-semibold text-center inline-flex items-center justify-center gap-1.5">
+                <Check className="w-3.5 h-3.5" />
+                Registered
               </div>
             ) : isFull ? (
-              <div className="flex-1 py-2 px-3 rounded-xl bg-navy-950 border border-slate-600/50 text-slate-400 text-xs font-mono font-bold text-center flex items-center justify-center gap-1.5 grayscale">
+              <div className="flex-1 py-2.5 px-4 rounded-full border border-white/10 bg-white/[0.02] text-zinc-500 text-xs font-semibold text-center inline-flex items-center justify-center gap-1.5">
                 <Lock className="w-3.5 h-3.5" />
-                <span>Slots Booked</span>
+                Full
               </div>
             ) : (
-              <button
+              <LiquidButton
+                type="button"
+                size="sm"
                 onClick={() => setIsModalOpen(true)}
-                className="flex-1 py-2 px-3 rounded-xl bg-gradient-to-r from-aws-orange to-amber-600 hover:from-amber-500 hover:to-aws-orange text-black font-bold text-xs shadow-md shadow-aws-orange/15 transition-all flex items-center justify-center gap-1.5"
+                className="flex-1"
               >
-                <Sparkles className="w-3.5 h-3.5" />
-                <span>Register Now</span>
-              </button>
-              )}
+                Register
+              </LiquidButton>
+            )}
 
             <Link
               href={`/events/${event.slug}`}
-              className="p-2 rounded-xl bg-navy-950 hover:bg-navy-800 border border-white/10 hover:border-aws-orange/40 text-slate-300 hover:text-aws-orange transition-all"
-              title="Full Details"
+              aria-label={`Details for ${event.title}`}
+              className="p-2.5 rounded-full border border-white/10 bg-white/[0.03] text-zinc-400 hover:text-aws-orange hover:border-aws-orange/40 transition-all shrink-0"
             >
               <ArrowUpRight className="w-4 h-4" />
             </Link>
           </div>
         </div>
-      </div>
+      </article>
 
-      {/* Registration Modal */}
       <RegistrationModal
         event={event}
         isOpen={isModalOpen}

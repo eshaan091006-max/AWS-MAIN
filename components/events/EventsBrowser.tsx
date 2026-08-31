@@ -1,118 +1,153 @@
 "use client";
 
-import React, { useState } from "react";
-import { Calendar, Sparkles, Filter, Search, Award, Flame } from "lucide-react";
+import React, { useMemo, useState } from "react";
+import { Search } from "lucide-react";
 import { EventData } from "@/lib/data/initialData";
 import { EventCard } from "@/components/events/EventCard";
+import { LiquidButtonStyles } from "@/components/ui/liquid-button";
+import { cn } from "@/lib/utils";
 
 interface Props {
   events: EventData[];
 }
 
+const TABS = [
+  { id: "ALL", label: "All" },
+  { id: "UPCOMING", label: "Upcoming" },
+  { id: "PAST", label: "Past" },
+] as const;
+
 export function EventsBrowser({ events }: Props) {
-  const [selectedTab, setSelectedTab] = useState<string>("ALL");
-  const [searchQuery, setSearchQuery] = useState("");
+  const [tab, setTab] = useState<string>("ALL");
+  const [query, setQuery] = useState("");
 
-  const tabs = [
-    { id: "ALL", label: "All Events" },
-    { id: "UPCOMING", label: "Upcoming" },
-    { id: "PAST", label: "Past Events" },
-  ];
+  const featured =
+    events.find((e) => e.isFeatured && e.status === "UPCOMING") ?? events[0] ?? null;
 
-  const featuredEvent = events.find((e) => e.isFeatured && e.status === "UPCOMING") || events[0] || null;
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return events.filter((event) => {
+      const matches =
+        !q ||
+        event.title.toLowerCase().includes(q) ||
+        event.description.toLowerCase().includes(q) ||
+        event.venue.toLowerCase().includes(q);
 
-  const filteredEvents = events.filter((event) => {
-    const matchesSearch =
-      event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      event.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      event.venue.toLowerCase().includes(searchQuery.toLowerCase());
+      if (!matches) return false;
+      if (tab === "UPCOMING") return event.status === "UPCOMING";
+      if (tab === "PAST") return event.status === "COMPLETED";
+      return true;
+    });
+  }, [events, query, tab]);
 
-    if (selectedTab === "ALL") return matchesSearch;
-    if (selectedTab === "UPCOMING") return matchesSearch && event.status === "UPCOMING";
-    if (selectedTab === "PAST") return matchesSearch && event.status === "COMPLETED";
-    return matchesSearch;
-  });
+  const showFeatured = featured && !query && tab === "ALL";
+  // Without this the featured event appears twice — once in the spotlight and
+  // again in the grid directly beneath it.
+  const gridEvents = showFeatured ? filtered.filter((e) => e.id !== featured.id) : filtered;
+
+  const counts = useMemo(
+    () => ({
+      ALL: events.length,
+      UPCOMING: events.filter((e) => e.status === "UPCOMING").length,
+      PAST: events.filter((e) => e.status === "COMPLETED").length,
+    }),
+    [events]
+  );
 
   return (
-    <div className="relative pt-28 pb-20 overflow-hidden">
-      {/* Header */}
-      <section className="max-w-[1750px] mx-auto px-4 sm:px-8 lg:px-12 xl:px-16 pt-8 pb-12">
-        <div className="text-center max-w-3xl mx-auto space-y-4">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-mono font-bold bg-aws-orange/15 text-aws-orange border border-aws-orange/30">
-            <Calendar className="w-3.5 h-3.5" />
-            <span>COMMUNITY CALENDAR</span>
-          </div>
+    <div className="relative pt-36 pb-28">
+      <LiquidButtonStyles />
 
-          <h1 className="text-4xl sm:text-5xl font-extrabold text-white tracking-tight">
-            Events, Workshops & <span className="text-gradient-orange">Hackathons</span>
+      <div className="max-w-6xl mx-auto px-4 sm:px-8 lg:px-12">
+        {/* Header. One eyebrow, one headline, one line of context — the old
+            version also carried a badge, a two-clause title and a sentence of
+            marketing copy that said the same thing three times. */}
+        <header className="max-w-2xl">
+          <div className="text-[11px] font-mono uppercase tracking-[0.2em] text-aws-orange mb-4">
+            Events
+          </div>
+          <h1 className="text-4xl sm:text-6xl font-display font-black text-white tracking-tight leading-[1.05]">
+            Learn through <span className="text-gradient-orange">experience</span>
           </h1>
-
-          <p className="text-base text-slate-300 leading-relaxed">
-            Elevate your cloud computing skills through our interactive coding workshops, flagship hackathons, and guest keynotes with AWS architects.
+          <p className="text-sm sm:text-base text-zinc-400 mt-4 leading-relaxed">
+            Workshops, hackathons and speaker sessions — every one built around doing.
           </p>
+        </header>
 
-          {/* Search Bar */}
-          <div className="max-w-md mx-auto pt-4">
-            <div className="relative">
-              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search event title, venue, or technology..."
-                className="w-full pl-10 pr-4 py-2.5 rounded-2xl bg-navy-900/90 border border-white/15 text-white placeholder-slate-400 focus:outline-none focus:border-aws-orange text-xs backdrop-blur-md"
-              />
-            </div>
+        {/* Controls */}
+        <div className="mt-12 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-2">
+            {TABS.map((t) => {
+              const active = tab === t.id;
+              return (
+                <button
+                  key={t.id}
+                  type="button"
+                  onClick={() => setTab(t.id)}
+                  aria-pressed={active}
+                  className={cn(
+                    "inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-semibold transition-all",
+                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-aws-orange/70",
+                    active
+                      ? "bg-aws-orange text-black"
+                      : "border border-white/10 bg-white/[0.03] text-zinc-400 hover:text-white hover:bg-white/[0.07]"
+                  )}
+                >
+                  {t.label}
+                  <span className={cn("text-[10px] font-mono", active ? "text-black/60" : "text-zinc-600")}>
+                    {counts[t.id as keyof typeof counts]}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+
+          <div className="relative sm:w-64">
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-zinc-500" />
+            <input
+              type="search"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search events"
+              aria-label="Search events"
+              className="w-full pl-9 pr-4 py-2 rounded-full bg-white/[0.03] border border-white/10 text-sm text-white placeholder-zinc-600 focus:outline-none focus:border-aws-orange/50 transition-colors"
+            />
           </div>
         </div>
-      </section>
 
-      {/* Featured Flagship Event Spotlight (if available) */}
-      {featuredEvent && !searchQuery && selectedTab === "ALL" && (
-        <section className="max-w-[1750px] mx-auto px-4 sm:px-8 lg:px-12 xl:px-16 pb-14">
-          <div className="mb-4 flex items-center gap-2 text-xs font-mono text-aws-orange uppercase tracking-wider font-bold">
-            <Flame className="w-4 h-4 text-aws-orange" />
-            <span>Spotlight Flagship Gathering</span>
-          </div>
-          <EventCard event={featuredEvent} featured />
-        </section>
-      )}
-
-      {/* Filter Tabs */}
-      <section className="max-w-[1750px] mx-auto px-4 sm:px-8 lg:px-12 xl:px-16 pb-10">
-        <div className="flex flex-wrap items-center justify-center gap-2">
-          {tabs.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setSelectedTab(tab.id)}
-              className={`px-4 py-2 rounded-xl text-xs font-mono transition-all ${
-                selectedTab === tab.id
-                  ? "bg-aws-orange text-black font-bold shadow-lg shadow-aws-orange/20"
-                  : "bg-navy-900/80 text-slate-300 border border-white/10 hover:border-aws-orange/40 hover:text-white"
-              }`}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div>
-      </section>
-
-      {/* Events Grid */}
-      <section className="max-w-[1750px] mx-auto px-4 sm:px-8 lg:px-12 xl:px-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredEvents.map((event) => (
-            <EventCard key={event.id} event={event} />
-          ))}
-        </div>
-
-        {filteredEvents.length === 0 && (
-          <div className="text-center py-20 bg-navy-900/40 rounded-3xl border border-white/5 space-y-2">
-            <Calendar className="w-8 h-8 text-slate-500 mx-auto" />
-            <div className="text-sm font-bold text-white">No events match your selection</div>
-            <p className="text-xs text-slate-400 font-mono">Try adjusting your search query or tab filters.</p>
+        {/* Featured */}
+        {showFeatured && (
+          <div className="mt-10 rounded-2xl overflow-hidden border border-white/[0.07]">
+            <EventCard event={featured} featured />
           </div>
         )}
-      </section>
+
+        {/* Grid. Hairline gaps rather than bordered cards, matching the rest of
+            the site — a border on every tile plus a gap between them reads as
+            two frames around the same thing. */}
+        {gridEvents.length > 0 ? (
+          <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-px bg-white/[0.06] rounded-2xl overflow-hidden border border-white/[0.06]">
+            {gridEvents.map((event) => (
+              <EventCard key={event.id} event={event} />
+            ))}
+          </div>
+        ) : (
+          !showFeatured && (
+            <div className="mt-10 py-20 text-center rounded-2xl border border-white/[0.07] bg-white/[0.02]">
+              <p className="text-sm text-zinc-400">Nothing matches that.</p>
+              {query && (
+                <button
+                  type="button"
+                  onClick={() => setQuery("")}
+                  className="mt-3 text-xs font-semibold text-aws-orange hover:underline underline-offset-4"
+                >
+                  Clear search
+                </button>
+              )}
+            </div>
+          )
+        )}
+      </div>
     </div>
   );
 }
