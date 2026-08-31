@@ -3,7 +3,9 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Cloud, Menu, X, ArrowUpRight } from "lucide-react";
+import { Menu, X, ArrowUpRight } from "lucide-react";
+import { FaAws } from "react-icons/fa6";
+import { RandomLetterSwap } from "@/components/ui/random-letter-swap";
 import { mainNavItems } from "@/config/navigation";
 import { siteConfig } from "@/config/site";
 
@@ -120,40 +122,40 @@ export function Navbar() {
           }`}
       >
         <div className="max-w-[1750px] mx-auto px-4 sm:px-8 lg:px-12 xl:px-16 flex items-center justify-between">
-          {/* Logo */}
-          <Link href="/" className="flex items-center gap-2.5 group">
-            <div className="w-10 h-10 rounded-xl bg-aws-orange flex items-center justify-center group-hover:scale-105 transition-transform">
-              <Cloud className="w-6 h-6 text-black stroke-[2.2]" />
-            </div>
-            <div>
-              <div className="flex items-center gap-1.5 font-display font-extrabold text-lg text-white tracking-tight leading-none group-hover:text-aws-orange transition-colors">
-                SXC AWS <span className="text-aws-orange">Group</span>
-              </div>
-              <div className="text-[10px] font-mono tracking-widest text-zinc-500 uppercase">
-                Cloud Community
-              </div>
-            </div>
+          {/* Logo: AWS mark and the wordmark, nothing else. */}
+          <Link href="/" className="flex items-center gap-3 group shrink-0">
+            <span className="w-9 h-9 rounded-xl bg-aws-orange flex items-center justify-center transition-transform group-hover:scale-105">
+              <FaAws className="w-5 h-5 text-black" />
+            </span>
+            <span className="font-display font-extrabold text-lg text-white tracking-tight leading-none transition-colors group-hover:text-aws-orange">
+              SXC AWS <span className="text-aws-orange">Group</span>
+            </span>
           </Link>
 
-          {/* Desktop Navigation Links */}
-          <nav className="hidden lg:flex items-center gap-1 bg-white/[0.04] border border-white/[0.08] p-1.5 rounded-full backdrop-blur-md">
+          {/* Desktop navigation.
+              The pill container is gone: bare links with an underline for the
+              current section read as cleaner, and the letter swap needs room to
+              move that a tight pill did not give it. */}
+          <nav className="hidden lg:flex items-center gap-7">
             {mainNavItems.map((item) => {
               const isActive = isItemActive(item);
               return (
                 <Link
                   key={item.title}
                   href={hrefFor(item)}
-                  className={`relative px-3.5 py-1.5 rounded-full text-xs font-medium transition-all ${isActive
-                    ? "text-black font-semibold bg-aws-orange"
-                    : "text-zinc-400 hover:text-white hover:bg-white/5"
-                    }`}
+                  aria-current={isActive ? "page" : undefined}
+                  className={`group relative text-sm font-medium transition-colors ${
+                    isActive ? "text-white" : "text-zinc-400 hover:text-white"
+                  }`}
                 >
-                  {item.title}
-                  {item.badge && (
-                    <span className="ml-1.5 px-1.5 py-0.2 rounded-full text-[9px] font-mono bg-navy-950 text-aws-orange border border-aws-orange/40">
-                      {item.badge}
-                    </span>
-                  )}
+                  <RandomLetterSwap label={item.title} staggerDuration={0.025} />
+                  {/* Underline: solid on the current item, drawn in on hover. */}
+                  <span
+                    aria-hidden="true"
+                    className={`absolute -bottom-1.5 left-0 h-px bg-aws-orange transition-all duration-300 ${
+                      isActive ? "w-full" : "w-0 group-hover:w-full"
+                    }`}
+                  />
                 </Link>
               );
             })}
