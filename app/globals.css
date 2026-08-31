@@ -20,6 +20,8 @@
        card made the accent ordinary. Orange is now reserved for actions. */
     --border: rgba(255, 255, 255, 0.08);
     --ring: #ff9900;
+    --destructive: #ef4444;
+    --destructive-foreground: #fafafa;
   }
 
   html.light {
@@ -255,31 +257,4 @@ html.light footer .bg-navy-950 {
  */
 html.embedded .pt-28 {
   padding-top: 1.5rem;
-}
-
-/* Footer marquee.
-   The track holds two identical copies of the word list, and the animation
-   moves it left by exactly half its width — at which point copy two sits where
-   copy one started, so the reset is invisible. Translating by a percentage of
-   the element rather than a fixed pixel value is what keeps that true at any
-   width. */
-@keyframes footer-marquee {
-  from { transform: translateX(0); }
-  to   { transform: translateX(-50%); }
-}
-
-.footer-marquee {
-  animation: footer-marquee 38s linear infinite;
-}
-
-/* Not stopped outright under reduced motion: a marquee that does not move is
-   just a row of words cropped mid-letter at both ends, which reads as broken.
-   It slows to a crawl instead, and pauses on hover so there is a way to hold it
-   still to read it — the thing WCAG 2.2.2 actually asks for. */
-@media (prefers-reduced-motion: reduce) {
-  .footer-marquee { animation-duration: 90s; }
-}
-
-.footer-marquee:hover {
-  animation-play-state: paused;
 }

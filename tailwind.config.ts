@@ -18,6 +18,23 @@ const config: Config = {
     },
     extend: {
       colors: {
+        // Semantic tokens, wired to the CSS variables in globals.css.
+        //
+        // The variables already existed but were never mapped here, so
+        // shadcn-style utilities — bg-background, text-muted-foreground,
+        // border-border, text-destructive — resolved to nothing at all. Classes
+        // that silently do nothing are worse than ones that error: a dropped-in
+        // component renders, just unstyled, and it is not obvious why.
+        background: "var(--background)",
+        foreground: "var(--foreground)",
+        border: "var(--border)",
+        ring: "var(--ring)",
+        card: { DEFAULT: "var(--card)", foreground: "var(--card-foreground)" },
+        primary: { DEFAULT: "var(--primary)", foreground: "var(--primary-foreground)" },
+        secondary: { DEFAULT: "var(--secondary)", foreground: "var(--secondary-foreground)" },
+        muted: { DEFAULT: "var(--muted)", foreground: "var(--muted-foreground)" },
+        accent: { DEFAULT: "var(--accent)", foreground: "var(--accent-foreground)" },
+        destructive: { DEFAULT: "var(--destructive)", foreground: "var(--destructive-foreground)" },
         aws: {
           orange: "#FF9900",
           "orange-light": "#FFA826",
