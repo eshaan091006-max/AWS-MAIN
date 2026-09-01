@@ -326,19 +326,23 @@ function Tile({
           </div>
         )}
 
-        {/* The centre keeps its badge permanently; satellites only on hover. */}
+        {/* The centre keeps its badge permanently; satellites only on hover.
+            The badge shows the short kind, not the full title: a role like
+            "Digital and Creative Lead" wraps to four lines inside a 140px tile
+            and turns the badge into a blob that covers the whole picture. The
+            full title is in the list beside the cluster, where it has room. */}
         <motion.span
           aria-hidden="true"
           animate={{ opacity: isCentre || isActive ? 1 : 0, y: isCentre || isActive ? 0 : 8 }}
           transition={{ duration: 0.25 }}
           className={cn(
-            "absolute bottom-2 left-2 px-2 py-0.5 rounded-full text-[9px] font-mono uppercase tracking-widest backdrop-blur-sm",
+            "absolute bottom-2 left-2 px-2 py-0.5 rounded-full text-[9px] font-mono uppercase tracking-widest backdrop-blur-sm whitespace-nowrap",
             isLead
               ? "bg-aws-orange text-black font-bold"
               : "bg-navy-950/80 text-zinc-300 border border-white/10"
           )}
         >
-          {member.role}
+          {isLead ? "Lead" : "Member"}
         </motion.span>
 
         <motion.span
