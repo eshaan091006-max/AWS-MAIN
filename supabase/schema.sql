@@ -311,6 +311,39 @@ on conflict (id) do nothing;
 
 
 -- =================================================================
+-- 3d. GALLERY IMAGE STORAGE
+--
+-- Uploaded photos live in Supabase Storage rather than the database. The
+-- bucket is public-read so the site can render the images without signing every
+-- URL; writes go through the service role from /api/admin/gallery/upload, so
+-- nothing anonymous can put a file here.
+-- =================================================================
+insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+values (
+  'gallery',
+  'gallery',
+  true,
+  10485760, -- 10 MB
+  array['image/jpeg', 'image/png', 'image/webp']
+)
+on conflict (id) do update
+  set public = excluded.public,
+      file_size_limit = excluded.file_size_limit,
+      allowed_mime_types = excluded.allowed_mime_types;
+
+-- HEIC is deliberately absent from the list above: browsers other than Safari
+-- cannot display it, so an .heic straight from an iPhone would upload happily
+-- and then render as a broken image for most visitors. The upload route decodes
+-- it and stores JPEG instead, so only web-safe types ever reach the bucket.
+
+drop policy if exists "Gallery images are publicly readable" on storage.objects;
+create policy "Gallery images are publicly readable"
+  on storage.objects for select
+  to anon, authenticated
+  using (bucket_id = 'gallery');
+
+
+-- =================================================================
 -- 4. ROW LEVEL SECURITY
 --
 -- Both tables are write-only for the public anon key: anyone may submit

@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useCallback, useEffect, useState } from "react";
-import { Loader2, Pencil, Plus, RefreshCw, Star, Trash2, X } from "lucide-react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import { Loader2, Pencil, Plus, RefreshCw, Star, Trash2, Upload, X } from "lucide-react";
 import { GalleryImageData } from "@/lib/data/initialData";
+import { cn } from "@/lib/utils";
 
 const CATEGORIES: GalleryImageData["category"][] = [
   "WORKSHOPS",
@@ -35,6 +36,33 @@ export function GalleryTab() {
   const [creating, setCreating] = useState(false);
   const [form, setForm] = useState({ ...EMPTY });
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [dragging, setDragging] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  /**
+   * Sends one file to the upload route and puts the returned URL in the form.
+   *
+   * The server does the conversion: HEIC comes off an iPhone and no browser
+   * except Safari can display it, so it is decoded to JPEG before it is stored
+   * rather than after someone notices the gallery is full of broken images.
+   */
+  const uploadFile = useCallback(async (file: File) => {
+    setUploading(true);
+    setError(null);
+    try {
+      const body = new FormData();
+      body.append("file", file);
+      const res = await fetch("/api/admin/gallery/upload", { method: "POST", body });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || "Upload failed.");
+      setForm((prev) => ({ ...prev, imageUrl: json.url }));
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setUploading(false);
+    }
+  }, []);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -157,15 +185,75 @@ export function GalleryTab() {
             </div>
 
             <div className="sm:col-span-2">
-              <label className="adm-label">Image URL *</label>
+              <label className="adm-label">Image *</label>
+
+              <div
+                onDragOver={(e) => {
+                  e.preventDefault();
+                  setDragging(true);
+                }}
+                onDragLeave={() => setDragging(false)}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  setDragging(false);
+                  const file = e.dataTransfer.files?.[0];
+                  if (file) uploadFile(file);
+                }}
+                className={cn(
+                  "flex items-center gap-4 p-4 border border-dashed transition-colors",
+                  dragging ? "border-aws-orange bg-aws-orange/5" : "border-white/15"
+                )}
+              >
+                {form.imageUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={form.imageUrl}
+                    alt=""
+                    className="w-20 h-20 object-cover border border-white/10"
+                  />
+                ) : (
+                  <div className="w-20 h-20 flex items-center justify-center border border-white/10 text-zinc-600">
+                    <Upload className="w-5 h-5" />
+                  </div>
+                )}
+
+                <div className="flex-1 min-w-0">
+                  <button
+                    type="button"
+                    onClick={() => fileRef.current?.click()}
+                    disabled={uploading}
+                    className="adm-btn"
+                  >
+                    {uploading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : null}
+                    <span>{uploading ? "UPLOADING" : form.imageUrl ? "REPLACE" : "CHOOSE FILE"}</span>
+                  </button>
+                  <p className="adm-hint">
+                    JPG, PNG or HEIC, up to 10MB. Drag one here too. HEIC is converted to
+                    JPEG so every browser can show it.
+                  </p>
+                </div>
+
+                <input
+                  ref={fileRef}
+                  type="file"
+                  accept=".jpg,.jpeg,.png,.heic,.heif,image/jpeg,image/png,image/heic,image/heif"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) uploadFile(file);
+                    // Cleared so choosing the same file twice still fires change.
+                    e.target.value = "";
+                  }}
+                />
+              </div>
+
               <input
                 required
                 value={form.imageUrl}
                 onChange={(e) => setForm({ ...form, imageUrl: e.target.value })}
-                className="adm-input adm-mono"
-                placeholder="https://…"
+                className="adm-input adm-mono mt-2"
+                placeholder="https://… or upload above"
               />
-              <p className="adm-hint">Any https image URL.</p>
             </div>
 
             <div>
