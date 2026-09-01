@@ -11,6 +11,8 @@ export interface VCP {
 
 export interface DepartmentNode {
   id: string;
+  /** URL segment for this department's page. */
+  slug: string;
   name: string;
   shortName: string;
   code: string;
@@ -47,12 +49,13 @@ export const teamHierarchy: TeamHierarchy = {
   },
   chairperson: {
     name: "Manav William",
-    role: "Chairperson",
-    title: "EXECUTIVE CHAIRPERSON",
+    role: "SBG Leader",
+    title: "SBG LEADER",
   },
   departments: [
     {
       id: "dept-events-dir",
+      slug: "events",
       name: "Department of Events",
       shortName: "Event Direction",
       code: "EVT-DIR",
@@ -72,13 +75,14 @@ export const teamHierarchy: TeamHierarchy = {
       vcps: [
         {
           name: "Raphael Wol",
-          role: "VCP — Director of Events",
+          role: "Lead",
           coordinators: ["Praneet Singh", "Harsh Arkal"],
         },
       ],
     },
     {
       id: "dept-events-coord",
+      slug: "event-coordination",
       name: "Event Coordination",
       shortName: "Operations & Logistics",
       code: "EVT-OPS",
@@ -98,13 +102,14 @@ export const teamHierarchy: TeamHierarchy = {
       vcps: [
         {
           name: "Anubhav Barik",
-          role: "VCP — Event Coordinator",
+          role: "Lead",
           coordinators: ["Nyneishia Naik", "Deveshi Saha", "Bhumika Hasalkar"],
         },
       ],
     },
     {
       id: "dept-marketing",
+      slug: "marketing",
       name: "Marketing Department",
       shortName: "Marketing & Media",
       code: "MKT-PR",
@@ -124,17 +129,18 @@ export const teamHierarchy: TeamHierarchy = {
       vcps: [
         {
           name: "Vimal Kansotia",
-          role: "VCP — Marketing Department",
+          role: "Lead",
         },
         {
           name: "Nicole Dsouza",
-          role: "VCP — Marketing Department",
+          role: "Lead",
         },
       ],
       coordinators: ["Athen Chettiar", "Naomi John", "Ananya Shah"],
     },
     {
       id: "dept-technical",
+      slug: "technical",
       name: "Technical Department",
       shortName: "Cloud & Dev",
       code: "TECH-SYS",
@@ -154,7 +160,7 @@ export const teamHierarchy: TeamHierarchy = {
       vcps: [
         {
           name: "Michael Fernandes",
-          role: "VCP — Technical Department",
+          role: "Lead",
           coordinators: ["Ricco Marcelino", "Eshaan Sinha"],
         },
       ],

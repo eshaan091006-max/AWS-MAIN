@@ -1,51 +1,71 @@
-"use client";
-
 import React from "react";
-import { GitBranch, Shield, Sparkles } from "lucide-react";
-import { OrganizationalTree } from "@/components/teams/OrganizationalTree";
+import type { Metadata } from "next";
+import Link from "next/link";
+import { ArrowUpRight } from "lucide-react";
+import { teamHierarchy } from "@/config/teamHierarchy";
+
+export const metadata: Metadata = {
+  title: "Team",
+  description:
+    "The departments running the SXC AWS Student Builder Group — events, operations, marketing and technical.",
+};
 
 export default function TeamsPage() {
+  const { departments, chairperson, faculty } = teamHierarchy;
+
   return (
-    <div className="relative pt-28 pb-24 overflow-hidden">
-      {/* Header */}
-      <section className="max-w-[1750px] mx-auto px-4 sm:px-8 lg:px-12 xl:px-16 pt-8 pb-10">
-        <div className="text-center max-w-3xl mx-auto space-y-4">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-xs font-mono font-bold bg-aws-orange/15 text-aws-orange border border-aws-orange/30 shadow-lg shadow-aws-orange/5">
-            <GitBranch className="w-3.5 h-3.5" />
-            <span>ORGANIZATIONAL COMMAND TREE</span>
+    <div className="relative pt-36 pb-28">
+      <div className="max-w-5xl mx-auto px-4 sm:px-8 lg:px-12">
+        <header className="max-w-2xl">
+          <div className="text-[11px] font-mono uppercase tracking-[0.2em] text-aws-orange mb-4">
+            Team
           </div>
-
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white tracking-tight">
-            SXC AWS <span className="text-gradient-orange">Leadership & Teams</span>
+          <h1 className="text-4xl sm:text-6xl font-display font-black text-white tracking-tight leading-[1.05]">
+            Four <span className="text-gradient-orange">departments</span>
           </h1>
-
-          <p className="text-base sm:text-lg text-slate-300 leading-relaxed max-w-2xl mx-auto">
-            Hierarchical structure, faculty mentorship, and departmental branches driving cloud initiatives and student architecture at St. Xavier&apos;s College.
+          <p className="text-sm sm:text-base text-zinc-400 mt-4 leading-relaxed">
+            {chairperson.name} leads the group, backed by {faculty.members.length} faculty
+            mentors. Open a department to see who runs it.
           </p>
+        </header>
 
-          <div className="flex items-center justify-center gap-4 text-xs font-mono text-slate-400 pt-1">
-            <span className="flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-amber-400" />
-              <span>Faculty Mentors</span>
-            </span>
-            <span>•</span>
-            <span className="flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-aws-orange" />
-              <span>Chairperson</span>
-            </span>
-            <span>•</span>
-            <span className="flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-cyan-400" />
-              <span>4 Active Departments</span>
-            </span>
-          </div>
+        {/* Departments only. Names and their people are on the department's own
+            page rather than all flattened onto one screen. */}
+        <div className="mt-14 grid grid-cols-1 sm:grid-cols-2 gap-px bg-white/[0.06] rounded-2xl overflow-hidden border border-white/[0.06]">
+          {departments.map((dept) => {
+            const leads = dept.vcps.length;
+            const members = dept.vcps.reduce(
+              (total, vcp) => total + (vcp.coordinators?.length ?? 0),
+              0
+            );
+
+            return (
+              <Link
+                key={dept.id}
+                href={`/teams/${dept.slug}`}
+                className="group relative bg-navy-950/85 p-8 backdrop-blur-sm transition-colors hover:bg-white/[0.03] focus-visible:outline-none focus-visible:bg-white/[0.05]"
+              >
+                <div className="flex items-start justify-between gap-4">
+                  <div className="text-[10px] font-mono uppercase tracking-[0.18em] text-aws-orange">
+                    {dept.code}
+                  </div>
+                  <ArrowUpRight className="w-4 h-4 text-zinc-600 transition-all group-hover:text-aws-orange group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+                </div>
+
+                <h2 className="mt-4 text-2xl font-display font-bold text-white leading-tight transition-colors group-hover:text-aws-orange">
+                  {dept.name}
+                </h2>
+                <p className="text-sm text-zinc-500 mt-1">{dept.shortName}</p>
+
+                <div className="mt-6 text-[11px] font-mono text-zinc-600">
+                  {leads} {leads === 1 ? "lead" : "leads"}
+                  {members > 0 && ` · ${members} ${members === 1 ? "member" : "members"}`}
+                </div>
+              </Link>
+            );
+          })}
         </div>
-      </section>
-
-      {/* Main Organizational Tree Map */}
-      <section className="max-w-[1750px] mx-auto px-4 sm:px-8 lg:px-12 xl:px-16">
-        <OrganizationalTree />
-      </section>
+      </div>
     </div>
   );
 }

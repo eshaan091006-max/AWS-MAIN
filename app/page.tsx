@@ -305,29 +305,40 @@ export default async function HomePage() {
             eyebrow="Our team"
             title="Led by students,"
             highlight="backed by faculty"
-            sub={`${teamHierarchy.chairperson.name} chairs the group, with ${teamHierarchy.faculty.members.length} faculty mentors and ${departments.length} departments running events, tech, design and outreach.`}
+            sub={`${teamHierarchy.chairperson.name} leads the group, backed by ${teamHierarchy.faculty.members.length} faculty mentors and ${departments.length} departments.`}
           />
 
           <Reveal delay={0.08}>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-px mt-14 bg-white/[0.06] rounded-2xl overflow-hidden border border-white/[0.06]">
-            {departments.map((dept) => (
-              <article key={dept.id} className="bg-navy-950/85 p-6 backdrop-blur-sm">
-                <div className="text-[10px] font-mono uppercase tracking-widest text-aws-orange mb-2">
-                  {dept.code}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-px mt-14 bg-white/[0.06] rounded-2xl overflow-hidden border border-white/[0.06]">
+              {/* The SBG Leader, then the faculty. Departments and their people
+                  live on their own pages now — listing every VCP here made the
+                  home page a directory. */}
+              <article className="bg-navy-950/85 p-7 backdrop-blur-sm md:col-span-1">
+                <div className="text-[10px] font-mono uppercase tracking-[0.18em] text-aws-orange mb-3">
+                  {teamHierarchy.chairperson.title}
                 </div>
-                <h3 className="text-sm font-bold text-white leading-snug">{dept.name}</h3>
-                <p className="text-xs text-zinc-500 mt-1">{dept.shortName}</p>
-                <div className="mt-4 pt-4 border-t border-white/[0.07] space-y-1.5">
-                  {dept.vcps.map((vcp) => (
-                    <div key={vcp.name} className="text-xs">
-                      <div className="text-zinc-300 font-medium">{vcp.name}</div>
-                      <div className="text-zinc-600 text-[11px]">{vcp.role}</div>
+                <div className="text-xl font-display font-bold text-white">
+                  {teamHierarchy.chairperson.name}
+                </div>
+                <div className="text-xs text-zinc-500 mt-1">
+                  {teamHierarchy.chairperson.role}
+                </div>
+              </article>
+
+              <article className="bg-navy-950/85 p-7 backdrop-blur-sm md:col-span-2">
+                <div className="text-[10px] font-mono uppercase tracking-[0.18em] text-zinc-600 mb-3">
+                  {teamHierarchy.faculty.title}
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+                  {teamHierarchy.faculty.members.map((f) => (
+                    <div key={f.name}>
+                      <div className="text-sm font-semibold text-white leading-snug">{f.name}</div>
+                      <div className="text-[11px] text-zinc-500 mt-1">{f.designation}</div>
                     </div>
                   ))}
                 </div>
               </article>
-            ))}
-          </div>
+            </div>
           </Reveal>
 
           <div className="flex justify-center mt-10">
@@ -336,7 +347,7 @@ export default async function HomePage() {
               className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] text-zinc-200 border border-white/10 hover:border-aws-orange/40 text-sm font-semibold transition-all"
             >
               <Users className="w-4 h-4 text-aws-orange" />
-              <span>See the full team</span>
+              <span>Full showcase</span>
             </Link>
           </div>
         </div>
