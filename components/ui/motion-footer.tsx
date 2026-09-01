@@ -237,6 +237,12 @@ export interface CinematicFooterProps {
   badge?: React.ReactNode;
 }
 
+/**
+ * Copies of the word list laid end to end. Must stay even: the loop swaps the
+ * first half for the second, which only works if they match.
+ */
+const MARQUEE_RUNS = 8;
+
 function MarqueeRun({ words }: { words: string[] }) {
   return (
     <div className="flex shrink-0 items-center">
@@ -354,10 +360,17 @@ export function CinematicFooter({
           {/* Diagonal marquee */}
           <div className="absolute top-20 md:top-24 left-0 w-full overflow-hidden border-y border-border bg-background/60 backdrop-blur-md py-3 md:py-4 z-10 -rotate-2 scale-110 shadow-2xl">
             <div className="flex w-max animate-footer-scroll-marquee text-xs md:text-sm font-bold tracking-[0.3em] text-muted-foreground uppercase">
-              {/* Two identical runs; the keyframe shifts by exactly -50%, so the
-                  second lands where the first began and the loop has no seam. */}
-              <MarqueeRun words={marqueeWords} />
-              <MarqueeRun words={marqueeWords} />
+              {/* The keyframe shifts by exactly -50%, so the second half lands
+                  where the first began and the loop has no seam. That only
+                  fills the band if each half is at least as wide as the screen
+                  — with two runs of four short words, half the track was
+                  narrower than a desktop viewport and the strip ran out mid-way
+                  with blank band after it. MARQUEE_RUNS is even so the halves
+                  stay identical, and high enough that half the track overflows
+                  an ultrawide display. */}
+              {Array.from({ length: MARQUEE_RUNS }, (_, i) => (
+                <MarqueeRun key={i} words={marqueeWords} />
+              ))}
             </div>
           </div>
 
