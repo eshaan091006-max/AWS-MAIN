@@ -60,25 +60,39 @@ function initials(name: string) {
 interface Placed {
   member: TeamMember;
   index: number;
-  /** Percentage position within the stage. */
+  /** Percentage of stage width / height. */
   x: number;
   y: number;
-  /** Tile edge length, in px at the widest breakpoint. */
-  size: number;
+  /** Tile width, as a percentage of stage width. */
+  w: number;
   isCentre: boolean;
 }
 
 /**
- * Places the cluster: the first lead at the centre, everyone else in a ring.
+ * Stage geometry, in "width units": the stage is 100 wide and 80 tall, which is
+ * the 5:4 box the container is locked to. Everything — positions and tile sizes
+ * alike — is expressed as a share of the stage, so the whole arrangement scales
+ * together and the spacing proved below holds at any viewport width.
+ */
+const STAGE_H = 80;
+const TILE_RATIO = 1.2;
+const GAP = 2.6;
+const CENTRE_W = 26;
+
+/**
+ * Places the cluster: the first lead at the centre, everyone else around it.
  *
- * Satellites sit on a circle rather than in columns so the centre reads as the
- * centre — in a column layout the lead was simply the first tile, which says
- * nothing about who leads. Angles start at the top and are spread evenly, with
- * a deterministic wobble on both angle and radius so the ring does not look
- * like a clock face.
+ * Satellites sit on the boundary of a RECTANGLE, not an ellipse. On an ellipse
+ * a satellite at a diagonal angle ends up short on both axes at once — its x
+ * separation and its y separation are each about 70% of the semi-axis — and the
+ * tiles overlap, which is exactly what the previous version did. On a rectangle
+ * at least one axis is always at its full required separation, so no satellite
+ * can touch the centre.
  *
- * Any extra leads orbit closer and larger than the members, so a department
- * with two leads still shows both as senior without needing a second cluster.
+ * The rectangle's half-extents are the two tiles' half-sizes plus a gap, which
+ * makes the clearance a property of the construction rather than of the numbers
+ * happening to work out. Checked for 1 to 5 satellites: no overlapping pair,
+ * every tile inside the stage, tightest gap 2.6 width-units throughout.
  */
 function place(members: TeamMember[]): Placed[] {
   const isLead = (m: TeamMember) => m.role.toLowerCase() === "lead";
@@ -86,27 +100,43 @@ function place(members: TeamMember[]): Placed[] {
   const rest = members.filter((m) => m.id !== centre.id);
 
   const placed: Placed[] = [
-    { member: centre, index: members.indexOf(centre), x: 50, y: 50, size: 208, isCentre: true },
+    { member: centre, index: members.indexOf(centre), x: 50, y: 40, w: CENTRE_W, isCentre: true },
   ];
+
+  const halfCX = CENTRE_W / 2;
+  const halfCY = (CENTRE_W * TILE_RATIO) / 2;
+  // Fewer satellites means each can afford to be larger.
+  const satW = Math.max(15, 18.5 - rest.length * 0.8);
 
   rest.forEach((m, i) => {
     const idx = members.indexOf(m);
-    const lead = isLead(m);
     const step = 360 / Math.max(rest.length, 1);
-    const angle = -90 + i * step + (hash01(idx) - 0.5) * (step * 0.35);
-    const rad = (angle * Math.PI) / 180;
 
-    // Leads pull in tighter; the ellipse is wider than tall because the stage
-    // is, and a circular ring would push tiles off the top and bottom edges.
-    const rx = lead ? 30 : 36 + hash01(idx + 40) * 6;
-    const ry = lead ? 28 : 33 + hash01(idx + 80) * 6;
+    // A second lead is drawn larger, so the clearance rectangle has to be built
+    // from THIS satellite's size rather than the base one — sizing the rectangle
+    // once from the smaller value pushed the bigger tile off the stage.
+    // MAX_SAT_W is what keeps the far edge inside: halfCY + 2*halfSY + GAP <= 40.
+    const MAX_SAT_W = 18;
+    const w = Math.min(MAX_SAT_W, isLead(m) ? satW * 1.15 : satW);
+    const halfSX = w / 2;
+    const halfSY = (w * TILE_RATIO) / 2;
+    const rectX = halfCX + halfSX + GAP;
+    const rectY = halfCY + halfSY + GAP;
+    // A small deterministic wobble so the ring is not a clock face. Capped well
+    // inside the step so neighbours cannot close on each other.
+    const angle = -90 + i * step + (hash01(idx) - 0.5) * (step * 0.22);
+    const t = (angle * Math.PI) / 180;
+    const c = Math.cos(t);
+    const sn = Math.sin(t);
+    // Distance to the rectangle's edge along this ray.
+    const k = 1 / Math.max(Math.abs(c) / rectX, Math.abs(sn) / rectY);
 
     placed.push({
       member: m,
       index: idx,
-      x: 50 + Math.cos(rad) * rx,
-      y: 50 + Math.sin(rad) * ry,
-      size: lead ? 156 : Math.round(112 + hash01(idx + 120) * 34),
+      x: 50 + k * c,
+      y: 40 + k * sn,
+      w,
       isCentre: false,
     });
   });
@@ -132,7 +162,7 @@ export default function TeamShowcase({ members, accent, className }: TeamShowcas
         whileInView="shown"
         viewport={{ once: true, amount: 0.2 }}
         variants={{ shown: { transition: { staggerChildren: 0.09 } } }}
-        className="relative w-full lg:flex-[1.35] aspect-[4/5] sm:aspect-[5/4] max-h-[560px] select-none [perspective:1200px]"
+        className="relative w-full lg:flex-[1.4] aspect-[5/4] select-none [perspective:1200px]"
       >
         {/* Ambient wash, so the centre sits in light rather than on flat black. */}
         <div
@@ -148,7 +178,7 @@ export default function TeamShowcase({ members, accent, className }: TeamShowcas
         <svg
           aria-hidden="true"
           className="pointer-events-none absolute inset-0 w-full h-full"
-          viewBox="0 0 100 100"
+          viewBox="0 0 100 80"
           preserveAspectRatio="none"
         >
           {placed.slice(1).map((p) => {
@@ -207,7 +237,7 @@ function Tile({
   hoveredId: string | null;
   onHover: (id: string | null) => void;
 }) {
-  const { member, index, x, y, size, isCentre } = placed;
+  const { member, index, x, y, w, isCentre } = placed;
   const isActive = hoveredId === member.id;
   const isDimmed = hoveredId !== null && !isActive;
   const isLead = member.role.toLowerCase() === "lead";
@@ -224,8 +254,9 @@ function Tile({
     <div
       style={{
         left: `${x}%`,
-        top: `${y}%`,
-        width: `clamp(78px, ${size / 6.4}vw, ${size}px)`,
+        // y is in stage-height units; the element wants a percentage of height.
+        top: `${(y / STAGE_H) * 100}%`,
+        width: `${w}%`,
         zIndex: isActive ? 30 : isCentre ? 20 : 10,
       }}
       className="absolute -translate-x-1/2 -translate-y-1/2 aspect-[5/6]"

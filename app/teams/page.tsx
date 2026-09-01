@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 };
 
 export default function TeamsPage() {
-  const { departments, chairperson, faculty } = teamHierarchy;
+  const { departments } = teamHierarchy;
 
   return (
     <div className="relative pt-36 pb-28">
@@ -23,8 +23,7 @@ export default function TeamsPage() {
             Four <span className="text-gradient-orange">departments</span>
           </h1>
           <p className="text-sm sm:text-base text-zinc-400 mt-4 leading-relaxed">
-            {chairperson.name} leads the group, backed by {faculty.members.length} faculty
-            mentors. Open a department to see who runs it.
+            Open one to see who runs it.
           </p>
         </header>
 

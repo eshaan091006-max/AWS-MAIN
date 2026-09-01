@@ -28,12 +28,14 @@ export interface DepartmentNode {
 export interface TeamHierarchy {
   faculty: {
     title: string;
-    members: { name: string; designation: string }[];
+    /** `photo` is an optional image URL; without one an initials avatar shows. */
+    members: { name: string; designation: string; photo?: string }[];
   };
   chairperson: {
     name: string;
     role: string;
     title: string;
+    photo?: string;
   };
   departments: DepartmentNode[];
 }

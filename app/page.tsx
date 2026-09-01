@@ -21,6 +21,7 @@ import { teamHierarchy } from "@/config/teamHierarchy";
 import { db } from "@/lib/db";
 import { ScrollProgress } from "@/components/ui/scroll-progress";
 import { Reveal } from "@/components/ui/reveal";
+import { PersonAvatar } from "@/components/teams/PersonAvatar";
 
 export const metadata = {
   title: "SXC AWS Group — Build. Deploy. Scale. | St. Xavier's College",
@@ -305,39 +306,41 @@ export default async function HomePage() {
             eyebrow="Our team"
             title="Led by students,"
             highlight="backed by faculty"
-            sub={`${teamHierarchy.chairperson.name} leads the group, backed by ${teamHierarchy.faculty.members.length} faculty mentors and ${departments.length} departments.`}
           />
 
+          {/* One row: the SBG Leader, then the faculty. Picture above the
+              name for all four, at the same size as the department clusters. */}
           <Reveal delay={0.08}>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-px mt-14 bg-white/[0.06] rounded-2xl overflow-hidden border border-white/[0.06]">
-              {/* The SBG Leader, then the faculty. Departments and their people
-                  live on their own pages now — listing every VCP here made the
-                  home page a directory. */}
-              <article className="bg-navy-950/85 p-7 backdrop-blur-sm md:col-span-1">
-                <div className="text-[10px] font-mono uppercase tracking-[0.18em] text-aws-orange mb-3">
-                  {teamHierarchy.chairperson.title}
-                </div>
-                <div className="text-xl font-display font-bold text-white">
-                  {teamHierarchy.chairperson.name}
-                </div>
-                <div className="text-xs text-zinc-500 mt-1">
-                  {teamHierarchy.chairperson.role}
-                </div>
-              </article>
+            <div className="mt-14 grid grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-7">
+              <figure>
+                <PersonAvatar
+                  name={teamHierarchy.chairperson.name}
+                  photo={teamHierarchy.chairperson.photo}
+                  size="tile"
+                />
+                <figcaption className="mt-4">
+                  <div className="text-[10px] font-mono uppercase tracking-[0.18em] text-aws-orange">
+                    {teamHierarchy.chairperson.role}
+                  </div>
+                  <div className="text-base sm:text-lg font-display font-bold text-white leading-snug mt-1">
+                    {teamHierarchy.chairperson.name}
+                  </div>
+                </figcaption>
+              </figure>
 
-              <article className="bg-navy-950/85 p-7 backdrop-blur-sm md:col-span-2">
-                <div className="text-[10px] font-mono uppercase tracking-[0.18em] text-zinc-600 mb-3">
-                  {teamHierarchy.faculty.title}
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
-                  {teamHierarchy.faculty.members.map((f) => (
-                    <div key={f.name}>
-                      <div className="text-sm font-semibold text-white leading-snug">{f.name}</div>
-                      <div className="text-[11px] text-zinc-500 mt-1">{f.designation}</div>
+              {teamHierarchy.faculty.members.map((f, i) => (
+                <figure key={f.name}>
+                  <PersonAvatar name={f.name} photo={f.photo} index={i + 1} size="tile" />
+                  <figcaption className="mt-4">
+                    <div className="text-[10px] font-mono uppercase tracking-[0.18em] text-zinc-600">
+                      {f.designation}
                     </div>
-                  ))}
-                </div>
-              </article>
+                    <div className="text-base sm:text-lg font-display font-bold text-white leading-snug mt-1">
+                      {f.name}
+                    </div>
+                  </figcaption>
+                </figure>
+              ))}
             </div>
           </Reveal>
 
@@ -413,7 +416,8 @@ function SectionHeading({
   eyebrow: string;
   title: string;
   highlight: string;
-  sub: string;
+  /** Optional: a section whose content already says it can leave this out. */
+  sub?: string;
 }) {
   return (
     <Reveal className="max-w-2xl">
@@ -423,7 +427,9 @@ function SectionHeading({
       <h2 className="text-3xl sm:text-5xl font-display font-black text-white tracking-tight leading-[1.08]">
         {title} <span className="text-gradient-orange">{highlight}</span>
       </h2>
-      <p className="text-sm sm:text-base text-zinc-400 mt-4 leading-relaxed">{sub}</p>
+      {sub && (
+        <p className="text-sm sm:text-base text-zinc-400 mt-4 leading-relaxed">{sub}</p>
+      )}
     </Reveal>
   );
 }
