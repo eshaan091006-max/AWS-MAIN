@@ -13,7 +13,7 @@ export interface ContactChannel {
 }
 
 /**
- * Every way to reach the club, in one list.
+ * Every way to reach the group, in one list.
  *
  * Two of these ship empty on purpose. `siteConfig.links` carries a Discord
  * invite that has never been rendered anywhere public and looks like

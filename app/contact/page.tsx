@@ -34,7 +34,7 @@ export default function ContactPage() {
 
   const faqs = [
     {
-      q: "Who can join the SXC AWS Club?",
+      q: "Who can join the SXC AWS Group?",
       a: "Any student enrolled at St. Xavier's College (any department, year, or background) with an interest in software engineering, cloud computing, or modern technology is welcome to join.",
     },
     {
@@ -43,7 +43,7 @@ export default function ContactPage() {
     },
     {
       q: "How much does membership cost?",
-      a: "SXC AWS Club is 100% free for all students. We also assist with free AWS Educate credits, free workshop access, and exam voucher support.",
+      a: "SXC AWS Group is 100% free for all students. We also assist with free AWS Educate credits, free workshop access, and exam voucher support.",
     },
     {
       q: "How can industry mentors or sponsors collaborate?",
@@ -94,7 +94,7 @@ export default function ContactPage() {
       <section className="max-w-[1750px] mx-auto px-4 sm:px-8 lg:px-12 xl:px-16">
         <div className="max-w-3xl mx-auto">
           <div ref={formRef} className="scroll-mt-28">
-            {/* No heading and no card. The hero already said "reach the club";
+            {/* No heading and no card. The hero already said "reach the group";
                 announcing "Send Us a Message" over a form that is visibly a
                 message form was saying it a third time, and the orange-bordered
                 panel is what made the page look like two pages stapled

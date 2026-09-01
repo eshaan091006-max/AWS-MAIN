@@ -74,7 +74,7 @@ export function ContactHero({ onStart }: ContactHeroProps) {
         </h1>
 
         <p className="text-lg font-medium text-zinc-400">
-          Reach the club however you like.
+          Reach the group however you like.
         </p>
 
         {/* Pill. The reference captures an email here; so does this, except it
