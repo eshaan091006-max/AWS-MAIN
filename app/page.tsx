@@ -308,39 +308,45 @@ export default async function HomePage() {
             highlight="backed by faculty"
           />
 
-          {/* One row: the SBG Leader, then the faculty. Picture above the
-              name for all four, at the same size as the department clusters. */}
+          {/* Faculty across the top, then the leader beneath them. Picture
+              above the name throughout, at the cluster's size. */}
           <Reveal delay={0.08}>
-            <div className="mt-14 grid grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-7">
-              <figure>
-                <PersonAvatar
-                  name={teamHierarchy.chairperson.name}
-                  photo={teamHierarchy.chairperson.photo}
-                  size="tile"
-                />
-                <figcaption className="mt-4">
-                  <div className="text-[10px] font-mono uppercase tracking-[0.18em] text-aws-orange">
-                    {teamHierarchy.chairperson.role}
-                  </div>
-                  <div className="text-base sm:text-lg font-display font-bold text-white leading-snug mt-1">
-                    {teamHierarchy.chairperson.name}
-                  </div>
-                </figcaption>
-              </figure>
+            <div className="mt-14 space-y-12">
+              <div className="grid grid-cols-3 gap-4 sm:gap-7">
+                {teamHierarchy.faculty.members.map((f, i) => (
+                  <figure key={f.name}>
+                    <PersonAvatar name={f.name} photo={f.photo} index={i + 1} size="tile" />
+                    <figcaption className="mt-4">
+                      <div className="text-[9px] sm:text-[10px] font-mono uppercase tracking-[0.18em] text-zinc-600">
+                        {f.designation}
+                      </div>
+                      <div className="text-sm sm:text-lg font-display font-bold text-white leading-snug mt-1">
+                        {f.name}
+                      </div>
+                    </figcaption>
+                  </figure>
+                ))}
+              </div>
 
-              {teamHierarchy.faculty.members.map((f, i) => (
-                <figure key={f.name}>
-                  <PersonAvatar name={f.name} photo={f.photo} index={i + 1} size="tile" />
+              {/* Alone on its row, so it is centred and held to the width of one
+                  faculty tile rather than stretching across all three. */}
+              <div className="flex justify-center">
+                <figure className="w-1/3 max-w-[260px] pr-3 sm:pr-5">
+                  <PersonAvatar
+                    name={teamHierarchy.chairperson.name}
+                    photo={teamHierarchy.chairperson.photo}
+                    size="tile"
+                  />
                   <figcaption className="mt-4">
-                    <div className="text-[10px] font-mono uppercase tracking-[0.18em] text-zinc-600">
-                      {f.designation}
+                    <div className="text-[9px] sm:text-[10px] font-mono uppercase tracking-[0.18em] text-aws-orange">
+                      {teamHierarchy.chairperson.role}
                     </div>
-                    <div className="text-base sm:text-lg font-display font-bold text-white leading-snug mt-1">
-                      {f.name}
+                    <div className="text-sm sm:text-lg font-display font-bold text-white leading-snug mt-1">
+                      {teamHierarchy.chairperson.name}
                     </div>
                   </figcaption>
                 </figure>
-              ))}
+              </div>
             </div>
           </Reveal>
 
