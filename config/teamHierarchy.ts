@@ -133,7 +133,7 @@ export const teamHierarchy: TeamHierarchy = {
       ],
       // Department-level rather than under one lead: Marketing has two, and
       // these members work to both.
-      coordinators: ["Athen Ananya", "Naomi John"],
+      coordinators: ["Athen", "Ananya", "Naomi John"],
     },
     {
       id: "dept-pr",

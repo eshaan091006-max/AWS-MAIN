@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import { ArrowUpRight } from "lucide-react";
 import { FaAws } from "react-icons/fa6";
 import { RandomLetterSwap } from "@/components/ui/random-letter-swap";
-import { LiquidMenu } from "@/components/ui/liquid-menu";
+import { MobileMenu } from "@/components/navbar/MobileMenu";
 import { scrollToSection, scrollToHashOnLoad } from "@/lib/scrollToSection";
 import { mainNavItems } from "@/config/navigation";
 import { siteConfig } from "@/config/site";
@@ -16,8 +16,13 @@ export function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isEmbedded, setIsEmbedded] = useState(false);
   const [activeSection, setActiveSection] = useState("top");
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   const onHome = pathname === "/";
+
+  useEffect(() => {
+    setMobileOpen(false);
+  }, [pathname]);
 
   /**
    * Resolves a nav item to a real href. On the home page an anchor is enough;
@@ -204,23 +209,26 @@ export function Navbar() {
               <ArrowUpRight className="w-3.5 h-3.5 stroke-[2.5]" />
             </a>
 
+            <MobileMenu
+              open={mobileOpen}
+              onOpenChange={setMobileOpen}
+              items={[
+                ...mainNavItems.map((item) => ({ title: item.title, href: hrefFor(item) })),
+                { title: "Join Group", href: siteConfig.links.meetup, external: true },
+              ]}
+              isActive={(item) =>
+                mainNavItems.some((nav) => nav.title === item.title && isItemActive(nav))
+              }
+              onItemClick={(e, item) => {
+                const nav = mainNavItems.find((n) => n.title === item.title);
+                if (nav) handleSectionClick(e, nav);
+              }}
+            />
           </div>
         </div>
 
       </header>
 
-      {/* Mobile navigation. A floating trigger that melts open, rather than a
-          drawer pushed down from the header — it stays within thumb reach on a
-          phone instead of sitting at the far top corner. */}
-      <LiquidMenu
-        items={[
-          ...mainNavItems.map((item) => ({ title: item.title, href: hrefFor(item) })),
-          { title: "Join Group", href: siteConfig.links.meetup, external: true },
-        ]}
-        isActive={(item) =>
-          mainNavItems.some((nav) => nav.title === item.title && isItemActive(nav))
-        }
-      />
     </>
   );
 }

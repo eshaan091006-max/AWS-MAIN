@@ -20,7 +20,8 @@ export interface NavItem {
  * any other page the navbar turns them back into "/#section" so they still
  * work off-home.
  *
- * Contact stays a real page: it is a form, not a summary, and deep links to it
+ * Contact and Gallery stay real pages: one is a form and the other a
+ * full-screen scene, neither summarises to a section, and deep links to both
  * are already in circulation.
  */
 export const mainNavItems: NavItem[] = [
@@ -28,7 +29,8 @@ export const mainNavItems: NavItem[] = [
   { title: "About", href: "/", section: "about", owns: ["/about"] },
   { title: "What You'll Build", href: "/", section: "build", owns: ["/projects"] },
   { title: "Events", href: "/", section: "events", owns: ["/events"] },
-  { title: "Team", href: "/", section: "team", owns: ["/teams", "/gallery"] },
+  { title: "Team", href: "/", section: "team", owns: ["/teams"] },
+  { title: "Gallery", href: "/gallery" },
   { title: "Contact", href: "/contact" },
 ];
 
