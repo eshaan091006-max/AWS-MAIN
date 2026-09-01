@@ -64,7 +64,7 @@ export const teamHierarchy: TeamHierarchy = {
       color: "from-amber-500/20 to-aws-orange/10",
       badgeColor: "text-amber-400 bg-amber-950/60 border-amber-500/30",
       description:
-        "Planning and executing workshops, talks, meetups, and community activities.",
+        "Plans and runs everything the club puts on — hands-on workshops, speaker talks, meetups and the smaller community sessions in between. Most of the work happens before anyone arrives: fixing the calendar, securing rooms, briefing speakers and building a running order. The rest is holding the day together once it starts.",
       responsibilities: [
         "Workshops",
         "Talks",
@@ -89,7 +89,7 @@ export const teamHierarchy: TeamHierarchy = {
       color: "from-emerald-500/20 to-teal-500/10",
       badgeColor: "text-emerald-400 bg-emerald-950/60 border-emerald-500/30",
       description:
-        "Website, photography, videography, graphic design, posters, and digital content.",
+        "Builds everything the club publishes and decides how all of it looks. That covers the website, the photography and video shot at events, and the graphics, posters and digital content the other departments hand out and post. Most of what anyone sees of the club, online or on a wall, came through here first.",
       responsibilities: [
         "Website",
         "Photography",
@@ -118,7 +118,7 @@ export const teamHierarchy: TeamHierarchy = {
       color: "from-violet-500/20 to-fuchsia-500/10",
       badgeColor: "text-violet-400 bg-violet-950/60 border-violet-500/30",
       description:
-        "Promotions, social media campaigns, registrations, outreach, and audience growth.",
+        "Gets people to turn up, and keeps them following along afterwards. The team plans the promotion around each event, runs the social channels, and manages registrations from the first announcement to the final headcount. The longer job is growing the audience the club can reach, not just talking to the one it already has.",
       responsibilities: [
         "Promotions",
         "Social media campaigns",
@@ -141,7 +141,7 @@ export const teamHierarchy: TeamHierarchy = {
       color: "from-blue-500/20 to-cyan-500/10",
       badgeColor: "text-blue-400 bg-blue-950/60 border-blue-500/30",
       description:
-        "External communication, guest/speaker coordination, institutional communication, and community relations.",
+        "Handles how the club speaks to everyone outside it. That means inviting and briefing guests and speakers, keeping the college and its faculty informed, and maintaining the relationships with other institutions and communities the club works alongside. When someone outside the club forms an impression of it, this department shaped it.",
       responsibilities: [
         "External communication",
         "Guest & speaker coordination",
@@ -166,7 +166,7 @@ export const teamHierarchy: TeamHierarchy = {
       color: "from-rose-500/20 to-orange-500/10",
       badgeColor: "text-rose-400 bg-rose-950/60 border-rose-500/30",
       description:
-        "Hackathon planning, technical challenges, team coordination, judging, and related competitions.",
+        "Designs and runs the club's competitions from end to end. That means writing the problem statements and technical challenges, helping teams form and keeping them moving, arranging judges and the criteria they score against, and running the event itself — along with any other competitions the club hosts or enters.",
       responsibilities: [
         "Hackathon planning",
         "Technical challenges",
