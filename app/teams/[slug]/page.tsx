@@ -86,7 +86,7 @@ export default async function DepartmentPage({ params }: PageProps) {
             <span className="h-px flex-1 bg-white/[0.07]" />
           </div>
 
-          <TeamShowcase members={people} />
+          <TeamShowcase members={people} accent={dept.color} />
         </section>
 
       </div>

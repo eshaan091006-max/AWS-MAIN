@@ -9,7 +9,7 @@ import { RandomLetterSwap } from "@/components/ui/random-letter-swap";
 export interface TeamMember {
   id: string;
   name: string;
-  /** "Lead" or "Member" — drives how large the tile is. */
+  /** "Lead" or "Member" — the first lead takes the centre of the cluster. */
   role: string;
   /**
    * Optional. Without one, a monogram is drawn instead.
@@ -20,34 +20,26 @@ export interface TeamMember {
    * supplied.
    */
   image?: string;
-  social?: {
-    linkedin?: string;
-    instagram?: string;
-    github?: string;
-  };
+  social?: { linkedin?: string; instagram?: string; github?: string };
 }
 
 interface TeamShowcaseProps {
   members: TeamMember[];
+  /** Tailwind gradient stops for the ambient wash behind the cluster. */
+  accent?: string;
   className?: string;
 }
 
 const TINTS = [
-  "from-aws-orange/30 via-amber-600/10",
-  "from-indigo-500/30 via-violet-500/10",
-  "from-violet-400/30 via-fuchsia-500/10",
-  "from-amber-400/30 via-orange-600/10",
-  "from-sky-500/25 via-indigo-500/10",
-  "from-rose-400/25 via-orange-500/10",
+  "from-aws-orange/35 via-amber-600/12",
+  "from-indigo-500/35 via-violet-500/12",
+  "from-violet-400/35 via-fuchsia-500/12",
+  "from-amber-400/35 via-orange-600/12",
+  "from-sky-500/30 via-indigo-500/12",
+  "from-rose-400/30 via-orange-500/12",
 ];
 
-/**
- * Deterministic 0..1 from an index.
- *
- * Integer ops only. Math.random would differ between the server render and the
- * client, and Math.sin is not required to agree between engines either — both
- * produce a hydration mismatch on every tile that carries a jittered size.
- */
+/** Deterministic 0..1. Integer ops only, so server and client agree exactly. */
 function hash01(seed: number) {
   let x = Math.imul(seed + 1, 2654435761) >>> 0;
   x ^= x >>> 15;
@@ -65,64 +57,128 @@ function initials(name: string) {
     .join("");
 }
 
-/**
- * Tile size.
- *
- * Leads are simply bigger, so the hierarchy is carried by the picture rather
- * than by a heading above a second grid — that is what lets leads and members
- * share one cluster instead of sitting in two separate blocks. A deterministic
- * ±14% on top keeps the cluster from reading as two tidy size buckets.
- */
-function sizeFor(role: string, index: number) {
-  const base = role.toLowerCase() === "lead" ? 186 : 142;
-  const jitter = 0.86 + hash01(index) * 0.28;
-  const w = Math.round(base * jitter);
-  return { w, h: Math.round(w * (1.04 + hash01(index + 99) * 0.22)) };
+interface Placed {
+  member: TeamMember;
+  index: number;
+  /** Percentage position within the stage. */
+  x: number;
+  y: number;
+  /** Tile edge length, in px at the widest breakpoint. */
+  size: number;
+  isCentre: boolean;
 }
 
-export default function TeamShowcase({ members, className }: TeamShowcaseProps) {
+/**
+ * Places the cluster: the first lead at the centre, everyone else in a ring.
+ *
+ * Satellites sit on a circle rather than in columns so the centre reads as the
+ * centre — in a column layout the lead was simply the first tile, which says
+ * nothing about who leads. Angles start at the top and are spread evenly, with
+ * a deterministic wobble on both angle and radius so the ring does not look
+ * like a clock face.
+ *
+ * Any extra leads orbit closer and larger than the members, so a department
+ * with two leads still shows both as senior without needing a second cluster.
+ */
+function place(members: TeamMember[]): Placed[] {
+  const isLead = (m: TeamMember) => m.role.toLowerCase() === "lead";
+  const centre = members.find(isLead) ?? members[0];
+  const rest = members.filter((m) => m.id !== centre.id);
+
+  const placed: Placed[] = [
+    { member: centre, index: members.indexOf(centre), x: 50, y: 50, size: 208, isCentre: true },
+  ];
+
+  rest.forEach((m, i) => {
+    const idx = members.indexOf(m);
+    const lead = isLead(m);
+    const step = 360 / Math.max(rest.length, 1);
+    const angle = -90 + i * step + (hash01(idx) - 0.5) * (step * 0.35);
+    const rad = (angle * Math.PI) / 180;
+
+    // Leads pull in tighter; the ellipse is wider than tall because the stage
+    // is, and a circular ring would push tiles off the top and bottom edges.
+    const rx = lead ? 30 : 36 + hash01(idx + 40) * 6;
+    const ry = lead ? 28 : 33 + hash01(idx + 80) * 6;
+
+    placed.push({
+      member: m,
+      index: idx,
+      x: 50 + Math.cos(rad) * rx,
+      y: 50 + Math.sin(rad) * ry,
+      size: lead ? 156 : Math.round(112 + hash01(idx + 120) * 34),
+      isCentre: false,
+    });
+  });
+
+  return placed;
+}
+
+export default function TeamShowcase({ members, accent, className }: TeamShowcaseProps) {
   const [hoveredId, setHoveredId] = useState<string | null>(null);
 
   if (members.length === 0) return null;
-
-  const sized = members.map((m, i) => ({ member: m, index: i, ...sizeFor(m.role, i) }));
-  const columns = [0, 1, 2].map((c) => sized.filter((_, i) => i % 3 === c));
+  const placed = place(members);
+  const centre = placed[0];
 
   return (
     <div
-      className={cn(
-        "flex flex-col lg:flex-row items-start gap-10 lg:gap-16 select-none w-full",
-        className
-      )}
+      className={cn("flex flex-col lg:flex-row items-center gap-12 lg:gap-16 w-full", className)}
       onMouseLeave={() => setHoveredId(null)}
     >
-      {/* One cluster, leads and members together. */}
+      {/* Stage */}
       <motion.div
         initial="hidden"
         whileInView="shown"
-        viewport={{ once: true, amount: 0.15 }}
-        variants={{ shown: { transition: { staggerChildren: 0.06 } } }}
-        className="flex gap-3 md:gap-4 flex-shrink-0 overflow-x-auto pb-2 lg:pb-0 [perspective:1000px]"
+        viewport={{ once: true, amount: 0.2 }}
+        variants={{ shown: { transition: { staggerChildren: 0.09 } } }}
+        className="relative w-full lg:flex-[1.35] aspect-[4/5] sm:aspect-[5/4] max-h-[560px] select-none [perspective:1200px]"
       >
-        {columns.map((col, ci) => (
-          <div
-            key={ci}
-            className="flex flex-col gap-3 md:gap-4"
-            // Uneven column tops are what stop three stacks reading as a table.
-            style={{ marginTop: [0, 56, 24][ci] }}
-          >
-            {col.map(({ member, index, w, h }) => (
-              <Tile
-                key={member.id}
-                member={member}
-                index={index}
-                width={w}
-                height={h}
-                hoveredId={hoveredId}
-                onHover={setHoveredId}
+        {/* Ambient wash, so the centre sits in light rather than on flat black. */}
+        <div
+          aria-hidden="true"
+          className={cn(
+            "pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[78%] aspect-square rounded-full blur-[80px] bg-gradient-to-br to-transparent",
+            accent ?? "from-aws-orange/20 via-indigo-500/10"
+          )}
+        />
+
+        {/* Spokes from the centre out to each satellite. Drawn behind the tiles
+            in the same percentage space, so they stay attached at any size. */}
+        <svg
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 w-full h-full"
+          viewBox="0 0 100 100"
+          preserveAspectRatio="none"
+        >
+          {placed.slice(1).map((p) => {
+            const lit = hoveredId === p.member.id || hoveredId === centre.member.id;
+            return (
+              <line
+                key={p.member.id}
+                x1={centre.x}
+                y1={centre.y}
+                x2={p.x}
+                y2={p.y}
+                stroke="currentColor"
+                strokeWidth={0.15}
+                className={cn(
+                  "transition-colors duration-300",
+                  lit ? "text-aws-orange/60" : "text-white/[0.09]"
+                )}
+                vectorEffect="non-scaling-stroke"
               />
-            ))}
-          </div>
+            );
+          })}
+        </svg>
+
+        {placed.map((p) => (
+          <Tile
+            key={p.member.id}
+            placed={p}
+            hoveredId={hoveredId}
+            onHover={setHoveredId}
+          />
         ))}
       </motion.div>
 
@@ -130,9 +186,9 @@ export default function TeamShowcase({ members, className }: TeamShowcaseProps) 
       <motion.div
         initial="hidden"
         whileInView="shown"
-        viewport={{ once: true, amount: 0.15 }}
-        variants={{ shown: { transition: { staggerChildren: 0.045, delayChildren: 0.15 } } }}
-        className="flex flex-col sm:grid sm:grid-cols-2 lg:flex lg:flex-col gap-5 flex-1 w-full pt-1"
+        viewport={{ once: true, amount: 0.2 }}
+        variants={{ shown: { transition: { staggerChildren: 0.05, delayChildren: 0.2 } } }}
+        className="flex flex-col sm:grid sm:grid-cols-2 lg:flex lg:flex-col gap-5 flex-1 w-full"
       >
         {members.map((m) => (
           <MemberRow key={m.id} member={m} hoveredId={hoveredId} onHover={setHoveredId} />
@@ -142,105 +198,131 @@ export default function TeamShowcase({ members, className }: TeamShowcaseProps) 
   );
 }
 
-const RISE = {
-  hidden: { opacity: 0, y: 26, scale: 0.92 },
-  shown: {
-    opacity: 1,
-    y: 0,
-    scale: 1,
-    transition: { type: "spring" as const, stiffness: 260, damping: 24 },
-  },
-};
-
 function Tile({
-  member,
-  index,
-  width,
-  height,
+  placed,
   hoveredId,
   onHover,
 }: {
-  member: TeamMember;
-  index: number;
-  width: number;
-  height: number;
+  placed: Placed;
   hoveredId: string | null;
   onHover: (id: string | null) => void;
 }) {
+  const { member, index, x, y, size, isCentre } = placed;
   const isActive = hoveredId === member.id;
   const isDimmed = hoveredId !== null && !isActive;
   const isLead = member.role.toLowerCase() === "lead";
 
+  // Two elements on purpose.
+  //
+  // The outer one does the centring with a plain CSS translate and is never
+  // animated. framer-motion writes an inline `transform` for scale and
+  // rotation, and an inline transform replaces whatever CSS set — so putting
+  // `-translate-x-1/2 -translate-y-1/2` on the animated element means the
+  // centring is thrown away the moment a tween runs, and every tile hangs half
+  // its own size down and to the right of where it belongs.
   return (
+    <div
+      style={{
+        left: `${x}%`,
+        top: `${y}%`,
+        width: `clamp(78px, ${size / 6.4}vw, ${size}px)`,
+        zIndex: isActive ? 30 : isCentre ? 20 : 10,
+      }}
+      className="absolute -translate-x-1/2 -translate-y-1/2 aspect-[5/6]"
+    >
     <motion.div
-      variants={RISE}
+      variants={{
+        hidden: { opacity: 0, scale: 0.7 },
+        shown: {
+          opacity: 1,
+          scale: 1,
+          transition: { type: "spring" as const, stiffness: 220, damping: 20 },
+        },
+      }}
       animate={{
-        opacity: isDimmed ? 0.35 : 1,
-        scale: isActive ? 1.06 : 1,
-        rotateY: isActive ? (index % 2 === 0 ? 6 : -6) : 0,
-        rotateX: isActive ? -4 : 0,
+        opacity: isDimmed ? 0.28 : 1,
+        scale: isActive ? 1.08 : 1,
+        rotateY: isActive ? (index % 2 === 0 ? 7 : -7) : 0,
+        rotateX: isActive ? -5 : 0,
       }}
       transition={{ type: "spring", stiffness: 300, damping: 22 }}
       onMouseEnter={() => onHover(member.id)}
-      style={{ width, height, transformStyle: "preserve-3d" }}
-      className={cn(
-        "relative overflow-hidden rounded-2xl flex-shrink-0 border cursor-default",
-        isActive ? "border-aws-orange/45" : "border-white/[0.07]"
-      )}
+      style={{ transformStyle: "preserve-3d" }}
+      className="relative w-full h-full"
     >
-      {member.image ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={member.image}
-          alt=""
-          className="w-full h-full object-cover transition-[filter] duration-500"
-          style={{ filter: isActive ? "grayscale(0) brightness(1)" : "grayscale(1) brightness(0.7)" }}
-        />
-      ) : (
-        <div
-          className={cn(
-            "w-full h-full flex items-center justify-center bg-gradient-to-br to-transparent transition-all duration-500",
-            TINTS[index % TINTS.length],
-            isActive ? "saturate-100" : "saturate-[0.2]"
-          )}
-        >
-          <span
-            className={cn(
-              "font-display font-black tracking-tight transition-colors duration-500",
-              isLead ? "text-3xl md:text-4xl" : "text-2xl md:text-3xl",
-              isActive ? "text-white" : "text-white/40"
-            )}
-          >
-            {initials(member.name)}
-          </span>
-        </div>
-      )}
-
-      {/* Role tag, revealed on hover — the cluster stays clean until you look
-          at someone in particular. */}
-      <motion.span
-        aria-hidden="true"
-        animate={{ opacity: isActive ? 1 : 0, y: isActive ? 0 : 8 }}
-        transition={{ duration: 0.25 }}
+      <div
         className={cn(
-          "absolute bottom-2 left-2 px-2 py-0.5 rounded-full text-[9px] font-mono uppercase tracking-widest backdrop-blur-sm",
-          isLead
-            ? "bg-aws-orange text-black font-bold"
-            : "bg-navy-950/80 text-zinc-300 border border-white/10"
+          "relative w-full h-full overflow-hidden rounded-2xl border",
+          isActive
+            ? "border-aws-orange/50 shadow-[0_0_40px_-6px_rgba(255,153,0,0.35)]"
+            : isCentre
+              ? "border-white/20"
+              : "border-white/[0.08]"
         )}
       >
-        {member.role}
-      </motion.span>
+        {member.image ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={member.image}
+            alt=""
+            className="w-full h-full object-cover transition-[filter] duration-500"
+            style={{ filter: isActive ? "grayscale(0) brightness(1)" : "grayscale(1) brightness(0.7)" }}
+          />
+        ) : (
+          <div
+            className={cn(
+              "w-full h-full flex items-center justify-center bg-gradient-to-br to-transparent transition-all duration-500",
+              TINTS[index % TINTS.length],
+              isActive || isCentre ? "saturate-100" : "saturate-[0.2]"
+            )}
+          >
+            <span
+              className={cn(
+                "font-display font-black tracking-tight transition-colors duration-500",
+                isCentre ? "text-4xl md:text-5xl" : "text-2xl md:text-3xl",
+                isActive || isCentre ? "text-white" : "text-white/40"
+              )}
+            >
+              {initials(member.name)}
+            </span>
+          </div>
+        )}
 
-      {/* Sheen that sweeps across on hover. */}
-      <motion.span
-        aria-hidden="true"
-        initial={false}
-        animate={{ x: isActive ? "180%" : "-120%" }}
-        transition={{ duration: isActive ? 0.85 : 0, ease: "easeOut" }}
-        className="pointer-events-none absolute inset-y-0 w-1/3 bg-gradient-to-r from-transparent via-white/12 to-transparent skew-x-12"
-      />
+        {/* The centre keeps its badge permanently; satellites only on hover. */}
+        <motion.span
+          aria-hidden="true"
+          animate={{ opacity: isCentre || isActive ? 1 : 0, y: isCentre || isActive ? 0 : 8 }}
+          transition={{ duration: 0.25 }}
+          className={cn(
+            "absolute bottom-2 left-2 px-2 py-0.5 rounded-full text-[9px] font-mono uppercase tracking-widest backdrop-blur-sm",
+            isLead
+              ? "bg-aws-orange text-black font-bold"
+              : "bg-navy-950/80 text-zinc-300 border border-white/10"
+          )}
+        >
+          {member.role}
+        </motion.span>
+
+        <motion.span
+          aria-hidden="true"
+          initial={false}
+          animate={{ x: isActive ? "200%" : "-130%" }}
+          transition={{ duration: isActive ? 0.9 : 0, ease: "easeOut" }}
+          className="pointer-events-none absolute inset-y-0 w-1/3 bg-gradient-to-r from-transparent via-white/14 to-transparent skew-x-12"
+        />
+      </div>
+
+      {/* A slow pulse ring, centre tile only, so the eye starts there. */}
+      {isCentre && (
+        <motion.span
+          aria-hidden="true"
+          animate={{ scale: [1, 1.14, 1], opacity: [0.5, 0, 0.5] }}
+          transition={{ duration: 3.4, repeat: Infinity, ease: "easeOut" }}
+          className="pointer-events-none absolute inset-0 rounded-2xl border border-aws-orange/40"
+        />
+      )}
     </motion.div>
+    </div>
   );
 }
 
@@ -261,8 +343,15 @@ function MemberRow({
 
   return (
     <motion.div
-      variants={RISE}
-      animate={{ opacity: isDimmed ? 0.4 : 1, x: isActive ? 6 : 0 }}
+      variants={{
+        hidden: { opacity: 0, y: 18 },
+        shown: {
+          opacity: 1,
+          y: 0,
+          transition: { type: "spring" as const, stiffness: 300, damping: 26 },
+        },
+      }}
+      animate={{ opacity: isDimmed ? 0.35 : 1, x: isActive ? 6 : 0 }}
       transition={{ type: "spring", stiffness: 320, damping: 26 }}
       onMouseEnter={() => onHover(member.id)}
     >
@@ -282,8 +371,6 @@ function MemberRow({
             isActive ? "text-white" : "text-zinc-300"
           )}
         >
-          {/* Same letter swap the navbar uses, so hovering a name behaves the
-              same way everywhere on the site. */}
           <RandomLetterSwap label={member.name} staggerDuration={0.02} />
         </span>
 
@@ -295,35 +382,17 @@ function MemberRow({
             )}
           >
             {social.linkedin && (
-              <a
-                href={social.linkedin}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label={`${member.name} on LinkedIn`}
-                className="p-1 rounded text-zinc-500 hover:text-white transition-colors"
-              >
+              <a href={social.linkedin} target="_blank" rel="noopener noreferrer" aria-label={`${member.name} on LinkedIn`} className="p-1 rounded text-zinc-500 hover:text-white transition-colors">
                 <FaLinkedinIn size={11} />
               </a>
             )}
             {social.github && (
-              <a
-                href={social.github}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label={`${member.name} on GitHub`}
-                className="p-1 rounded text-zinc-500 hover:text-white transition-colors"
-              >
+              <a href={social.github} target="_blank" rel="noopener noreferrer" aria-label={`${member.name} on GitHub`} className="p-1 rounded text-zinc-500 hover:text-white transition-colors">
                 <FaGithub size={11} />
               </a>
             )}
             {social.instagram && (
-              <a
-                href={social.instagram}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label={`${member.name} on Instagram`}
-                className="p-1 rounded text-zinc-500 hover:text-white transition-colors"
-              >
+              <a href={social.instagram} target="_blank" rel="noopener noreferrer" aria-label={`${member.name} on Instagram`} className="p-1 rounded text-zinc-500 hover:text-white transition-colors">
                 <FaInstagram size={11} />
               </a>
             )}
