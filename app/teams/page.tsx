@@ -1,8 +1,7 @@
 import React from "react";
 import type { Metadata } from "next";
-import Link from "next/link";
-import { ArrowUpRight } from "lucide-react";
 import { teamHierarchy } from "@/config/teamHierarchy";
+import { DepartmentGrid } from "@/components/teams/DepartmentGrid";
 
 export const metadata: Metadata = {
   title: "Team",
@@ -29,42 +28,8 @@ export default function TeamsPage() {
           </p>
         </header>
 
-        {/* Departments only. Names and their people are on the department's own
-            page rather than all flattened onto one screen. */}
-        <div className="mt-14 grid grid-cols-1 sm:grid-cols-2 gap-px bg-white/[0.06] rounded-2xl overflow-hidden border border-white/[0.06]">
-          {departments.map((dept) => {
-            const leads = dept.vcps.length;
-            const members = dept.vcps.reduce(
-              (total, vcp) => total + (vcp.coordinators?.length ?? 0),
-              0
-            );
+        <DepartmentGrid departments={departments} />
 
-            return (
-              <Link
-                key={dept.id}
-                href={`/teams/${dept.slug}`}
-                className="group relative bg-navy-950/85 p-8 backdrop-blur-sm transition-colors hover:bg-white/[0.03] focus-visible:outline-none focus-visible:bg-white/[0.05]"
-              >
-                <div className="flex items-start justify-between gap-4">
-                  <div className="text-[10px] font-mono uppercase tracking-[0.18em] text-aws-orange">
-                    {dept.code}
-                  </div>
-                  <ArrowUpRight className="w-4 h-4 text-zinc-600 transition-all group-hover:text-aws-orange group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
-                </div>
-
-                <h2 className="mt-4 text-2xl font-display font-bold text-white leading-tight transition-colors group-hover:text-aws-orange">
-                  {dept.name}
-                </h2>
-                <p className="text-sm text-zinc-500 mt-1">{dept.shortName}</p>
-
-                <div className="mt-6 text-[11px] font-mono text-zinc-600">
-                  {leads} {leads === 1 ? "lead" : "leads"}
-                  {members > 0 && ` · ${members} ${members === 1 ? "member" : "members"}`}
-                </div>
-              </Link>
-            );
-          })}
-        </div>
       </div>
     </div>
   );

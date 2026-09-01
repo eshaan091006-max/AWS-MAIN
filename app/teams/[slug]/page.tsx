@@ -46,6 +46,9 @@ export default async function DepartmentPage({ params }: PageProps) {
     });
   });
 
+  // Leads first so the largest tiles land at the top of the cluster.
+  const people: TeamMember[] = [...leads, ...members];
+
   return (
     <div className="relative pt-36 pb-28">
       <div className="max-w-5xl mx-auto px-4 sm:px-8 lg:px-12">
@@ -69,21 +72,23 @@ export default async function DepartmentPage({ params }: PageProps) {
           </p>
         </header>
 
+        {/* Leads and members in one cluster. They were two separate
+            showcases with their own headings, which split a department of four
+            people into two half-empty grids; the tile size carries the
+            hierarchy instead. */}
         <section className="mt-16">
-          <h2 className="text-[11px] font-mono uppercase tracking-[0.2em] text-zinc-600 mb-8">
-            Leads · {leads.length}
-          </h2>
-          <TeamShowcase members={leads} />
+          <div className="flex items-center gap-4 mb-10">
+            <span className="text-[11px] font-mono uppercase tracking-[0.2em] text-zinc-600">
+              {leads.length} {leads.length === 1 ? "lead" : "leads"}
+              {members.length > 0 &&
+                ` · ${members.length} ${members.length === 1 ? "member" : "members"}`}
+            </span>
+            <span className="h-px flex-1 bg-white/[0.07]" />
+          </div>
+
+          <TeamShowcase members={people} />
         </section>
 
-        {members.length > 0 && (
-          <section className="mt-20 pt-16 border-t border-white/[0.07]">
-            <h2 className="text-[11px] font-mono uppercase tracking-[0.2em] text-zinc-600 mb-8">
-              Members · {members.length}
-            </h2>
-            <TeamShowcase members={members} />
-          </section>
-        )}
       </div>
     </div>
   );
