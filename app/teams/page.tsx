@@ -9,8 +9,14 @@ export const metadata: Metadata = {
     "The departments running the SXC AWS Student Builder Group — events, operations, marketing and technical.",
 };
 
+/** Spelled out up to ten; past that the numeral reads better anyway. */
+const COUNT_WORDS = ["Zero", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten"];
+
 export default function TeamsPage() {
   const { departments } = teamHierarchy;
+  // Derived, not written in. It said "Four" while five were listed below the
+  // moment a department was added.
+  const count = COUNT_WORDS[departments.length] ?? String(departments.length);
 
   return (
     <div className="relative pt-36 pb-28">
@@ -20,7 +26,7 @@ export default function TeamsPage() {
             Team
           </div>
           <h1 className="text-4xl sm:text-6xl font-display font-black text-white tracking-tight leading-[1.05]">
-            Four <span className="text-gradient-orange">departments</span>
+            {count} <span className="text-gradient-orange">departments</span>
           </h1>
           <p className="text-sm sm:text-base text-zinc-400 mt-4 leading-relaxed">
             Open one to see who runs it.

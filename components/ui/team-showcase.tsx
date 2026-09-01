@@ -9,7 +9,14 @@ import { RandomLetterSwap } from "@/components/ui/random-letter-swap";
 export interface TeamMember {
   id: string;
   name: string;
-  /** "Lead" or "Member" — the first lead takes the centre of the cluster. */
+  /**
+   * Whether this person leads. An explicit flag rather than matching the role
+   * text: roles read "Events Lead", "PR Lead" and so on, so a check for the
+   * exact word "lead" would quietly demote every one of them to a member and
+   * leave the cluster with no centre.
+   */
+  kind: "lead" | "member";
+  /** Display label, e.g. "Events Lead". */
   role: string;
   /**
    * Optional. Without one, a monogram is drawn instead.
@@ -95,7 +102,7 @@ const CENTRE_W = 26;
  * every tile inside the stage, tightest gap 2.6 width-units throughout.
  */
 function place(members: TeamMember[]): Placed[] {
-  const isLead = (m: TeamMember) => m.role.toLowerCase() === "lead";
+  const isLead = (m: TeamMember) => m.kind === "lead";
   const centre = members.find(isLead) ?? members[0];
   const rest = members.filter((m) => m.id !== centre.id);
 
@@ -240,7 +247,7 @@ function Tile({
   const { member, index, x, y, w, isCentre } = placed;
   const isActive = hoveredId === member.id;
   const isDimmed = hoveredId !== null && !isActive;
-  const isLead = member.role.toLowerCase() === "lead";
+  const isLead = member.kind === "lead";
 
   // Two elements on purpose.
   //
@@ -368,7 +375,7 @@ function MemberRow({
 }) {
   const isActive = hoveredId === member.id;
   const isDimmed = hoveredId !== null && !isActive;
-  const isLead = member.role.toLowerCase() === "lead";
+  const isLead = member.kind === "lead";
   const social = member.social ?? {};
   const hasSocial = Boolean(social.linkedin || social.instagram || social.github);
 

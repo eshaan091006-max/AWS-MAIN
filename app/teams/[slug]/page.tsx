@@ -33,7 +33,9 @@ export default async function DepartmentPage({ params }: PageProps) {
   const leads: TeamMember[] = dept.vcps.map((vcp, i) => ({
     id: `lead-${i}`,
     name: vcp.name,
-    role: "Lead",
+    kind: "lead",
+    // The department's own label — "Events Lead", "PR Lead" and so on.
+    role: vcp.role,
   }));
 
   const seen = new Set<string>();
@@ -42,7 +44,7 @@ export default async function DepartmentPage({ params }: PageProps) {
     (vcp.coordinators ?? []).forEach((name) => {
       if (seen.has(name)) return;
       seen.add(name);
-      members.push({ id: `member-${seen.size}`, name, role: "Member" });
+      members.push({ id: `member-${seen.size}`, name, kind: "member", role: "Member" });
     });
   });
 
