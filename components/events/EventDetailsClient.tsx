@@ -50,7 +50,7 @@ export function EventDetailsClient({ event, formattedDate }: Props) {
             <Calendar className="w-4 h-4 text-aws-orange shrink-0 mt-0.5" />
             <div>
               <div className="text-slate-400 text-[10px]">DATE</div>
-              <div className="text-white font-sans font-semibold text-xs">{formattedDate}</div>
+              <div className="text-white font-semibold text-xs">{formattedDate}</div>
             </div>
           </div>
 
@@ -58,7 +58,7 @@ export function EventDetailsClient({ event, formattedDate }: Props) {
             <Clock className="w-4 h-4 text-aws-orange shrink-0 mt-0.5" />
             <div>
               <div className="text-slate-400 text-[10px]">TIME</div>
-              <div className="text-white font-sans font-semibold text-xs">{event.time}</div>
+              <div className="text-white font-semibold text-xs">{event.time}</div>
             </div>
           </div>
 
@@ -66,7 +66,7 @@ export function EventDetailsClient({ event, formattedDate }: Props) {
             <MapPin className="w-4 h-4 text-blue-400 shrink-0 mt-0.5" />
             <div>
               <div className="text-slate-400 text-[10px]">VENUE</div>
-              <div className="text-white font-sans font-semibold text-xs leading-relaxed">{event.venue}</div>
+              <div className="text-white font-semibold text-xs leading-relaxed">{event.venue}</div>
             </div>
           </div>
 
@@ -75,7 +75,7 @@ export function EventDetailsClient({ event, formattedDate }: Props) {
               <Award className="w-4 h-4 text-violet-400 shrink-0 mt-0.5" />
               <div>
                 <div className="text-slate-400 text-[10px]">CREDITS</div>
-                <div className="text-white font-sans font-semibold text-xs">
+                <div className="text-white font-semibold text-xs">
                   {event.eccPoints} ECC on attendance
                 </div>
               </div>

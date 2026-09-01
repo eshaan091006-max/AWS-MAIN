@@ -231,7 +231,7 @@ export function CloudArchitectureVisualizer() {
         </div>
         <div className="text-left text-xs">
           <div className="text-[10px] uppercase font-mono tracking-wider text-slate-400 font-semibold">Active Node Telemetry</div>
-          <p className="text-slate-200 mt-0.5 leading-relaxed font-sans text-xs">
+          <p className="text-slate-200 mt-0.5 leading-relaxed text-xs">
             {activeNode === "users" && nodes.users.desc}
             {activeNode === "cloud" && nodes.cloud.desc}
             {nodes.compute.find((c) => c.id === activeNode)?.desc}

@@ -83,7 +83,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`dark ${inter.variable} ${outfit.variable} ${jetbrainsMono.variable}`}>
-      <body className="min-h-screen bg-navy-950 text-zinc-100 font-sans antialiased selection:bg-aws-orange selection:text-black">
+      <body className="min-h-screen bg-navy-950 text-zinc-100 font-mono antialiased selection:bg-aws-orange selection:text-black">
         {/* Public site chrome. Absent on /admin, which is an operator
             console with its own navigation and no need for a marketing
             navbar or two animated background canvases. */}
