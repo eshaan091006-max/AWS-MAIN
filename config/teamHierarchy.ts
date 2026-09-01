@@ -80,27 +80,29 @@ export const teamHierarchy: TeamHierarchy = {
       ],
     },
     {
-      id: "dept-technical",
-      slug: "technical",
-      name: "Technical Department",
-      shortName: "Cloud & Dev",
-      code: "TECH",
+      id: "dept-digital-creative",
+      slug: "digital-creative",
+      name: "Digital and Creative",
+      shortName: "Cloud, Web & Design",
+      code: "DIG",
       color: "from-emerald-500/20 to-teal-500/10",
       badgeColor: "text-emerald-400 bg-emerald-950/60 border-emerald-500/30",
       description:
-        "Architects the club's cloud platforms, runs serverless and container labs, and maintains technical infrastructure.",
+        "Builds and maintains the club's cloud platforms and web presence, and shapes how everything looks.",
       responsibilities: [
-        "Club website & cloud infrastructure maintenance",
+        "Club website & cloud infrastructure",
         "Serverless and container workshop delivery",
-        "AWS account governance & cost monitoring",
+        "Design systems, visual identity and event assets",
       ],
       currentInitiatives: ["Serverless lab series", "Club platform on AWS"],
       vcps: [
         {
           name: "Michael Fernandes",
-          role: "Technical Lead",
-          coordinators: ["Ricco Marcelino", "Eshaan Sinha"],
+          role: "Digital and Creative Lead",
+          // Eshaan moved up from this department's members to co-lead it.
+          coordinators: ["Ricco Marcelino"],
         },
+        { name: "Eshaan Sinha", role: "Digital and Creative Lead" },
       ],
     },
     {
@@ -164,7 +166,7 @@ export const teamHierarchy: TeamHierarchy = {
         "Timeline, scoring and prize logistics",
       ],
       currentInitiatives: ["CloudHacks 36-hour hackathon"],
-      vcps: [{ name: "Karan", role: "Hackathon Lead" }],
+      vcps: [{ name: "Karan Singh", role: "Hackathon Lead" }],
     },
   ],
 };
