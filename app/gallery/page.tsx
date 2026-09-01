@@ -24,7 +24,7 @@ export default async function GalleryPage() {
       {/* Full-bleed stage. The wheel is captured while the pointer is over the
           canvas, so scrolling there drives the gallery instead of the page;
           move off the canvas and the page scrolls normally again. */}
-      <section className="relative h-[92vh] w-full">
+      <section className="relative h-screen w-full overflow-hidden">
         <div className="absolute inset-0">
           <GalleryStage images={images} />
         </div>
@@ -48,13 +48,23 @@ export default async function GalleryPage() {
               <p className="mt-3 text-sm md:text-base text-zinc-200 drop-shadow-[0_2px_12px_rgba(0,0,0,0.95)]">
                 Workshops, hackathons, and the people behind them.
               </p>
+              {/* The hint sits with the title rather than pinned to the bottom
+                  of the section, where it was a line of text stranded in an
+                  empty band with nothing above or below it. */}
+              <p className="mt-6 font-mono uppercase text-[10px] md:text-[11px] tracking-widest text-zinc-400 drop-shadow-[0_2px_10px_rgba(0,0,0,0.95)]">
+                Scroll over the photos, drag, or use the arrow keys
+              </p>
             </div>
           </div>
         </div>
 
-        <div className="absolute bottom-6 left-0 right-0 pointer-events-none text-center font-mono uppercase text-[11px] tracking-widest text-zinc-500">
-          <p>Scroll over the photos, drag, or use the arrow keys</p>
-        </div>
+        {/* Fades the stage into the footer. Without it the photo plane and
+            the section end on the same hard horizontal line, and the footer's
+            wordmark starts immediately underneath it. */}
+        <div
+          aria-hidden="true"
+          className="absolute inset-x-0 bottom-0 h-40 pointer-events-none bg-gradient-to-t from-navy-950 to-transparent"
+        />
       </section>
 
     </div>
