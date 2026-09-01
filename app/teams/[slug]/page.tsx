@@ -69,9 +69,7 @@ export default async function DepartmentPage({ params }: PageProps) {
           <h1 className="text-4xl sm:text-6xl font-display font-black text-white tracking-tight leading-[1.05]">
             {dept.name}
           </h1>
-          <p className="text-sm sm:text-base text-zinc-400 mt-4 leading-relaxed">
-            {dept.description}
-          </p>
+          <p className="text-sm sm:text-base text-zinc-500 mt-4">{dept.shortName}</p>
         </header>
 
         {/* Leads and members in one cluster. They were two separate
@@ -89,6 +87,30 @@ export default async function DepartmentPage({ params }: PageProps) {
           </div>
 
           <TeamShowcase members={people} accent={dept.color} />
+        </section>
+
+        {/* The writeup sits after the people, not above them: the page is about
+            who is in the department first, and what it does second. */}
+        <section className="mt-20 pt-14 border-t border-white/[0.07] grid grid-cols-1 lg:grid-cols-5 gap-10">
+          <h2 className="lg:col-span-2 text-[11px] font-mono uppercase tracking-[0.2em] text-zinc-600">
+            What they do
+          </h2>
+          <div className="lg:col-span-3">
+            <p className="text-base sm:text-lg text-zinc-300 leading-relaxed">
+              {dept.description}
+            </p>
+            <ul className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-3">
+              {dept.responsibilities.map((item) => (
+                <li key={item} className="flex items-start gap-3 text-sm text-zinc-400">
+                  <span
+                    aria-hidden="true"
+                    className="mt-[7px] w-3 h-px bg-aws-orange shrink-0"
+                  />
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
         </section>
 
       </div>

@@ -34,6 +34,14 @@ interface TeamShowcaseProps {
   members: TeamMember[];
   /** Tailwind gradient stops for the ambient wash behind the cluster. */
   accent?: string;
+  /**
+   * Draw the portrait cluster. Off while there are no real photographs — the
+   * monogram tiles were standing in for pictures, and a stage full of initials
+   * is a placeholder pretending to be a design.
+   *
+   * The cluster code stays; flip this to true once photos exist.
+   */
+  showPortraits?: boolean;
   className?: string;
 }
 
@@ -151,7 +159,12 @@ function place(members: TeamMember[]): Placed[] {
   return placed;
 }
 
-export default function TeamShowcase({ members, accent, className }: TeamShowcaseProps) {
+export default function TeamShowcase({
+  members,
+  accent,
+  showPortraits = false,
+  className,
+}: TeamShowcaseProps) {
   const [hoveredId, setHoveredId] = useState<string | null>(null);
 
   if (members.length === 0) return null;
@@ -160,9 +173,15 @@ export default function TeamShowcase({ members, accent, className }: TeamShowcas
 
   return (
     <div
-      className={cn("flex flex-col lg:flex-row items-center gap-12 lg:gap-16 w-full", className)}
+      className={cn(
+        "flex flex-col w-full",
+        showPortraits ? "lg:flex-row items-center gap-12 lg:gap-16" : "gap-0",
+        className
+      )}
       onMouseLeave={() => setHoveredId(null)}
     >
+      {showPortraits && (
+      <>
       {/* Stage */}
       <motion.div
         initial="hidden"
@@ -218,6 +237,8 @@ export default function TeamShowcase({ members, accent, className }: TeamShowcas
           />
         ))}
       </motion.div>
+      </>
+      )}
 
       {/* Name list */}
       <motion.div
@@ -225,7 +246,12 @@ export default function TeamShowcase({ members, accent, className }: TeamShowcas
         whileInView="shown"
         viewport={{ once: true, amount: 0.2 }}
         variants={{ shown: { transition: { staggerChildren: 0.05, delayChildren: 0.2 } } }}
-        className="flex flex-col sm:grid sm:grid-cols-2 lg:flex lg:flex-col gap-5 flex-1 w-full"
+        className={cn(
+          "gap-5 w-full",
+          showPortraits
+            ? "flex flex-col sm:grid sm:grid-cols-2 lg:flex lg:flex-col flex-1"
+            : "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-6"
+        )}
       >
         {members.map((m) => (
           <MemberRow key={m.id} member={m} hoveredId={hoveredId} onHover={setHoveredId} />

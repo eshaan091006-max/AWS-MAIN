@@ -21,7 +21,6 @@ import { teamHierarchy } from "@/config/teamHierarchy";
 import { db } from "@/lib/db";
 import { ScrollProgress } from "@/components/ui/scroll-progress";
 import { Reveal } from "@/components/ui/reveal";
-import { PersonAvatar } from "@/components/teams/PersonAvatar";
 
 export const metadata = {
   title: "SXC AWS Group — Build. Deploy. Scale. | St. Xavier's College",
@@ -308,44 +307,29 @@ export default async function HomePage() {
             highlight="backed by faculty"
           />
 
-          {/* Faculty across the top, then the leader beneath them. Picture
-              above the name throughout, at the cluster's size. */}
+          {/* No portraits while there are no photographs — a row of initials
+              tiles is a placeholder pretending to be a design. Names and roles
+              carry it until real pictures exist. */}
           <Reveal delay={0.08}>
-            <div className="mt-14 space-y-12">
-              <div className="grid grid-cols-3 gap-4 sm:gap-7">
-                {teamHierarchy.faculty.members.map((f, i) => (
-                  <figure key={f.name}>
-                    <PersonAvatar name={f.name} photo={f.photo} index={i + 1} size="tile" />
-                    <figcaption className="mt-4">
-                      <div className="text-[9px] sm:text-[10px] font-mono uppercase tracking-[0.18em] text-zinc-600">
-                        {f.designation}
-                      </div>
-                      <div className="text-sm sm:text-lg font-display font-bold text-white leading-snug mt-1">
-                        {f.name}
-                      </div>
-                    </figcaption>
-                  </figure>
-                ))}
-              </div>
+            <div className="mt-14 grid grid-cols-1 sm:grid-cols-3 gap-px bg-white/[0.06] rounded-2xl overflow-hidden border border-white/[0.06]">
+              {teamHierarchy.faculty.members.map((f) => (
+                <div key={f.name} className="bg-navy-950/85 p-7 backdrop-blur-sm">
+                  <div className="text-[10px] font-mono uppercase tracking-[0.18em] text-zinc-600">
+                    {f.designation}
+                  </div>
+                  <div className="text-lg font-display font-bold text-white leading-snug mt-2">
+                    {f.name}
+                  </div>
+                </div>
+              ))}
+            </div>
 
-              {/* Alone on its row, so it is centred and held to the width of one
-                  faculty tile rather than stretching across all three. */}
-              <div className="flex justify-center">
-                <figure className="w-1/3 max-w-[260px] pr-3 sm:pr-5">
-                  <PersonAvatar
-                    name={teamHierarchy.chairperson.name}
-                    photo={teamHierarchy.chairperson.photo}
-                    size="tile"
-                  />
-                  <figcaption className="mt-4">
-                    <div className="text-[9px] sm:text-[10px] font-mono uppercase tracking-[0.18em] text-aws-orange">
-                      {teamHierarchy.chairperson.role}
-                    </div>
-                    <div className="text-sm sm:text-lg font-display font-bold text-white leading-snug mt-1">
-                      {teamHierarchy.chairperson.name}
-                    </div>
-                  </figcaption>
-                </figure>
+            <div className="mt-5 rounded-2xl border border-aws-orange/25 bg-aws-orange/[0.06] p-7">
+              <div className="text-[10px] font-mono uppercase tracking-[0.18em] text-aws-orange">
+                {teamHierarchy.chairperson.role}
+              </div>
+              <div className="text-2xl font-display font-bold text-white leading-snug mt-2">
+                {teamHierarchy.chairperson.name}
               </div>
             </div>
           </Reveal>

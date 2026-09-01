@@ -83,18 +83,20 @@ export const teamHierarchy: TeamHierarchy = {
       id: "dept-digital-creative",
       slug: "digital-creative",
       name: "Digital and Creative",
-      shortName: "Cloud, Web & Design",
+      shortName: "Web, Film & Design",
       code: "DIG",
       color: "from-emerald-500/20 to-teal-500/10",
       badgeColor: "text-emerald-400 bg-emerald-950/60 border-emerald-500/30",
       description:
-        "Builds and maintains the club's cloud platforms and web presence, and shapes how everything looks.",
+        "Everything the club looks like and everything it publishes. The team builds and runs the website, shoots and edits events, and produces the graphics and digital content behind every campaign the Marketing team takes to an audience.",
       responsibilities: [
-        "Club website & cloud infrastructure",
-        "Serverless and container workshop delivery",
-        "Design systems, visual identity and event assets",
+        "Website",
+        "Photography",
+        "Videography",
+        "Graphics",
+        "Digital Content",
       ],
-      currentInitiatives: ["Serverless lab series", "Club platform on AWS"],
+      currentInitiatives: ["Club platform on AWS", "Event photo and film coverage"],
       vcps: [
         {
           name: "Michael Fernandes",
@@ -114,11 +116,12 @@ export const teamHierarchy: TeamHierarchy = {
       color: "from-violet-500/20 to-fuchsia-500/10",
       badgeColor: "text-violet-400 bg-violet-950/60 border-violet-500/30",
       description:
-        "Builds the club's voice — campaigns, social media, design and event promotion.",
+        "Takes what the club does to an audience. The team plans campaigns, runs the social channels and drives turnout for every event — working from the assets the Digital and Creative team produces rather than making them.",
       responsibilities: [
-        "Campaign design & social media scheduling",
-        "Event branding, posters and motion assets",
-        "Photography and post-event recaps",
+        "Campaign planning & messaging",
+        "Social channels & posting schedule",
+        "Event promotion & turnout",
+        "Copy and the club's written voice",
       ],
       currentInitiatives: ["Cloud Day campaign", "Member spotlight series"],
       vcps: [
