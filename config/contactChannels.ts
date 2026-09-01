@@ -15,13 +15,13 @@ export interface ContactChannel {
 /**
  * Every way to reach the club, in one list.
  *
- * Three of these ship empty on purpose. `siteConfig.links` carries a Discord
- * invite and a LinkedIn company URL that have never been rendered anywhere
- * public, and both look like scaffolding rather than real destinations
- * (discord.gg/sxc-aws, linkedin.com/company/sxc-aws-club) — the same shape as
- * the github.com/sxc-aws-club placeholder sitting beside them. Publishing an
- * invite that 404s is worse than not offering the channel at all, so they stay
- * blank until someone pastes a link that has been clicked and confirmed.
+ * Two of these ship empty on purpose. `siteConfig.links` carries a Discord
+ * invite that has never been rendered anywhere public and looks like
+ * scaffolding rather than a real destination (discord.gg/sxc-aws) — the same
+ * shape as the github.com/sxc-aws-club placeholder sitting beside it.
+ * Publishing an invite that 404s is worse than not offering the channel at
+ * all, so it stays blank until someone pastes a link that has been clicked and
+ * confirmed. WhatsApp is waiting on a group invite for the same reason.
  *
  * To switch one on: put the real URL in the `url` field below. It appears on
  * the contact page immediately, no other change needed.
@@ -67,8 +67,7 @@ export const contactChannels: ContactChannel[] = [
     id: "linkedin",
     label: "LinkedIn",
     handle: "SXC AWS Group",
-    // TODO: paste the real company page. siteConfig.links.linkedin is a placeholder.
-    url: "",
+    url: siteConfig.links.linkedin,
     color: "#0A66C2",
   },
   {

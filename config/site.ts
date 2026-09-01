@@ -22,7 +22,7 @@ export const siteConfig = {
   creator: "SXC AWS Student Community",
   links: {
     github: "https://github.com/sxc-aws-club",
-    linkedin: "https://linkedin.com/company/sxc-aws-club",
+    linkedin: "https://www.linkedin.com/in/aws-student-builder-group-174172433/",
     instagram: "https://www.instagram.com/aws.sxcbom",
     discord: "https://discord.gg/sxc-aws",
     email: "aws.sbg@xaviers.edu",
