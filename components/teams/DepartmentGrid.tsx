@@ -26,7 +26,12 @@ export function DepartmentGrid({ departments }: Props) {
     >
       {departments.map((dept, i) => {
         const leads = dept.vcps.length;
-        const members = dept.vcps.reduce((n, v) => n + (v.coordinators?.length ?? 0), 0);
+        // De-duplicated across both sources so this matches the tile count on
+        // the department page itself.
+        const members = new Set([
+          ...dept.vcps.flatMap((v) => v.coordinators ?? []),
+          ...(dept.coordinators ?? []),
+        ]).size;
         const isActive = hovered === dept.id;
         const isDimmed = hovered !== null && !isActive;
 

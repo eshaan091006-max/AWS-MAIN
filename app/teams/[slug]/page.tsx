@@ -27,9 +27,10 @@ export default async function DepartmentPage({ params }: PageProps) {
   const dept = teamHierarchy.departments.find((d) => d.slug === slug);
   if (!dept) notFound();
 
-  // VCPs are Leads and coordinators are Members now. The coordinators are
-  // stored per-VCP, so they are flattened and de-duplicated — the same person
-  // can be listed under two leads in the source data.
+  // VCPs are Leads and coordinators are Members now. Coordinators are stored
+  // per-VCP, or on the department itself where it has co-leads and a member
+  // answers to both. Both sources are flattened and de-duplicated — the same
+  // person can be listed under two leads in the source data.
   const leads: TeamMember[] = dept.vcps.map((vcp, i) => ({
     id: `lead-${i}`,
     name: vcp.name,
@@ -40,13 +41,13 @@ export default async function DepartmentPage({ params }: PageProps) {
 
   const seen = new Set<string>();
   const members: TeamMember[] = [];
-  dept.vcps.forEach((vcp) => {
-    (vcp.coordinators ?? []).forEach((name) => {
-      if (seen.has(name)) return;
-      seen.add(name);
-      members.push({ id: `member-${seen.size}`, name, kind: "member", role: "Member" });
-    });
-  });
+  const addMember = (name: string) => {
+    if (seen.has(name)) return;
+    seen.add(name);
+    members.push({ id: `member-${seen.size}`, name, kind: "member", role: "Member" });
+  };
+  dept.vcps.forEach((vcp) => (vcp.coordinators ?? []).forEach(addMember));
+  (dept.coordinators ?? []).forEach(addMember);
 
   // Leads first so the largest tiles land at the top of the cluster.
   const people: TeamMember[] = [...leads, ...members];
