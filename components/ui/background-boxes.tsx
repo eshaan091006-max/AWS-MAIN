@@ -10,7 +10,7 @@ interface BoxesProps {
    * framer-motion nodes plus 3,750 inline SVGs — enough to lock the main thread
    * for seconds on a mid-range laptop, for cells that the skew transform pushes
    * far outside the viewport anyway. Defaults here cover a full-bleed hero with
-   * room to spare; raise them if you ever place this in something wider.
+   * room to spare, at 64px square per cell; raise them for something wider.
    */
   rows?: number;
   cols?: number;
@@ -35,7 +35,7 @@ const DEFAULT_COLORS = [
 export const BoxesCore = ({
   className,
   rows: rowCount = 44,
-  cols: colCount = 40,
+  cols: colCount = 20,
   colors = DEFAULT_COLORS,
   ...rest
 }: BoxesProps) => {
@@ -77,7 +77,7 @@ export const BoxesCore = ({
                 transition: { duration: 2 },
               }}
               key={`col` + j}
-              className="w-16 h-8 border-r border-t border-white/[0.07] relative"
+              className="w-16 h-16 border-r border-t border-white/[0.07] relative"
             >
               {j % 2 === 0 && i % 2 === 0 ? (
                 <svg
@@ -86,7 +86,7 @@ export const BoxesCore = ({
                   viewBox="0 0 24 24"
                   strokeWidth="1.5"
                   stroke="currentColor"
-                  className="absolute h-6 w-10 -top-[14px] -left-[22px] text-white/[0.09] stroke-[1px] pointer-events-none"
+                  className="absolute h-6 w-10 -top-[12px] -left-[20px] text-white/[0.09] stroke-[1px] pointer-events-none"
                 >
                   <path
                     strokeLinecap="round"
