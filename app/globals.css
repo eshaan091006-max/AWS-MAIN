@@ -68,7 +68,13 @@ body {
   background-color: var(--background);
   color: var(--foreground);
   font-feature-settings: "rlig" 1, "calt" 1;
-  overflow-x: hidden;
+  /* clip, not hidden.
+   *
+   * overflow-x: hidden makes the body a scroll container, and position: sticky
+   * then resolves against that box rather than the viewport — so every sticky
+   * element on the site silently never sticks. clip suppresses the same
+   * horizontal overflow without creating the scroll container. */
+  overflow-x: clip;
   transition: background-color 0.25s ease, color 0.25s ease;
 }
 
