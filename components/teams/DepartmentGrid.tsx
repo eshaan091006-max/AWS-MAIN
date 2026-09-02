@@ -49,11 +49,11 @@ export function DepartmentGrid({ departments }: Props) {
             animate={{ opacity: isDimmed ? 0.45 : 1 }}
             transition={{ duration: 0.3 }}
             onMouseEnter={() => setHovered(dept.id)}
-            className="relative"
+            className="relative h-full"
           >
             <Link
               href={`/teams/${dept.slug}`}
-              className="group relative block bg-navy-950/85 p-8 sm:p-10 backdrop-blur-sm overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-aws-orange/60 focus-visible:ring-inset"
+              className="group relative flex h-full flex-col bg-navy-950/85 p-8 sm:p-10 backdrop-blur-sm overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-aws-orange/60 focus-visible:ring-inset"
             >
               {/* The department's own colour, only while it is the one being
                   looked at. */}
