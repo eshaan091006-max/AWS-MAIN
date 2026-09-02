@@ -43,12 +43,12 @@ export const footerNavItems = {
     { title: "Photo Gallery", href: "/gallery" },
   ],
   learn: [
-    { title: "AWS Foundations Workshop", href: "/events/aws-foundations" },
-    { title: "Student Community Projects", href: "/projects" },
+    // Points at the recap rather than the event page: the session has already
+    // happened, so what a visitor wants from the footer is what was covered.
+    { title: "The Builder's Launchpad", href: "/events/the-builders-launchpad/recap" },
   ],
   community: [
     { title: "Meet the Teams", href: "/teams" },
-    { title: "Executive Board", href: "/teams#executive-board" },
     { title: "Join SXC AWS Group", href: "/contact" },
   ],
 };
