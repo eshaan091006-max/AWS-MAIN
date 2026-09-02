@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 
 /**
@@ -18,6 +18,11 @@ import { cn } from "@/lib/utils";
  *
  * The duplicate is hidden from assistive tech, so a screen reader hears each
  * department once rather than twice.
+ *
+ * It only animates when the content is actually wider than the frame. A row
+ * that already fits has nothing to reveal by moving, and looping it just drags
+ * the same items past themselves with gaps opening between the copies — so a
+ * short row renders as a plain centred row instead.
  *
  * It keeps moving under reduced motion, just much more slowly. Stopping it dead
  * is not an option here: the track is far wider than its container, so a halted
@@ -53,8 +58,39 @@ export function InfiniteSlider({
   // moving while still noticeably slower than the default.
   const seconds = gentle ? duration * 1.5 : duration;
 
+  // Whether one copy of the content overflows the frame. Measured on the first
+  // half only: the track always holds two copies, so its own width would say
+  // "overflowing" even for a single item.
+  const frameRef = useRef<HTMLDivElement>(null);
+  const halfRef = useRef<HTMLDivElement>(null);
+  const [overflows, setOverflows] = useState(false);
+  useEffect(() => {
+    const measure = () => {
+      const frame = frameRef.current;
+      const half = halfRef.current;
+      if (!frame || !half) return;
+      setOverflows(half.scrollWidth > frame.clientWidth);
+    };
+    measure();
+    window.addEventListener("resize", measure);
+    return () => window.removeEventListener("resize", measure);
+  }, [items.length]);
+
+  if (!overflows) {
+    return (
+      <div ref={frameRef} className={cn("w-full", className)}>
+        <div ref={halfRef} className="flex flex-wrap gap-5">
+          {items.map((child, i) => (
+            <div key={i}>{child}</div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div
+      ref={frameRef}
       className={cn(
         "group/slider relative w-full overflow-hidden",
         // Fades the row into the page at both ends instead of cutting it off
@@ -64,19 +100,27 @@ export function InfiniteSlider({
       )}
     >
       <div
-        className="flex w-max gap-5 animate-infinite-slide"
+        // No gap on the track itself. Each half carries its own trailing space
+        // instead, so the track is exactly two copies wide and -50% lands copy
+        // two precisely where copy one began. A gap here would make the track
+        // 2W + gap, and the loop would hitch by half a gap every pass.
+        className="flex w-max animate-infinite-slide"
         style={{ animationDuration: `${seconds}s` }}
       >
-        {items.map((child, i) => (
-          <div key={`a-${i}`} className="shrink-0">
-            {child}
-          </div>
-        ))}
-        {items.map((child, i) => (
-          <div key={`b-${i}`} className="shrink-0" aria-hidden="true" inert>
-            {child}
-          </div>
-        ))}
+        <div ref={halfRef} className="flex gap-5 pr-5">
+          {items.map((child, i) => (
+            <div key={`a-${i}`} className="shrink-0">
+              {child}
+            </div>
+          ))}
+        </div>
+        <div className="flex gap-5 pr-5" aria-hidden="true" inert>
+          {items.map((child, i) => (
+            <div key={`b-${i}`} className="shrink-0">
+              {child}
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
