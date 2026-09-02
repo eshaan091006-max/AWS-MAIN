@@ -27,14 +27,14 @@ export default function ProjectsPage() {
 
       {/* Projects Under Construction / Coming Soon Showcase */}
       <section className="max-w-[1750px] mx-auto px-4 sm:px-8 lg:px-12 xl:px-16">
-        <div className="max-w-3xl mx-auto p-8 sm:p-14 rounded-3xl bg-navy-900/80 border-2 border-aws-orange/30 backdrop-blur-2xl shadow-2xl text-center space-y-6 relative overflow-hidden">
+        <div className="max-w-3xl mx-auto p-8 sm:p-14 rounded-xl bg-navy-900/80 border-2 border-aws-orange/30 backdrop-blur-2xl shadow-2xl text-center space-y-6 relative overflow-hidden">
           {/* Ambient Cyber Lighting */}
           <div className="absolute top-0 right-0 w-80 h-80 bg-aws-orange/10 rounded-full blur-3xl pointer-events-none" />
           <div className="absolute bottom-0 left-0 w-80 h-80 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
 
           {/* Construction Icon Badge */}
           <div className="flex flex-col items-center justify-center">
-            <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-aws-orange/25 via-amber-500/15 to-transparent border-2 border-aws-orange/50 flex items-center justify-center text-aws-orange shadow-2xl shadow-aws-orange/20 mb-4 animate-pulse">
+            <div className="w-20 h-20 rounded-xl bg-gradient-to-br from-aws-orange/25 via-amber-500/15 to-transparent border-2 border-aws-orange/50 flex items-center justify-center text-aws-orange shadow-2xl shadow-aws-orange/20 mb-4 animate-pulse">
               <Construction className="w-10 h-10 stroke-[2.2]" />
             </div>
 

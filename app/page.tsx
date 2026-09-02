@@ -23,6 +23,8 @@ import { ScrollProgress } from "@/components/ui/scroll-progress";
 import { Reveal, RevealGroup } from "@/components/ui/reveal";
 import { ScrollSection } from "@/components/ui/scroll-section";
 import { ArchitectureDiagram } from "@/components/ui/architecture-diagram";
+import { CountUp } from "@/components/ui/count-up";
+import { SpotlightCard } from "@/components/ui/spotlight-card";
 
 export const metadata = {
   title: "SXC AWS Group — Build. Deploy. Scale. | St. Xavier's College",
@@ -153,11 +155,11 @@ export default async function HomePage() {
 
           {/* Stats band */}
           <div className="pt-10">
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-px bg-white/[0.06] rounded-2xl overflow-hidden border border-white/[0.06]">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-px bg-white/[0.06] rounded-xl overflow-hidden border border-white/10">
               {stats.map((s) => (
                 <div key={s.label} className="bg-navy-950/80 px-4 py-5 backdrop-blur-sm">
-                  <div className="text-2xl sm:text-3xl font-display font-black text-white">
-                    {s.value}
+                  <div className="text-2xl sm:text-3xl font-display font-black text-white tabular-nums">
+                    <CountUp value={s.value} />
                   </div>
                   <div className="text-[11px] font-mono uppercase tracking-wider text-zinc-500 mt-1">
                     {s.label}
@@ -239,13 +241,14 @@ export default async function HomePage() {
         highlight="real projects"
         sub="Six things every member gets, from their first login to their first deployed architecture."
       >
-          <RevealGroup className="grid grid-cols-1 sm:grid-cols-2 gap-px bg-white/[0.08] rounded-xl overflow-hidden border border-white/[0.08]">
+          <RevealGroup className="grid grid-cols-1 sm:grid-cols-2 gap-px bg-white/[0.08] rounded-xl overflow-hidden border border-white/10">
             {perks.map((perk, i) => {
               const Icon = perk.icon;
               return (
-                <article
+                <SpotlightCard
+                  as="article"
                   key={perk.title}
-                  className="group relative h-full bg-navy-950 p-6 transition-colors duration-300 hover:bg-navy-900"
+                  className="group h-full bg-navy-950 p-6 transition-colors duration-300 hover:bg-navy-900"
                 >
                   <div className="flex items-start justify-between mb-5">
                     <div className="w-11 h-11 rounded-xl bg-white/[0.04] border border-white/10 flex items-center justify-center text-aws-orange group-hover:border-aws-orange/40 transition-colors">
@@ -257,7 +260,7 @@ export default async function HomePage() {
                   </div>
                   <h3 className="text-base font-bold text-white mb-2">{perk.title}</h3>
                   <p className="text-sm text-zinc-400 leading-relaxed">{perk.desc}</p>
-                </article>
+                </SpotlightCard>
               );
             })}
           </RevealGroup>
@@ -309,7 +312,7 @@ export default async function HomePage() {
         title="The team"
         highlight="behind it all"
       >
-          <RevealGroup className="grid grid-cols-1 sm:grid-cols-3 gap-px bg-white/[0.08] rounded-xl overflow-hidden border border-white/[0.08]">
+          <RevealGroup className="grid grid-cols-1 sm:grid-cols-3 gap-px bg-white/[0.08] rounded-xl overflow-hidden border border-white/10">
               {teamHierarchy.faculty.members.map((f) => (
                 <div key={f.name} className="h-full bg-navy-950 p-6 transition-colors duration-300 hover:bg-navy-900">
                   <div className="text-[10px] font-mono uppercase tracking-[0.18em] text-zinc-600">
@@ -347,7 +350,7 @@ export default async function HomePage() {
       {/* ============================ JOIN ============================ */}
       <section id="join" className="relative px-4 sm:px-8 lg:px-12 py-24 pb-32 scroll-mt-24">
         <div className="max-w-4xl mx-auto">
-          <div className="relative rounded-3xl overflow-hidden p-10 sm:p-16 bg-white/[0.02] border border-white/[0.08] backdrop-blur-sm text-center space-y-6">
+          <div className="relative rounded-xl overflow-hidden p-10 sm:p-16 bg-white/[0.04] border border-white/10 backdrop-blur-sm text-center space-y-6">
             <div
               className="absolute -top-40 left-1/2 -translate-x-1/2 w-[600px] h-[600px] rounded-full blur-[120px] opacity-20 pointer-events-none"
               style={{ background: "radial-gradient(circle, #6366F1 0%, transparent 65%)" }}

@@ -50,7 +50,7 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-center pt-20 px-4 bg-navy-950/80 backdrop-blur-md animate-in fade-in duration-200">
-      <div className="w-full max-w-2xl bg-navy-900 border border-aws-orange/40 rounded-2xl shadow-2xl shadow-aws-orange/10 overflow-hidden">
+      <div className="w-full max-w-2xl bg-navy-900 border border-aws-orange/40 rounded-xl shadow-2xl shadow-aws-orange/10 overflow-hidden">
         {/* Search Input Bar */}
         <div className="flex items-center px-4 py-3.5 border-b border-white/10 gap-3">
           <Search className="w-5 h-5 text-aws-orange shrink-0" />

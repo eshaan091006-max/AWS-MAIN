@@ -71,7 +71,7 @@ export default async function EventDetailPage({ params }: Props) {
 
       {/* Hero Banner Section */}
       <div className="max-w-[1750px] mx-auto px-4 sm:px-8 lg:px-12 xl:px-16">
-        <div className="relative rounded-3xl overflow-hidden border border-aws-orange/30 shadow-2xl h-80 sm:h-96 w-full">
+        <div className="relative rounded-xl overflow-hidden border border-aws-orange/30 shadow-2xl h-80 sm:h-96 w-full">
           <Image
             src={event.bannerUrl || event.imageUrl}
             alt={event.title}
@@ -112,7 +112,7 @@ export default async function EventDetailPage({ params }: Props) {
           {/* Left Column: Details, Agenda, Speakers */}
           <div className="lg:col-span-8 space-y-10">
             {/* Overview / Full Details */}
-            <div className="p-8 rounded-3xl bg-navy-900/70 border border-white/10 backdrop-blur-xl space-y-4 shadow-xl">
+            <div className="p-8 rounded-xl bg-navy-900/70 border border-white/10 backdrop-blur-xl space-y-4 shadow-xl">
               <h2 className="text-xl font-bold text-white flex items-center gap-2">
                 <BookOpen className="w-5 h-5 text-aws-orange" />
                 <span>About this Session</span>
@@ -124,7 +124,7 @@ export default async function EventDetailPage({ params }: Props) {
 
             {/* Agenda Timeline */}
             {event.agenda && event.agenda.length > 0 && (
-              <div className="p-8 rounded-3xl bg-navy-900/70 border border-white/10 backdrop-blur-xl space-y-6 shadow-xl">
+              <div className="p-8 rounded-xl bg-navy-900/70 border border-white/10 backdrop-blur-xl space-y-6 shadow-xl">
                 <h2 className="text-xl font-bold text-white flex items-center gap-2">
                   <Clock className="w-5 h-5 text-aws-orange" />
                   <span>Session Agenda</span>
@@ -145,7 +145,7 @@ export default async function EventDetailPage({ params }: Props) {
 
             {/* Speakers / Hosts */}
             {event.speakerNames && event.speakerNames.length > 0 && (
-              <div className="p-8 rounded-3xl bg-navy-900/70 border border-white/10 backdrop-blur-xl space-y-4 shadow-xl">
+              <div className="p-8 rounded-xl bg-navy-900/70 border border-white/10 backdrop-blur-xl space-y-4 shadow-xl">
                 <h2 className="text-xl font-bold text-white flex items-center gap-2">
                   <Mic className="w-5 h-5 text-aws-orange" />
                   <span>Keynote Speakers & Facilitators</span>
@@ -154,7 +154,7 @@ export default async function EventDetailPage({ params }: Props) {
                   {event.speakerNames.map((speaker, idx) => (
                     <div
                       key={idx}
-                      className="p-3.5 rounded-2xl bg-navy-950/80 border border-white/5 flex items-center gap-3 text-slate-200"
+                      className="p-3.5 rounded-xl bg-navy-950/80 border border-white/5 flex items-center gap-3 text-slate-200"
                     >
                       <div className="w-9 h-9 rounded-xl bg-aws-orange/20 border border-aws-orange/30 text-aws-orange flex items-center justify-center font-mono font-bold text-xs">
                         {speaker[0]}
@@ -168,7 +168,7 @@ export default async function EventDetailPage({ params }: Props) {
 
             {/* Prerequisites */}
             {event.prerequisites && event.prerequisites.length > 0 && (
-              <div className="p-8 rounded-3xl bg-navy-900/70 border border-white/10 backdrop-blur-xl space-y-4 shadow-xl">
+              <div className="p-8 rounded-xl bg-navy-900/70 border border-white/10 backdrop-blur-xl space-y-4 shadow-xl">
                 <h2 className="text-xl font-bold text-white flex items-center gap-2">
                   <CheckCircle className="w-5 h-5 text-emerald-400" />
                   <span>Prerequisites & Requirements</span>
@@ -191,7 +191,7 @@ export default async function EventDetailPage({ params }: Props) {
 
             {/* Related Events */}
             {relatedEvents.length > 0 && (
-              <div className="p-6 rounded-3xl bg-navy-900/70 border border-white/10 backdrop-blur-xl space-y-4">
+              <div className="p-6 rounded-xl bg-navy-900/70 border border-white/10 backdrop-blur-xl space-y-4">
                 <h3 className="text-sm font-mono uppercase tracking-wider text-slate-400 font-semibold">
                   Other Upcoming Gatherings
                 </h3>
@@ -200,7 +200,7 @@ export default async function EventDetailPage({ params }: Props) {
                     <Link
                       key={re.id}
                       href={`/events/${re.slug}`}
-                      className="block p-3 rounded-2xl bg-navy-950/70 border border-white/5 hover:border-aws-orange/40 transition-colors group"
+                      className="block p-3 rounded-xl bg-navy-950/70 border border-white/5 hover:border-aws-orange/40 transition-colors group"
                     >
                       <span className="text-[10px] font-mono text-aws-orange block mb-1">
                         {new Date(re.date).toLocaleDateString()}

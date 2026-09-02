@@ -80,7 +80,7 @@ export function CloudArchitectureVisualizer() {
   };
 
   return (
-    <div className="relative w-full max-w-2xl mx-auto p-6 sm:p-8 rounded-3xl bg-[#091024]/80 backdrop-blur-xl border border-aws-orange/20 shadow-2xl shadow-aws-orange/5 overflow-hidden">
+    <div className="relative w-full max-w-2xl mx-auto p-6 sm:p-8 rounded-xl bg-[#091024]/80 backdrop-blur-xl border border-aws-orange/20 shadow-2xl shadow-aws-orange/5 overflow-hidden">
       {/* Subtle Background Glows */}
       <div className="absolute -top-10 -right-10 w-48 h-48 bg-aws-orange/15 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute -bottom-10 -left-10 w-48 h-48 bg-blue-500/15 rounded-full blur-3xl pointer-events-none" />
@@ -226,7 +226,7 @@ export function CloudArchitectureVisualizer() {
 
       {/* Live Node Inspector / Telemetry Box */}
       <div className="mt-5 p-3 rounded-xl bg-navy-950/80 border border-white/10 flex items-start gap-3">
-        <div className="p-1.5 rounded-md bg-aws-orange/10 text-aws-orange shrink-0 mt-0.5">
+        <div className="p-1.5 rounded-lg bg-aws-orange/10 text-aws-orange shrink-0 mt-0.5">
           <Zap className="w-3.5 h-3.5" />
         </div>
         <div className="text-left text-xs">

@@ -9,7 +9,7 @@ interface ProjectCardProps {
 
 export function ProjectCard({ project }: ProjectCardProps) {
   return (
-    <div className="group relative rounded-2xl overflow-hidden bg-navy-900/70 border border-white/10 hover:border-aws-orange/45 transition-all duration-300 flex flex-col justify-between shadow-xl">
+    <div className="group relative rounded-xl overflow-hidden bg-navy-900/70 border border-white/10 hover:border-aws-orange/45 transition-all duration-300 flex flex-col justify-between shadow-xl">
       {/* Background glow on hover */}
       <div className="absolute inset-0 bg-gradient-to-b from-aws-orange/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
 
@@ -69,7 +69,7 @@ export function ProjectCard({ project }: ProjectCardProps) {
               {project.awsServices.map((service) => (
                 <span
                   key={service}
-                  className="px-2 py-0.5 rounded-md text-[10px] font-mono bg-navy-800 border border-aws-orange/30 text-aws-orange-light"
+                  className="px-2 py-0.5 rounded-lg text-[10px] font-mono bg-navy-800 border border-aws-orange/30 text-aws-orange-light"
                 >
                   {service}
                 </span>
@@ -82,7 +82,7 @@ export function ProjectCard({ project }: ProjectCardProps) {
             {project.technologies.map((tech) => (
               <span
                 key={tech}
-                className="px-2 py-0.5 rounded-md text-[10px] font-mono bg-white/5 text-slate-300 border border-white/5"
+                className="px-2 py-0.5 rounded-lg text-[10px] font-mono bg-white/5 text-slate-300 border border-white/5"
               >
                 {tech}
               </span>

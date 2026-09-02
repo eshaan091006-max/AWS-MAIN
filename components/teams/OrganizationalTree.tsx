@@ -33,7 +33,7 @@ export function OrganizationalTree() {
               <motion.div
                 key={idx}
                 whileHover={{ scale: 1.03, y: -2 }}
-                className="p-4 sm:p-5 rounded-2xl bg-navy-900/90 border-2 border-amber-500/30 backdrop-blur-xl shadow-2xl text-center flex flex-col items-center justify-center relative hover:border-amber-500/60 hover:shadow-amber-500/10 transition-all"
+                className="p-4 sm:p-5 rounded-xl bg-navy-900/90 border-2 border-amber-500/30 backdrop-blur-xl shadow-2xl text-center flex flex-col items-center justify-center relative hover:border-amber-500/60 hover:shadow-amber-500/10 transition-all"
               >
                 <div className="text-sm sm:text-base font-extrabold text-white tracking-tight">
                   {fac.name}
@@ -59,7 +59,7 @@ export function OrganizationalTree() {
         <div className="flex flex-col items-center">
           <motion.div
             whileHover={{ scale: 1.03 }}
-            className="p-5 sm:p-6 rounded-3xl backdrop-blur-2xl text-center min-w-[300px] sm:min-w-[380px] border-2 shadow-2xl transition-all relative bg-gradient-to-b from-navy-900 to-navy-950 border-aws-orange/50 shadow-aws-orange/10"
+            className="p-5 sm:p-6 rounded-xl backdrop-blur-2xl text-center min-w-[300px] sm:min-w-[380px] border-2 shadow-2xl transition-all relative bg-gradient-to-b from-navy-900 to-navy-950 border-aws-orange/50 shadow-aws-orange/10"
           >
             {/* Glowing Accent */}
             <div className="absolute -top-10 left-1/2 -translate-x-1/2 w-32 h-32 bg-aws-orange/15 rounded-full blur-2xl pointer-events-none" />
@@ -116,7 +116,7 @@ export function OrganizationalTree() {
                 >
                   {/* Department Container Card */}
                   <div
-                    className={`w-full rounded-3xl p-5 sm:p-6 bg-navy-900/80 border transition-all duration-300 backdrop-blur-xl shadow-2xl flex flex-col justify-between relative overflow-hidden ${
+                    className={`w-full rounded-xl p-5 sm:p-6 bg-navy-900/80 border transition-all duration-300 backdrop-blur-xl shadow-2xl flex flex-col justify-between relative overflow-hidden ${
                       isHovered
                         ? "border-aws-orange shadow-aws-orange/20 bg-navy-900"
                         : "border-white/10 hover:border-white/20"
@@ -141,7 +141,7 @@ export function OrganizationalTree() {
                       {dept.vcps.length === 1 ? (
                         /* Standard 1 VCP Node */
                         <div className="w-full flex flex-col items-center">
-                          <div className="w-full p-3 rounded-2xl border text-center bg-navy-950/90 border-aws-orange/40 shadow-md">
+                          <div className="w-full p-3 rounded-xl border text-center bg-navy-950/90 border-aws-orange/40 shadow-md">
                             <div className="text-[9px] font-mono uppercase text-aws-orange font-bold">VCP</div>
                             <div className="text-sm font-bold text-white mt-0.5">{dept.vcps[0].name}</div>
                             <div className="text-[10px] text-slate-400 font-mono">{dept.vcps[0].role.split("—")[1]?.trim() || dept.name}</div>
@@ -175,7 +175,7 @@ export function OrganizationalTree() {
                             {dept.vcps.map((vcp, vIdx) => (
                               <div
                                 key={vIdx}
-                                className="p-2.5 rounded-2xl border text-center bg-navy-950/90 border-aws-orange/40 shadow-md"
+                                className="p-2.5 rounded-xl border text-center bg-navy-950/90 border-aws-orange/40 shadow-md"
                               >
                                 <div className="text-[9px] font-mono uppercase text-aws-orange font-bold">VCP</div>
                                 <div className="text-xs font-bold text-white truncate mt-0.5">{vcp.name}</div>

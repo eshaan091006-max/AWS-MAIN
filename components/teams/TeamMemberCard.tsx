@@ -9,13 +9,13 @@ interface TeamMemberCardProps {
 
 export function TeamMemberCard({ member }: TeamMemberCardProps) {
   return (
-    <div className="group relative rounded-2xl overflow-hidden bg-navy-900/70 border border-white/10 hover:border-aws-orange/50 transition-all duration-300 flex flex-col justify-between shadow-xl">
+    <div className="group relative rounded-xl overflow-hidden bg-navy-900/70 border border-white/10 hover:border-aws-orange/50 transition-all duration-300 flex flex-col justify-between shadow-xl">
       {/* Radiant glow on hover */}
       <div className="absolute inset-0 bg-gradient-to-br from-aws-orange/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
 
       {/* Top Banner & Photo */}
       <div className="relative pt-6 px-6 flex items-start gap-4">
-        <div className="relative w-20 h-20 rounded-2xl overflow-hidden border-2 border-aws-orange/30 group-hover:border-aws-orange transition-colors shrink-0 shadow-lg shadow-black/50">
+        <div className="relative w-20 h-20 rounded-xl overflow-hidden border-2 border-aws-orange/30 group-hover:border-aws-orange transition-colors shrink-0 shadow-lg shadow-black/50">
           <Image
             src={member.photoUrl}
             alt={member.name}
@@ -59,7 +59,7 @@ export function TeamMemberCard({ member }: TeamMemberCardProps) {
             {member.skills.map((skill) => (
               <span
                 key={skill}
-                className="px-2 py-0.5 rounded-md text-[10px] font-mono bg-navy-950 border border-white/10 text-slate-300"
+                className="px-2 py-0.5 rounded-lg text-[10px] font-mono bg-navy-950 border border-white/10 text-slate-300"
               >
                 {skill}
               </span>

@@ -22,7 +22,7 @@ export function DepartmentGrid({ departments }: Props) {
       viewport={{ once: true, amount: 0.1 }}
       variants={{ shown: { transition: { staggerChildren: 0.08 } } }}
       onMouseLeave={() => setHovered(null)}
-      className="mt-14 grid grid-cols-1 sm:grid-cols-2 gap-px bg-white/[0.06] rounded-2xl overflow-hidden border border-white/[0.06]"
+      className="mt-14 grid grid-cols-1 sm:grid-cols-2 gap-px bg-white/[0.06] rounded-xl overflow-hidden border border-white/10"
     >
       {departments.map((dept, i) => {
         const leads = dept.vcps.length;

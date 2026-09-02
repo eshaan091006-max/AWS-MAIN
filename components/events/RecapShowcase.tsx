@@ -50,7 +50,7 @@ export function RecapShowcase({ recap }: { recap: EventRecap }) {
             bottom of the list is selected. On small screens it leads instead of
             trailing, for the same reason. */}
         <div className="order-first lg:order-none lg:sticky lg:top-28">
-          <HoverSliderImageWrap className="rounded-2xl border border-white/10 bg-white/[0.03] aspect-[3/2]">
+          <HoverSliderImageWrap className="rounded-xl border border-white/10 bg-white/[0.04] aspect-[3/2]">
             {recap.slides.map((slide, index) =>
               slide.image ? (
                 <HoverSliderImage

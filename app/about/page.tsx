@@ -84,9 +84,9 @@ export default function AboutPage() {
       <section className="max-w-[1750px] mx-auto px-4 sm:px-8 lg:px-12 xl:px-16 py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {/* Mission Card */}
-          <div className="p-8 rounded-3xl bg-navy-900/80 border border-aws-orange/30 backdrop-blur-xl shadow-2xl space-y-4 relative overflow-hidden">
+          <div className="p-8 rounded-xl bg-navy-900/80 border border-aws-orange/30 backdrop-blur-xl shadow-2xl space-y-4 relative overflow-hidden">
             <div className="absolute top-0 right-0 w-48 h-48 bg-aws-orange/10 rounded-full blur-3xl pointer-events-none" />
-            <div className="w-12 h-12 rounded-2xl bg-aws-orange/20 border border-aws-orange/40 flex items-center justify-center text-aws-orange">
+            <div className="w-12 h-12 rounded-xl bg-aws-orange/20 border border-aws-orange/40 flex items-center justify-center text-aws-orange">
               <Target className="w-6 h-6 stroke-[2.2]" />
             </div>
             <h2 className="text-2xl font-bold text-white">Our Mission</h2>
@@ -110,9 +110,9 @@ export default function AboutPage() {
           </div>
 
           {/* Vision Card */}
-          <div className="p-8 rounded-3xl bg-navy-900/80 border border-blue-500/30 backdrop-blur-xl shadow-2xl space-y-4 relative overflow-hidden">
+          <div className="p-8 rounded-xl bg-navy-900/80 border border-blue-500/30 backdrop-blur-xl shadow-2xl space-y-4 relative overflow-hidden">
             <div className="absolute top-0 right-0 w-48 h-48 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
-            <div className="w-12 h-12 rounded-2xl bg-blue-500/20 border border-blue-500/40 flex items-center justify-center text-blue-400">
+            <div className="w-12 h-12 rounded-xl bg-blue-500/20 border border-blue-500/40 flex items-center justify-center text-blue-400">
               <Eye className="w-6 h-6 stroke-[2.2]" />
             </div>
             <h2 className="text-2xl font-bold text-white">Our Vision</h2>
@@ -158,10 +158,10 @@ export default function AboutPage() {
             return (
               <div
                 key={perk.title}
-                className={`p-6 sm:p-7 rounded-3xl bg-navy-900/70 border ${perk.color} backdrop-blur-md hover:bg-navy-900 transition-all hover:scale-[1.02] flex flex-col justify-between shadow-xl`}
+                className={`p-6 sm:p-7 rounded-xl bg-navy-900/70 border ${perk.color} backdrop-blur-md hover:bg-navy-900 transition-all hover:scale-[1.02] flex flex-col justify-between shadow-xl`}
               >
                 <div>
-                  <div className="w-12 h-12 rounded-2xl bg-navy-950 flex items-center justify-center mb-4 border border-white/10 shadow-inner">
+                  <div className="w-12 h-12 rounded-xl bg-navy-950 flex items-center justify-center mb-4 border border-white/10 shadow-inner">
                     <Icon className="w-6 h-6" />
                   </div>
                   <h3 className="text-lg font-bold text-white tracking-tight">{perk.title}</h3>
@@ -175,7 +175,7 @@ export default function AboutPage() {
 
       {/* CTA */}
       <section className="max-w-[1750px] mx-auto px-4 sm:px-8 lg:px-12 xl:px-16 pt-8">
-        <div className="p-8 rounded-3xl bg-gradient-to-r from-navy-900 to-navy-950 border border-aws-orange/30 flex flex-col md:flex-row items-center justify-between gap-6 text-center md:text-left shadow-2xl">
+        <div className="p-8 rounded-xl bg-gradient-to-r from-navy-900 to-navy-950 border border-aws-orange/30 flex flex-col md:flex-row items-center justify-between gap-6 text-center md:text-left shadow-2xl">
           <div>
             <h3 className="text-2xl font-bold text-white">Want to be part of our next milestone?</h3>
             <p className="text-xs text-slate-300 mt-1">Join SXC AWS Group as a member, speaker, or community partner.</p>

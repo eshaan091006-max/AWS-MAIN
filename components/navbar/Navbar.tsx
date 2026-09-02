@@ -151,7 +151,7 @@ export function Navbar() {
     <>
       <header
         className={`${isEmbedded ? "relative" : "fixed"} top-0 left-0 right-0 z-40 transition-all duration-300 ${isScrolled
-          ? "bg-navy-950/80 backdrop-blur-xl border-b border-white/[0.07] shadow-lg shadow-black/40 py-3"
+          ? "bg-navy-950/80 backdrop-blur-xl border-b border-white/10 shadow-lg shadow-black/40 py-3"
           : "bg-transparent py-5"
           }`}
       >

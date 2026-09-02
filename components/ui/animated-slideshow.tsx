@@ -102,7 +102,7 @@ export const TextStaggerHover = React.forwardRef<
       aria-current={isActive ? "true" : undefined}
       className={cn(
         "relative inline-block origin-bottom overflow-hidden text-left",
-        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-aws-orange focus-visible:ring-offset-2 focus-visible:ring-offset-navy-950 rounded-sm",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-aws-orange focus-visible:ring-offset-2 focus-visible:ring-offset-navy-950 rounded-lg",
         className
       )}
       {...props}

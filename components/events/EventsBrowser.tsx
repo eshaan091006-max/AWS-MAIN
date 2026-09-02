@@ -90,7 +90,7 @@ export function EventsBrowser({ events }: Props) {
                     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-aws-orange/70",
                     active
                       ? "bg-aws-orange text-black"
-                      : "border border-white/10 bg-white/[0.03] text-zinc-400 hover:text-white hover:bg-white/[0.07]"
+                      : "border border-white/10 bg-white/[0.04] text-zinc-400 hover:text-white hover:bg-white/[0.07]"
                   )}
                 >
                   {t.label}
@@ -110,14 +110,14 @@ export function EventsBrowser({ events }: Props) {
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search events"
               aria-label="Search events"
-              className="w-full pl-9 pr-4 py-2 rounded-full bg-white/[0.03] border border-white/10 text-sm text-white placeholder-zinc-600 focus:outline-none focus:border-aws-orange/50 transition-colors"
+              className="w-full pl-9 pr-4 py-2 rounded-full bg-white/[0.04] border border-white/10 text-sm text-white placeholder-zinc-600 focus:outline-none focus:border-aws-orange/50 transition-colors"
             />
           </div>
         </div>
 
         {/* Featured */}
         {showFeatured && (
-          <div className="mt-10 rounded-2xl overflow-hidden border border-white/[0.07]">
+          <div className="mt-10 rounded-xl overflow-hidden border border-white/10">
             <EventCard event={featured} featured />
           </div>
         )}
@@ -126,14 +126,14 @@ export function EventsBrowser({ events }: Props) {
             the site — a border on every tile plus a gap between them reads as
             two frames around the same thing. */}
         {gridEvents.length > 0 ? (
-          <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-px bg-white/[0.06] rounded-2xl overflow-hidden border border-white/[0.06]">
+          <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-px bg-white/[0.06] rounded-xl overflow-hidden border border-white/10">
             {gridEvents.map((event) => (
               <EventCard key={event.id} event={event} />
             ))}
           </div>
         ) : (
           !showFeatured && (
-            <div className="mt-10 py-20 text-center rounded-2xl border border-white/[0.07] bg-white/[0.02]">
+            <div className="mt-10 py-20 text-center rounded-xl border border-white/10 bg-white/[0.04]">
               <p className="text-sm text-zinc-400">Nothing matches that.</p>
               {query && (
                 <button

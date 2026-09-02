@@ -103,7 +103,7 @@ export function LightboxModal({ images, currentIndex, onClose, onNavigate }: Lig
         className="max-w-5xl w-full flex flex-col items-center relative z-[9999]"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="relative w-full h-[58vh] sm:h-[65vh] md:h-[72vh] rounded-3xl overflow-hidden shadow-2xl border border-white/15 bg-black/60">
+        <div className="relative w-full h-[58vh] sm:h-[65vh] md:h-[72vh] rounded-xl overflow-hidden shadow-2xl border border-white/15 bg-black/60">
           <Image
             src={current.imageUrl}
             alt={current.title}
@@ -115,7 +115,7 @@ export function LightboxModal({ images, currentIndex, onClose, onNavigate }: Lig
         </div>
 
         {/* Caption bar */}
-        <div className="mt-4 w-full p-4 sm:p-5 rounded-2xl bg-navy-900/95 border border-white/15 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-left shadow-2xl backdrop-blur-xl">
+        <div className="mt-4 w-full p-4 sm:p-5 rounded-xl bg-navy-900/95 border border-white/15 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-left shadow-2xl backdrop-blur-xl">
           <div>
             <h3 className="text-base sm:text-lg font-bold text-white tracking-tight">{current.title}</h3>
             {current.description && (

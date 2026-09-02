@@ -316,12 +316,12 @@ function Tile({
     >
       <div
         className={cn(
-          "relative w-full h-full overflow-hidden rounded-2xl border",
+          "relative w-full h-full overflow-hidden rounded-xl border",
           isActive
             ? "border-aws-orange/50 shadow-[0_0_40px_-6px_rgba(255,153,0,0.35)]"
             : isCentre
               ? "border-white/20"
-              : "border-white/[0.08]"
+              : "border-white/10"
         )}
       >
         {member.image ? (
@@ -386,7 +386,7 @@ function Tile({
           aria-hidden="true"
           animate={{ scale: [1, 1.14, 1], opacity: [0.5, 0, 0.5] }}
           transition={{ duration: 3.4, repeat: Infinity, ease: "easeOut" }}
-          className="pointer-events-none absolute inset-0 rounded-2xl border border-aws-orange/40"
+          className="pointer-events-none absolute inset-0 rounded-xl border border-aws-orange/40"
         />
       )}
     </motion.div>

@@ -106,7 +106,7 @@ export function RegistrationModal({ event, isOpen, onClose, onSuccess, isFull = 
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-navy-950/85 backdrop-blur-md animate-in fade-in">
-      <div className="relative w-full max-w-lg rounded-3xl bg-navy-900 border border-aws-orange/40 shadow-2xl shadow-aws-orange/15 overflow-hidden">
+      <div className="relative w-full max-w-lg rounded-xl bg-navy-900 border border-aws-orange/40 shadow-2xl shadow-aws-orange/15 overflow-hidden">
         {/* Header */}
         <div className="flex items-center justify-between p-5 sm:p-6 border-b border-white/10 bg-navy-950/60">
           <div>
@@ -135,7 +135,7 @@ export function RegistrationModal({ event, isOpen, onClose, onSuccess, isFull = 
             <p className="text-xs text-slate-300 max-w-sm mx-auto leading-relaxed">
               {alreadyRegistered ? "This email is already on the list for " : "We have reserved your seat for "}<strong className="text-aws-orange">{event.title}</strong>. A confirmation has been registered for <span className="text-white font-mono">{formData.name} {formData.surname} (UID: {formData.uid})</span>.
             </p>
-            <div className="p-3.5 rounded-2xl bg-navy-950/80 border border-white/10 text-left text-xs space-y-1.5 font-mono text-slate-300">
+            <div className="p-3.5 rounded-xl bg-navy-950/80 border border-white/10 text-left text-xs space-y-1.5 font-mono text-slate-300">
               <div className="flex items-center gap-2">
                 <Calendar className="w-3.5 h-3.5 text-aws-orange" />
                 <span>{new Date(event.date).toDateString()} • {event.time}</span>
@@ -159,7 +159,7 @@ export function RegistrationModal({ event, isOpen, onClose, onSuccess, isFull = 
         ) : (
           <div>
             {isFull && (
-              <div className="mx-6 mt-6 p-4 rounded-2xl bg-navy-950 border border-slate-600/50 text-center space-y-1.5">
+              <div className="mx-6 mt-6 p-4 rounded-xl bg-navy-950 border border-slate-600/50 text-center space-y-1.5">
                 <div className="inline-flex items-center gap-2 text-slate-300 font-mono text-xs font-bold uppercase tracking-widest">
                   <Lock className="w-4 h-4" />
                   <span>Slots Booked</span>

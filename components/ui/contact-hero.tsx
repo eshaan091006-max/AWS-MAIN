@@ -65,7 +65,7 @@ export function ContactHero({ onStart }: ContactHeroProps) {
           upper two thirds of the section to itself. */}
       <div className="relative z-20 w-full min-h-[88vh] flex flex-col items-center justify-end px-4 pt-40 pb-24 gap-6 text-center">
         {/* The AWS mark, as an app icon. */}
-        <div className="w-16 h-16 rounded-2xl ring-1 ring-white/10 shadow-2xl bg-aws-orange flex items-center justify-center">
+        <div className="w-16 h-16 rounded-xl ring-1 ring-white/10 shadow-2xl bg-aws-orange flex items-center justify-center">
           <FaAws className="w-10 h-10 text-black" />
         </div>
 

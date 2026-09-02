@@ -40,7 +40,7 @@ export function EventDetailsClient({ event, formattedDate }: Props) {
 
   return (
     <>
-      <div className="sticky top-28 p-6 rounded-3xl bg-navy-900/90 border border-aws-orange/40 backdrop-blur-2xl shadow-2xl space-y-5">
+      <div className="sticky top-28 p-6 rounded-xl bg-navy-900/90 border border-aws-orange/40 backdrop-blur-2xl shadow-2xl space-y-5">
         <div className="text-xs font-mono uppercase tracking-widest text-aws-orange font-bold">
           Session Information
         </div>
@@ -105,23 +105,23 @@ export function EventDetailsClient({ event, formattedDate }: Props) {
 
         {/* Action Button */}
         {registrationClosed ? (
-          <div className="w-full py-2.5 rounded-2xl bg-navy-950 text-slate-400 text-center text-xs font-mono border border-white/10">
+          <div className="w-full py-2.5 rounded-xl bg-navy-950 text-slate-400 text-center text-xs font-mono border border-white/10">
             Registration Closed (Completed)
           </div>
         ) : isRegistered ? (
-          <div className="w-full py-3 rounded-2xl bg-emerald-950/60 border border-emerald-500/40 text-emerald-300 text-center text-xs font-mono font-bold uppercase tracking-widest flex items-center justify-center gap-2">
+          <div className="w-full py-3 rounded-xl bg-emerald-950/60 border border-emerald-500/40 text-emerald-300 text-center text-xs font-mono font-bold uppercase tracking-widest flex items-center justify-center gap-2">
             <CheckCircle2 className="w-4 h-4" />
             <span>Already Registered</span>
           </div>
         ) : isFull ? (
-          <div className="w-full py-3 rounded-2xl bg-navy-950 border border-slate-600/50 text-slate-300 text-center text-xs font-mono font-bold uppercase tracking-widest flex items-center justify-center gap-2 grayscale">
+          <div className="w-full py-3 rounded-xl bg-navy-950 border border-slate-600/50 text-slate-300 text-center text-xs font-mono font-bold uppercase tracking-widest flex items-center justify-center gap-2 grayscale">
             <Lock className="w-4 h-4" />
             <span>Slots Booked</span>
           </div>
         ) : (
           <button
             onClick={() => setModalOpen(true)}
-            className="w-full py-3 rounded-2xl bg-gradient-to-r from-aws-orange to-amber-600 hover:from-amber-500 hover:to-aws-orange text-black font-bold text-xs shadow-xl shadow-aws-orange/20 transition-all flex items-center justify-center gap-2"
+            className="w-full py-3 rounded-xl bg-gradient-to-r from-aws-orange to-amber-600 hover:from-amber-500 hover:to-aws-orange text-black font-bold text-xs shadow-xl shadow-aws-orange/20 transition-all flex items-center justify-center gap-2"
           >
             <Sparkles className="w-4 h-4 stroke-[2.5]" />
             <span>RSVP Free Seat Now</span>
@@ -130,7 +130,7 @@ export function EventDetailsClient({ event, formattedDate }: Props) {
 
         <button
           onClick={handleShare}
-          className="w-full py-2 rounded-2xl bg-navy-950 hover:bg-navy-800 text-slate-300 hover:text-white border border-white/10 text-xs font-mono flex items-center justify-center gap-2 transition-colors"
+          className="w-full py-2 rounded-xl bg-navy-950 hover:bg-navy-800 text-slate-300 hover:text-white border border-white/10 text-xs font-mono flex items-center justify-center gap-2 transition-colors"
         >
           {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Share2 className="w-3.5 h-3.5" />}
           <span>{copied ? "Link Copied to Clipboard!" : "Share Event Link"}</span>

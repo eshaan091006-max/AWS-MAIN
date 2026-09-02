@@ -47,7 +47,7 @@ export function ServiceOrbit() {
       {/* Central Core AWS Cloud Node */}
       <motion.div
         whileHover={{ scale: 1.08 }}
-        className="relative z-20 w-24 h-24 rounded-2xl bg-gradient-to-br from-aws-orange to-amber-600 flex flex-col items-center justify-center shadow-xl shadow-aws-orange/30 border-2 border-amber-300/40 cursor-pointer"
+        className="relative z-20 w-24 h-24 rounded-xl bg-gradient-to-br from-aws-orange to-amber-600 flex flex-col items-center justify-center shadow-xl shadow-aws-orange/30 border-2 border-amber-300/40 cursor-pointer"
       >
         <Cloud className="w-10 h-10 text-navy-950 stroke-[2.2]" />
         <span className="text-[11px] font-mono font-bold text-navy-950 uppercase tracking-tight mt-0.5">

@@ -85,7 +85,12 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`dark ${inter.variable} ${outfit.variable} ${jetbrainsMono.variable}`}>
-      <body className="min-h-screen bg-navy-950 text-zinc-100 font-mono antialiased selection:bg-aws-orange selection:text-black">
+      {/* Inter for prose, JetBrains Mono where it is declared explicitly —
+          eyebrows, stat labels, counts, metadata. Mono set everything, which
+          reads as a terminal rather than a document and measurably slows
+          reading at paragraph length; the 138 elements that ask for mono by
+          name keep it, and that contrast is the point. */}
+      <body className="min-h-screen bg-navy-950 text-zinc-100 font-sans antialiased selection:bg-aws-orange selection:text-black">
         {/* Public site chrome. Absent on /admin, which is an operator
             console with its own navigation and no need for a marketing
             navbar or two animated background canvases. */}

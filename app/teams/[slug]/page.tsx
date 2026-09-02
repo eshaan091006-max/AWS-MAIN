@@ -92,7 +92,7 @@ export default async function DepartmentPage({ params }: PageProps) {
 
         {/* The writeup sits after the people, not above them: the page is about
             who is in the department first, and what it does second. */}
-        <section className="mt-20 pt-14 border-t border-white/[0.07] grid grid-cols-1 lg:grid-cols-5 gap-10">
+        <section className="mt-20 pt-14 border-t border-white/10 grid grid-cols-1 lg:grid-cols-5 gap-10">
           <h2 className="lg:col-span-2 text-[11px] font-mono uppercase tracking-[0.2em] text-zinc-600">
             What they do
           </h2>

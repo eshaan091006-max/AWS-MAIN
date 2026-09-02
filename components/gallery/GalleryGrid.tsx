@@ -45,7 +45,7 @@ export function GalleryGrid() {
           <button
             key={cat.id}
             onClick={() => setSelectedCategory(cat.id)}
-            className={`px-5 py-2.5 rounded-2xl text-xs font-mono transition-all cursor-pointer ${
+            className={`px-5 py-2.5 rounded-xl text-xs font-mono transition-all cursor-pointer ${
               selectedCategory === cat.id
                 ? "bg-aws-orange text-black font-bold shadow-lg shadow-aws-orange/20 scale-105"
                 : "bg-navy-900/80 text-slate-300 border border-white/10 hover:border-aws-orange/40 hover:text-white"
@@ -57,14 +57,14 @@ export function GalleryGrid() {
       </div>
 
       {/* Coming Soon Hero Showcase */}
-      <div className="max-w-3xl mx-auto p-8 sm:p-14 rounded-3xl bg-navy-900/80 border-2 border-aws-orange/30 backdrop-blur-2xl shadow-2xl text-center space-y-6 relative overflow-hidden">
+      <div className="max-w-3xl mx-auto p-8 sm:p-14 rounded-xl bg-navy-900/80 border-2 border-aws-orange/30 backdrop-blur-2xl shadow-2xl text-center space-y-6 relative overflow-hidden">
         {/* Ambient Glow */}
         <div className="absolute top-0 right-0 w-72 h-72 bg-aws-orange/10 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute bottom-0 left-0 w-72 h-72 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
 
         {/* Icon & Badge */}
         <div className="flex flex-col items-center justify-center">
-          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-aws-orange/20 to-amber-500/10 border border-aws-orange/40 flex items-center justify-center text-aws-orange shadow-lg shadow-aws-orange/10 mb-4">
+          <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-aws-orange/20 to-amber-500/10 border border-aws-orange/40 flex items-center justify-center text-aws-orange shadow-lg shadow-aws-orange/10 mb-4">
             <Camera className="w-8 h-8 stroke-[2]" />
           </div>
 

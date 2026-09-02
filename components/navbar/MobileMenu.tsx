@@ -71,7 +71,7 @@ export function MobileMenu({ items, isActive, open, onOpenChange, onItemClick }:
         <div
           ref={panelRef}
           id="mobile-nav"
-          className="absolute left-4 right-4 top-full mt-2 rounded-2xl border border-white/10 bg-navy-950/95 backdrop-blur-xl p-2 shadow-2xl motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-top-2 motion-safe:duration-200"
+          className="absolute left-4 right-4 top-full mt-2 rounded-xl border border-white/10 bg-navy-950/95 backdrop-blur-xl p-2 shadow-2xl motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-top-2 motion-safe:duration-200"
         >
           <nav className="flex flex-col">
             {items.map((item) =>

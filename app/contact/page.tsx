@@ -102,7 +102,7 @@ export default function ContactPage() {
             <div className="space-y-6">
 
               {submitted ? (
-                <div className="p-8 rounded-2xl bg-navy-950 border border-emerald-500/40 text-center space-y-4">
+                <div className="p-8 rounded-xl bg-navy-950 border border-emerald-500/40 text-center space-y-4">
                   <div className="w-16 h-16 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center mx-auto border border-emerald-500/40">
                     <CheckCircle className="w-8 h-8" />
                   </div>

@@ -126,7 +126,7 @@ export function CloudEvolution() {
               <button
                 key={step.id}
                 onClick={() => setActiveStep(step.id)}
-                className={`p-3.5 rounded-2xl border text-left transition-all relative overflow-hidden ${isActive
+                className={`p-3.5 rounded-xl border text-left transition-all relative overflow-hidden ${isActive
                     ? "bg-navy-800 border-aws-orange shadow-lg shadow-aws-orange/15"
                     : "bg-navy-900/60 border-white/10 hover:border-white/25 text-slate-400"
                   }`}
@@ -152,7 +152,7 @@ export function CloudEvolution() {
         </div>
 
         {/* Active Stage Details Card */}
-        <div className="rounded-3xl bg-navy-900/80 border border-aws-orange/30 p-6 md:p-8 backdrop-blur-xl shadow-2xl mb-16 relative overflow-hidden">
+        <div className="rounded-xl bg-navy-900/80 border border-aws-orange/30 p-6 md:p-8 backdrop-blur-xl shadow-2xl mb-16 relative overflow-hidden">
           <div className="absolute top-0 right-0 w-80 h-80 bg-aws-orange/10 rounded-full blur-3xl pointer-events-none" />
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative z-10">
@@ -189,8 +189,8 @@ export function CloudEvolution() {
               </div>
             </div>
 
-            <div className="lg:col-span-5 p-6 rounded-2xl bg-navy-950/90 border border-white/10 flex flex-col justify-center text-center space-y-3">
-              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-aws-orange to-amber-600 flex items-center justify-center mx-auto text-black shadow-lg shadow-aws-orange/20">
+            <div className="lg:col-span-5 p-6 rounded-xl bg-navy-950/90 border border-white/10 flex flex-col justify-center text-center space-y-3">
+              <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-aws-orange to-amber-600 flex items-center justify-center mx-auto text-black shadow-lg shadow-aws-orange/20">
                 {React.createElement(steps[activeStep].icon, { className: "w-8 h-8 stroke-[2.2]" })}
               </div>
               <div className="text-sm font-bold text-white">{steps[activeStep].title}</div>
@@ -234,7 +234,7 @@ export function CloudEvolution() {
               return (
                 <div
                   key={model.title}
-                  className={`p-6 rounded-2xl bg-navy-900/60 border ${model.color} backdrop-blur-md hover:bg-navy-900 transition-all hover:scale-102 flex flex-col justify-between`}
+                  className={`p-6 rounded-xl bg-navy-900/60 border ${model.color} backdrop-blur-md hover:bg-navy-900 transition-all hover:scale-102 flex flex-col justify-between`}
                 >
                   <div>
                     <div className="flex items-center justify-between mb-3">

@@ -22,7 +22,7 @@ const SIZES = {
   sm: "w-11 h-11 rounded-full text-xs",
   lg: "w-16 h-16 rounded-full text-lg",
   /** Portrait tile, matching the department cluster. */
-  tile: "w-full aspect-[5/6] rounded-2xl text-3xl md:text-4xl",
+  tile: "w-full aspect-[5/6] rounded-xl text-3xl md:text-4xl",
 };
 
 /**
