@@ -303,8 +303,8 @@ export default async function HomePage() {
         <div className="max-w-6xl mx-auto">
           <SectionHeading
             eyebrow="Our team"
-            title="Led by students,"
-            highlight="backed by faculty"
+            title="The team"
+            highlight="behind it all"
           />
 
           {/* No portraits while there are no photographs — a row of initials
