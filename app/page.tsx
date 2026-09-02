@@ -21,6 +21,7 @@ import { teamHierarchy } from "@/config/teamHierarchy";
 import { db } from "@/lib/db";
 import { ScrollProgress } from "@/components/ui/scroll-progress";
 import { Reveal } from "@/components/ui/reveal";
+import { ScrollSection } from "@/components/ui/scroll-section";
 
 export const metadata = {
   title: "SXC AWS Group — Build. Deploy. Scale. | St. Xavier's College",
@@ -158,17 +159,16 @@ export default async function HomePage() {
       </section>
 
       {/* ============================ ABOUT ============================ */}
-      <section id="about" className="relative px-4 sm:px-8 lg:px-12 py-24 scroll-mt-24">
-        <div className="max-w-5xl mx-auto">
-          <SectionHeading
-            eyebrow="Who we are"
-            title="Empowering students to"
-            highlight="build with cloud"
-            sub="A student-led technical community making cloud computing accessible, practical and genuinely exciting — whatever you're studying."
-          />
-
+      <ScrollSection
+        id="about"
+        index={1}
+        eyebrow="Who we are"
+        title="Empowering students to"
+        highlight="build with cloud"
+        sub="A student-led technical community making cloud computing accessible, practical and genuinely exciting — whatever you're studying."
+      >
           <Reveal delay={0.08}>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mt-14">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             <article className="p-8 rounded-2xl bg-white/[0.02] border border-white/[0.07] backdrop-blur-sm space-y-4 hover:border-white/[0.14] transition-colors">
               <div className="w-11 h-11 rounded-xl bg-aws-orange/10 border border-aws-orange/25 flex items-center justify-center text-aws-orange">
                 <Target className="w-5 h-5 stroke-[2.2]" />
@@ -219,21 +219,19 @@ export default async function HomePage() {
             </article>
           </div>
           </Reveal>
-        </div>
-      </section>
+      </ScrollSection>
 
       {/* ============================ WHAT YOU GET ============================ */}
-      <section id="build" className="relative px-4 sm:px-8 lg:px-12 py-24 scroll-mt-24">
-        <div className="max-w-6xl mx-auto">
-          <SectionHeading
-            eyebrow="What you'll build"
-            title="Turn ideas into"
-            highlight="real projects"
-            sub="Six things every member gets, from their first login to their first deployed architecture."
-          />
-
+      <ScrollSection
+        id="build"
+        index={2}
+        eyebrow="What you'll build"
+        title="Turn ideas into"
+        highlight="real projects"
+        sub="Six things every member gets, from their first login to their first deployed architecture."
+      >
           <Reveal delay={0.08}>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-px mt-14 bg-white/[0.06] rounded-2xl overflow-hidden border border-white/[0.06]">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-px bg-white/[0.06] rounded-2xl overflow-hidden border border-white/[0.06]">
             {perks.map((perk, i) => {
               const Icon = perk.icon;
               return (
@@ -256,29 +254,27 @@ export default async function HomePage() {
             })}
           </div>
           </Reveal>
-        </div>
-      </section>
+      </ScrollSection>
 
       {/* ============================ EVENTS ============================ */}
-      <section id="events" className="relative px-4 sm:px-8 lg:px-12 py-24 scroll-mt-24">
-        <div className="max-w-6xl mx-auto">
-          <SectionHeading
-            eyebrow="Events"
-            title="Learn through"
-            highlight="experience"
-            sub="Workshops, hackathons and speaker sessions — every one built around doing rather than watching."
-          />
-
+      <ScrollSection
+        id="events"
+        index={3}
+        eyebrow="Events"
+        title="Learn through"
+        highlight="experience"
+        sub="Workshops, hackathons and speaker sessions — every one built around doing rather than watching."
+      >
           {featuredEvents.length > 0 ? (
             <Reveal delay={0.08}>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-14">
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
               {featuredEvents.map((event) => (
                 <EventCard key={event.id} event={event} featured />
               ))}
             </div>
           </Reveal>
           ) : (
-            <div className="mt-14 p-10 rounded-2xl bg-white/[0.02] border border-white/[0.07] text-center backdrop-blur-sm">
+            <div className="p-10 rounded-2xl bg-white/[0.02] border border-white/[0.07] text-center backdrop-blur-sm">
               <Calendar className="w-8 h-8 text-zinc-600 mx-auto mb-3" />
               <p className="text-sm text-zinc-400">
                 Nothing scheduled right now — the next term&apos;s calendar goes up soon.
@@ -286,7 +282,7 @@ export default async function HomePage() {
             </div>
           )}
 
-          <div className="flex justify-center mt-10">
+          <div className="flex mt-10">
             <Link
               href="/events"
               className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] text-zinc-200 border border-white/10 hover:border-aws-orange/40 text-sm font-semibold transition-all"
@@ -295,23 +291,21 @@ export default async function HomePage() {
               <ArrowRight className="w-4 h-4 text-aws-orange" />
             </Link>
           </div>
-        </div>
-      </section>
+      </ScrollSection>
 
       {/* ============================ TEAM ============================ */}
-      <section id="team" className="relative px-4 sm:px-8 lg:px-12 py-24 scroll-mt-24">
-        <div className="max-w-6xl mx-auto">
-          <SectionHeading
-            eyebrow="Our team"
-            title="The team"
-            highlight="behind it all"
-          />
-
-          {/* No portraits while there are no photographs — a row of initials
-              tiles is a placeholder pretending to be a design. Names and roles
-              carry it until real pictures exist. */}
+      {/* No portraits while there are no photographs — a row of initials tiles
+          is a placeholder pretending to be a design. Names and roles carry it
+          until real pictures exist. */}
+      <ScrollSection
+        id="team"
+        index={4}
+        eyebrow="Our team"
+        title="The team"
+        highlight="behind it all"
+      >
           <Reveal delay={0.08}>
-            <div className="mt-14 grid grid-cols-1 sm:grid-cols-3 gap-px bg-white/[0.06] rounded-2xl overflow-hidden border border-white/[0.06]">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-px bg-white/[0.06] rounded-2xl overflow-hidden border border-white/[0.06]">
               {teamHierarchy.faculty.members.map((f) => (
                 <div key={f.name} className="bg-navy-950/85 p-7 backdrop-blur-sm">
                   <div className="text-[10px] font-mono uppercase tracking-[0.18em] text-zinc-600">
@@ -334,7 +328,7 @@ export default async function HomePage() {
             </div>
           </Reveal>
 
-          <div className="flex justify-center mt-10">
+          <div className="flex mt-10">
             <Link
               href="/teams"
               className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] text-zinc-200 border border-white/10 hover:border-aws-orange/40 text-sm font-semibold transition-all"
@@ -343,8 +337,7 @@ export default async function HomePage() {
               <span>Full showcase</span>
             </Link>
           </div>
-        </div>
-      </section>
+      </ScrollSection>
 
       {/* ============================ JOIN ============================ */}
       <section id="join" className="relative px-4 sm:px-8 lg:px-12 py-24 pb-32 scroll-mt-24">
@@ -396,30 +389,3 @@ export default async function HomePage() {
   );
 }
 
-/** Shared section header: eyebrow, two-tone headline, one line of context. */
-function SectionHeading({
-  eyebrow,
-  title,
-  highlight,
-  sub,
-}: {
-  eyebrow: string;
-  title: string;
-  highlight: string;
-  /** Optional: a section whose content already says it can leave this out. */
-  sub?: string;
-}) {
-  return (
-    <Reveal className="max-w-2xl">
-      <div className="text-[11px] font-mono uppercase tracking-[0.2em] text-aws-orange mb-4">
-        {eyebrow}
-      </div>
-      <h2 className="text-3xl sm:text-5xl font-display font-black text-white tracking-tight leading-[1.08]">
-        {title} <span className="text-gradient-orange">{highlight}</span>
-      </h2>
-      {sub && (
-        <p className="text-sm sm:text-base text-zinc-400 mt-4 leading-relaxed">{sub}</p>
-      )}
-    </Reveal>
-  );
-}

@@ -1,0 +1,94 @@
+"use client";
+
+import React, { useRef } from "react";
+import { motion, useScroll, useTransform } from "framer-motion";
+import { cn } from "@/lib/utils";
+
+interface ScrollSectionProps {
+  id: string;
+  /** Small label above the title. */
+  eyebrow: string;
+  title: string;
+  /** The half of the title set in the accent gradient. */
+  highlight: string;
+  sub?: string;
+  /** Section number, shown as an oversized ghost numeral. */
+  index?: number;
+  children: React.ReactNode;
+  className?: string;
+}
+
+/**
+ * A section whose heading stays put while its content scrolls past it.
+ *
+ * Every section on the home page had the same shape — a heading, a gap, then a
+ * grid — so the page read as one long column of near-identical blocks and the
+ * headings scrolled away the moment you started reading the thing they were
+ * introducing. Pinning the heading gives each section a fixed left edge to
+ * scroll against, and the rule underneath fills as you move through it, so
+ * there is some sense of how much of the section is left.
+ *
+ * Below `lg` there is not enough width for two columns, so the heading returns
+ * to sitting above the content and stops being sticky.
+ */
+export function ScrollSection({
+  id,
+  eyebrow,
+  title,
+  highlight,
+  sub,
+  index,
+  children,
+  className,
+}: ScrollSectionProps) {
+  const ref = useRef<HTMLElement>(null);
+
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    // Starts filling when the section reaches the bottom of the viewport and
+    // completes when its end reaches the top.
+    offset: ["start end", "end start"],
+  });
+
+  const progress = useTransform(scrollYProgress, [0.1, 0.85], ["0%", "100%"]);
+
+  return (
+    <section
+      ref={ref}
+      id={id}
+      className={cn("relative px-4 sm:px-8 lg:px-12 py-24 scroll-mt-24", className)}
+    >
+      <div className="max-w-6xl mx-auto grid items-start gap-10 lg:gap-16 lg:grid-cols-[minmax(0,20rem)_minmax(0,1fr)]">
+        <div className="relative lg:sticky lg:top-28">
+          {index !== undefined && (
+            <span
+              aria-hidden="true"
+              className="pointer-events-none absolute -top-10 -left-2 select-none text-[7rem] font-display font-black leading-none text-white/[0.03]"
+            >
+              {String(index).padStart(2, "0")}
+            </span>
+          )}
+
+          <div className="relative">
+            <div className="text-[11px] font-mono uppercase tracking-[0.2em] text-aws-orange mb-4">
+              {eyebrow}
+            </div>
+            <h2 className="text-3xl sm:text-4xl font-display font-black text-white tracking-tight leading-[1.08]">
+              {title} <span className="text-gradient-orange">{highlight}</span>
+            </h2>
+            {sub && (
+              <p className="text-sm text-zinc-400 mt-4 leading-relaxed max-w-md">{sub}</p>
+            )}
+
+            {/* How far through the section you are. */}
+            <div className="mt-7 h-px w-full max-w-[12rem] bg-white/[0.08]">
+              <motion.div style={{ width: progress }} className="h-px bg-aws-orange" />
+            </div>
+          </div>
+        </div>
+
+        <div>{children}</div>
+      </div>
+    </section>
+  );
+}
