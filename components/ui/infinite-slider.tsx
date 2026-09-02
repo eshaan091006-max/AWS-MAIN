@@ -19,11 +19,11 @@ import { cn } from "@/lib/utils";
  * The duplicate is hidden from assistive tech, so a screen reader hears each
  * department once rather than twice.
  *
- * Under reduced motion it becomes an ordinary swipeable row rather than simply
- * stopping. Stopping is not enough: the track is far wider than its container,
- * so a halted animation inside overflow-hidden leaves the last items with no
- * way to reach them at all. Turning off the motion must not turn off the
- * content.
+ * It keeps moving under reduced motion, just much more slowly. Stopping it dead
+ * is not an option here: the track is far wider than its container, so a halted
+ * animation inside overflow-hidden leaves the last items unreachable — turning
+ * off the motion would turn off the content. Hovering still holds it, which is
+ * the pause mechanism WCAG 2.2.2 actually asks for.
  */
 export function InfiniteSlider({
   children,
@@ -39,35 +39,19 @@ export function InfiniteSlider({
 
   // Read after mount: matchMedia does not exist on the server, and branching on
   // it during render is a hydration mismatch.
-  const [still, setStill] = useState(false);
+  const [gentle, setGentle] = useState(false);
   useEffect(() => {
     const q = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const sync = () => setStill(q.matches);
+    const sync = () => setGentle(q.matches);
     sync();
     q.addEventListener("change", sync);
     return () => q.removeEventListener("change", sync);
   }, []);
 
-  if (still) {
-    return (
-      <div
-        className={cn(
-          "w-full overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
-          className
-        )}
-      >
-        {/* One copy only — a duplicated set here would put every department in
-            the tab order twice. */}
-        <div className="flex w-max gap-5 pb-2">
-          {items.map((child, i) => (
-            <div key={i} className="shrink-0">
-              {child}
-            </div>
-          ))}
-        </div>
-      </div>
-    );
-  }
+  // Calmer under reduced motion, not comatose. At 3x the row crawls at about
+  // 14px a second, which reads as broken rather than gentle; 1.5x is visibly
+  // moving while still noticeably slower than the default.
+  const seconds = gentle ? duration * 1.5 : duration;
 
   return (
     <div
@@ -81,7 +65,7 @@ export function InfiniteSlider({
     >
       <div
         className="flex w-max gap-5 animate-infinite-slide"
-        style={{ animationDuration: `${duration}s` }}
+        style={{ animationDuration: `${seconds}s` }}
       >
         {items.map((child, i) => (
           <div key={`a-${i}`} className="shrink-0">
@@ -89,7 +73,7 @@ export function InfiniteSlider({
           </div>
         ))}
         {items.map((child, i) => (
-          <div key={`b-${i}`} className="shrink-0" aria-hidden="true">
+          <div key={`b-${i}`} className="shrink-0" aria-hidden="true" inert>
             {child}
           </div>
         ))}

@@ -315,6 +315,6 @@ html.embedded .pt-28 {
   animation-play-state: paused;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .animate-infinite-slide { animation: none; }
-}
+/* Deliberately no reduced-motion rule disabling this animation. The track is
+   wider than its container, so stopping it would strand the last items behind
+   overflow-hidden. The component slows it instead, and hover still pauses it. */
