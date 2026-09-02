@@ -135,7 +135,6 @@ export default function PrivacyPage() {
           <List
             items={[
               "Committee members running the session, limited to the list needed to check people in",
-              "The faculty in charge and the college, where an event requires their approval or a record of attendance",
               "Supabase, the hosting provider that stores the data on our behalf",
               "Law enforcement or regulatory authorities, only where required by law",
             ]}
