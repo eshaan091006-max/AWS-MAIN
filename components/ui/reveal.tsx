@@ -83,3 +83,31 @@ export function Reveal({ children, className, delay = 0 }: RevealProps) {
     </div>
   );
 }
+
+/**
+ * Reveals each child in turn rather than the block as a whole.
+ *
+ * Same mechanism as Reveal — one observer, CSS transitions, no reduced-motion
+ * branch during render — with the delay stepped per child so a grid cascades
+ * in instead of appearing all at once.
+ */
+export function RevealGroup({
+  children,
+  className,
+  delay = 0,
+  step = 0.07,
+}: RevealProps & { /** Seconds between one child and the next. */ step?: number }) {
+  const items = React.Children.toArray(children);
+  return (
+    <div className={className}>
+      {items.map((child, i) => (
+        // h-full, not display:contents — a contents box generates no layout, so
+        // it cannot be given opacity or a transform and the reveal would
+        // silently do nothing. The wrapper is the grid item and fills the cell.
+        <Reveal key={i} delay={delay + i * step} className="h-full">
+          {child}
+        </Reveal>
+      ))}
+    </div>
+  );
+}

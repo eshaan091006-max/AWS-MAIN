@@ -20,7 +20,7 @@ import { EventCard } from "@/components/events/EventCard";
 import { teamHierarchy } from "@/config/teamHierarchy";
 import { db } from "@/lib/db";
 import { ScrollProgress } from "@/components/ui/scroll-progress";
-import { Reveal } from "@/components/ui/reveal";
+import { Reveal, RevealGroup } from "@/components/ui/reveal";
 import { ScrollSection } from "@/components/ui/scroll-section";
 
 export const metadata = {
@@ -167,9 +167,8 @@ export default async function HomePage() {
         highlight="build with cloud"
         sub="A student-led technical community making cloud computing accessible, practical and genuinely exciting — whatever you're studying."
       >
-          <Reveal delay={0.08}>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-            <article className="p-8 rounded-2xl bg-white/[0.02] border border-white/[0.07] backdrop-blur-sm space-y-4 hover:border-white/[0.14] transition-colors">
+          <RevealGroup className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <article className="h-full p-7 rounded-xl bg-navy-900/50 border border-white/10 space-y-4 transition-colors duration-300 hover:border-aws-orange/30 hover:bg-navy-900/70">
               <div className="w-11 h-11 rounded-xl bg-aws-orange/10 border border-aws-orange/25 flex items-center justify-center text-aws-orange">
                 <Target className="w-5 h-5 stroke-[2.2]" />
               </div>
@@ -194,7 +193,7 @@ export default async function HomePage() {
               </ul>
             </article>
 
-            <article className="p-8 rounded-2xl bg-white/[0.02] border border-white/[0.07] backdrop-blur-sm space-y-4 hover:border-white/[0.14] transition-colors">
+            <article className="h-full p-7 rounded-xl bg-navy-900/50 border border-white/10 space-y-4 transition-colors duration-300 hover:border-aws-orange/30 hover:bg-navy-900/70">
               <div className="w-11 h-11 rounded-xl bg-ambient-indigo/10 border border-ambient-indigo/25 flex items-center justify-center text-ambient-violet">
                 <Eye className="w-5 h-5 stroke-[2.2]" />
               </div>
@@ -217,8 +216,7 @@ export default async function HomePage() {
                 ))}
               </ul>
             </article>
-          </div>
-          </Reveal>
+          </RevealGroup>
       </ScrollSection>
 
       {/* ============================ WHAT YOU GET ============================ */}
@@ -230,14 +228,13 @@ export default async function HomePage() {
         highlight="real projects"
         sub="Six things every member gets, from their first login to their first deployed architecture."
       >
-          <Reveal delay={0.08}>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-px bg-white/[0.06] rounded-2xl overflow-hidden border border-white/[0.06]">
+          <RevealGroup className="grid grid-cols-1 sm:grid-cols-2 gap-px bg-white/[0.08] rounded-xl overflow-hidden border border-white/[0.08]">
             {perks.map((perk, i) => {
               const Icon = perk.icon;
               return (
                 <article
                   key={perk.title}
-                  className="group relative bg-navy-950/85 p-7 backdrop-blur-sm hover:bg-navy-900/85 transition-colors"
+                  className="group relative h-full bg-navy-950 p-6 transition-colors duration-300 hover:bg-navy-900"
                 >
                   <div className="flex items-start justify-between mb-5">
                     <div className="w-11 h-11 rounded-xl bg-white/[0.04] border border-white/10 flex items-center justify-center text-aws-orange group-hover:border-aws-orange/40 transition-colors">
@@ -252,8 +249,7 @@ export default async function HomePage() {
                 </article>
               );
             })}
-          </div>
-          </Reveal>
+          </RevealGroup>
       </ScrollSection>
 
       {/* ============================ EVENTS ============================ */}
@@ -266,15 +262,13 @@ export default async function HomePage() {
         sub="Workshops, hackathons and speaker sessions — every one built around doing rather than watching."
       >
           {featuredEvents.length > 0 ? (
-            <Reveal delay={0.08}>
-            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+            <RevealGroup className="grid grid-cols-1 xl:grid-cols-2 gap-5">
               {featuredEvents.map((event) => (
                 <EventCard key={event.id} event={event} featured />
               ))}
-            </div>
-          </Reveal>
+            </RevealGroup>
           ) : (
-            <div className="p-10 rounded-2xl bg-white/[0.02] border border-white/[0.07] text-center backdrop-blur-sm">
+            <div className="p-10 rounded-xl bg-navy-900/50 border border-white/10 text-center">
               <Calendar className="w-8 h-8 text-zinc-600 mx-auto mb-3" />
               <p className="text-sm text-zinc-400">
                 Nothing scheduled right now — the next term&apos;s calendar goes up soon.
@@ -304,10 +298,9 @@ export default async function HomePage() {
         title="The team"
         highlight="behind it all"
       >
-          <Reveal delay={0.08}>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-px bg-white/[0.06] rounded-2xl overflow-hidden border border-white/[0.06]">
+          <RevealGroup className="grid grid-cols-1 sm:grid-cols-3 gap-px bg-white/[0.08] rounded-xl overflow-hidden border border-white/[0.08]">
               {teamHierarchy.faculty.members.map((f) => (
-                <div key={f.name} className="bg-navy-950/85 p-7 backdrop-blur-sm">
+                <div key={f.name} className="h-full bg-navy-950 p-6 transition-colors duration-300 hover:bg-navy-900">
                   <div className="text-[10px] font-mono uppercase tracking-[0.18em] text-zinc-600">
                     {f.designation}
                   </div>
@@ -316,9 +309,10 @@ export default async function HomePage() {
                   </div>
                 </div>
               ))}
-            </div>
+          </RevealGroup>
 
-            <div className="mt-5 rounded-2xl border border-aws-orange/25 bg-aws-orange/[0.06] p-7">
+          <Reveal delay={0.12}>
+            <div className="mt-4 rounded-xl border border-aws-orange/30 bg-aws-orange/[0.07] p-6">
               <div className="text-[10px] font-mono uppercase tracking-[0.18em] text-aws-orange">
                 {teamHierarchy.chairperson.role}
               </div>

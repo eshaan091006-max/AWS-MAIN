@@ -52,14 +52,32 @@ export function ScrollSection({
 
   const progress = useTransform(scrollYProgress, [0.1, 0.85], ["0%", "100%"]);
 
+  // The rule between sections draws itself as the section arrives, so one
+  // section visibly hands over to the next instead of the page just changing
+  // subject.
+  const dividerScale = useTransform(scrollYProgress, [0, 0.18], [0, 1]);
+  const dividerOpacity = useTransform(scrollYProgress, [0, 0.18, 0.9, 1], [0, 1, 1, 0.25]);
+
+  // The heading lifts slightly on the way in and settles; it is the only thing
+  // pinned, so a little travel makes the arrival legible.
+  const headY = useTransform(scrollYProgress, [0, 0.22], [26, 0]);
+  const headOpacity = useTransform(scrollYProgress, [0, 0.16], [0, 1]);
+
   return (
     <section
       ref={ref}
       id={id}
       className={cn("relative px-4 sm:px-8 lg:px-12 py-24 scroll-mt-24", className)}
     >
+      {/* Section divider. Scales from the left as the section comes up. */}
+      <motion.div
+        aria-hidden="true"
+        style={{ scaleX: dividerScale, opacity: dividerOpacity }}
+        className="absolute inset-x-4 sm:inset-x-8 lg:inset-x-12 top-0 h-px origin-left bg-gradient-to-r from-aws-orange/50 via-white/10 to-transparent"
+      />
+
       <div className="max-w-6xl mx-auto grid items-start gap-10 lg:gap-16 lg:grid-cols-[minmax(0,20rem)_minmax(0,1fr)]">
-        <div className="relative lg:sticky lg:top-28">
+        <motion.div style={{ y: headY, opacity: headOpacity }} className="relative lg:sticky lg:top-28">
           {index !== undefined && (
             <span
               aria-hidden="true"
@@ -85,7 +103,7 @@ export function ScrollSection({
               <motion.div style={{ width: progress }} className="h-px bg-aws-orange" />
             </div>
           </div>
-        </div>
+        </motion.div>
 
         <div>{children}</div>
       </div>
