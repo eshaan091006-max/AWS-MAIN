@@ -295,3 +295,26 @@ html.embedded .pt-28 {
   25%  { opacity: 1; transform: scale(1); }
   100% { opacity: 0; transform: scale(1); }
 }
+
+/* Infinite slider. Travels exactly half the track, which is one full copy of
+   the content, so the loop has no seam. */
+@keyframes infinite-slide {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+.animate-infinite-slide {
+  animation-name: infinite-slide;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+/* Holding the row still while the pointer is over it — the pause mechanism
+   WCAG 2.2.2 asks for, and what stops a link sliding out from under a click. */
+.group\/slider:hover .animate-infinite-slide {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-infinite-slide { animation: none; }
+}

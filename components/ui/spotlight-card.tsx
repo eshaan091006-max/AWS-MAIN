@@ -27,8 +27,25 @@ export function SpotlightCard({
     const el = ref.current;
     if (!el) return;
     const rect = el.getBoundingClientRect();
-    el.style.setProperty("--spot-x", `${e.clientX - rect.left}px`);
-    el.style.setProperty("--spot-y", `${e.clientY - rect.top}px`);
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    el.style.setProperty("--spot-x", `${x}px`);
+    el.style.setProperty("--spot-y", `${y}px`);
+
+    // The same two numbers drive a slight lean toward the cursor. Kept to a
+    // few degrees: past that the text starts to look keystoned rather than
+    // tilted, and a grid of cards reading at different angles is hard work.
+    const px = x / rect.width - 0.5;
+    const py = y / rect.height - 0.5;
+    el.style.setProperty("--tilt-x", `${(-py * 6).toFixed(2)}deg`);
+    el.style.setProperty("--tilt-y", `${(px * 6).toFixed(2)}deg`);
+  }, []);
+
+  const onLeave = useCallback(() => {
+    const el = ref.current;
+    if (!el) return;
+    el.style.setProperty("--tilt-x", "0deg");
+    el.style.setProperty("--tilt-y", "0deg");
   }, []);
 
   return React.createElement(
@@ -37,7 +54,17 @@ export function SpotlightCard({
       ...props,
       ref: ref as React.Ref<never>,
       onMouseMove: onMove,
-      className: cn("group/spot relative overflow-hidden", className),
+      onMouseLeave: onLeave,
+      style: {
+        transform:
+          "perspective(900px) rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg))",
+        transformStyle: "preserve-3d",
+        // Only the settle is eased. Easing the follow as well makes the card
+        // lag the cursor by a visible beat.
+        transition: "transform 400ms cubic-bezier(0.22, 1, 0.36, 1)",
+        ...(props.style ?? {}),
+      },
+      className: cn("group/spot relative overflow-hidden will-change-transform", className),
     },
     <>
       {children}

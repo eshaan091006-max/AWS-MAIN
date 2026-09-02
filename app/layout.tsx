@@ -4,6 +4,7 @@ import "./globals.css";
 import { Navbar } from "@/components/navbar/Navbar";
 import { Footer } from "@/components/footer/Footer";
 import { Grain } from "@/components/ui/grain";
+import { IntroCurtain } from "@/components/ui/intro-curtain";
 import { PageTransition } from "@/components/ui/page-transition";
 import { SiteChrome } from "@/components/layout/SiteChrome";
 import { CloudGridBackground } from "@/components/animations/CloudGridBackground";
@@ -117,6 +118,13 @@ export default function RootLayout({
             surface shares one texture rather than the chrome looking cleaner
             than the page. */}
         <Grain />
+
+        {/* Inside SiteChrome: it is what returns null on /admin, so wrapping
+            the curtain in it is what keeps a marketing intro off the operator
+            console. */}
+        <SiteChrome>
+          <IntroCurtain />
+        </SiteChrome>
 
         <SiteChrome>
           <Footer />

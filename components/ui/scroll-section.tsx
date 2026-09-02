@@ -3,6 +3,7 @@
 import React, { useRef } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { DecodeText } from "@/components/ui/decode-text";
 
 interface ScrollSectionProps {
   id: string;
@@ -88,8 +89,12 @@ export function ScrollSection({
           )}
 
           <div className="relative">
+            {/* The eyebrow decodes rather than the headline: it is short, set
+                in mono, and already uppercase, so scrambled glyphs sit on the
+                same grid and nothing reflows. Doing it to the headline would
+                jitter three lines of display type on every entrance. */}
             <div className="text-[11px] font-mono uppercase tracking-[0.2em] text-aws-orange mb-4">
-              {eyebrow}
+              <DecodeText text={eyebrow.toUpperCase()} />
             </div>
             <h2 className="text-3xl sm:text-4xl font-display font-bold text-white tracking-tight leading-[1.08]">
               {title} <span className="text-gradient-orange">{highlight}</span>

@@ -25,6 +25,8 @@ import { ScrollSection } from "@/components/ui/scroll-section";
 import { Boxes } from "@/components/ui/background-boxes";
 import { CountUp } from "@/components/ui/count-up";
 import { SpotlightCard } from "@/components/ui/spotlight-card";
+import { MagneticButton } from "@/components/ui/magnetic-button";
+import { StackingCards } from "@/components/ui/stacking-cards";
 
 export const metadata = {
   title: "SXC AWS Group — Build. Deploy. Scale. | St. Xavier's College",
@@ -119,21 +121,23 @@ export default async function HomePage() {
           </p>
 
           <div className="flex flex-wrap items-center justify-center gap-3 pt-1">
-            <a
+            <MagneticButton
+              as="a"
               href={siteConfig.links.meetup}
               target="_blank"
               rel="noopener noreferrer"
-              className="pointer-events-auto px-6 py-3 rounded-xl bg-aws-orange hover:bg-aws-orange-light text-black font-bold text-sm transition-all hover:scale-[1.03] active:scale-95 flex items-center gap-2"
+              className="pointer-events-auto px-6 py-3 rounded-xl bg-aws-orange hover:bg-aws-orange-light text-black font-bold text-sm inline-flex items-center gap-2"
             >
               <span>Join the Group</span>
               <ArrowUpRight className="w-4 h-4" />
-            </a>
-            <a
+            </MagneticButton>
+            <MagneticButton
+              as="a"
               href="#about"
-              className="pointer-events-auto px-6 py-3 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] text-zinc-200 border border-white/10 hover:border-white/20 text-sm font-semibold transition-all backdrop-blur-sm flex items-center gap-2"
+              className="pointer-events-auto px-6 py-3 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] text-zinc-200 border border-white/10 hover:border-white/20 text-sm font-semibold backdrop-blur-sm inline-flex items-center gap-2"
             >
               <span>About Us</span>
-            </a>
+            </MagneticButton>
           </div>
 
           {/* Stats band */}
@@ -224,14 +228,17 @@ export default async function HomePage() {
         highlight="real projects"
         sub="Six things every member gets, from their first login to their first deployed architecture."
       >
-          <RevealGroup className="grid grid-cols-1 sm:grid-cols-2 gap-px bg-white/[0.08] rounded-xl overflow-hidden border border-white/10">
+          {/* Stacked rather than gridded: six equal tiles are a list you skim,
+              whereas a stack makes you arrive at each one. Each card is opaque
+              and bordered now that it sits over the one before it. */}
+          <StackingCards>
             {perks.map((perk, i) => {
               const Icon = perk.icon;
               return (
                 <SpotlightCard
                   as="article"
                   key={perk.title}
-                  className="group h-full bg-navy-950 p-6 transition-colors duration-300 hover:bg-navy-900"
+                  className="group bg-navy-950 border border-white/10 rounded-xl p-7 shadow-2xl shadow-black/60 transition-colors duration-300 hover:bg-navy-900"
                 >
                   <div className="flex items-start justify-between mb-5">
                     <div className="w-11 h-11 rounded-xl bg-white/[0.04] border border-white/10 flex items-center justify-center text-aws-orange group-hover:border-aws-orange/40 transition-colors">
@@ -241,12 +248,12 @@ export default async function HomePage() {
                       {String(i + 1).padStart(2, "0")}
                     </span>
                   </div>
-                  <h3 className="text-base font-bold text-white mb-2">{perk.title}</h3>
+                  <h3 className="text-lg font-bold text-white mb-2">{perk.title}</h3>
                   <p className="text-sm text-zinc-400 leading-relaxed">{perk.desc}</p>
                 </SpotlightCard>
               );
             })}
-          </RevealGroup>
+          </StackingCards>
       </ScrollSection>
 
       {/* ============================ EVENTS ============================ */}
@@ -274,13 +281,14 @@ export default async function HomePage() {
           )}
 
           <div className="flex mt-10">
-            <Link
+            <MagneticButton
+              as={Link}
               href="/events"
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] text-zinc-200 border border-white/10 hover:border-aws-orange/40 text-sm font-semibold transition-all"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] text-zinc-200 border border-white/10 hover:border-aws-orange/40 text-sm font-semibold"
             >
               <span>Explore all events</span>
               <ArrowRight className="w-4 h-4 text-aws-orange" />
-            </Link>
+            </MagneticButton>
           </div>
       </ScrollSection>
 
@@ -320,13 +328,14 @@ export default async function HomePage() {
           </Reveal>
 
           <div className="flex mt-10">
-            <Link
+            <MagneticButton
+              as={Link}
               href="/teams"
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] text-zinc-200 border border-white/10 hover:border-aws-orange/40 text-sm font-semibold transition-all"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] text-zinc-200 border border-white/10 hover:border-aws-orange/40 text-sm font-semibold"
             >
               <Users className="w-4 h-4 text-aws-orange" />
               <span>Full showcase</span>
-            </Link>
+            </MagneticButton>
           </div>
       </ScrollSection>
 
