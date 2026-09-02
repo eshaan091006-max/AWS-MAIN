@@ -41,6 +41,7 @@ export const footerNavItems = {
     { title: "Events & Workshops", href: "/events" },
     { title: "Showcase Projects", href: "/projects" },
     { title: "Photo Gallery", href: "/gallery" },
+    { title: "Privacy Policy", href: "/privacy" },
   ],
   learn: [
     // Points at the recap rather than the event page: the session has already
