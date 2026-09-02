@@ -23,6 +23,7 @@ import { ScrollProgress } from "@/components/ui/scroll-progress";
 import { Reveal, RevealGroup } from "@/components/ui/reveal";
 import { ScrollSection } from "@/components/ui/scroll-section";
 import { ArchitectureDiagram } from "@/components/ui/architecture-diagram";
+import { Boxes } from "@/components/ui/background-boxes";
 import { CountUp } from "@/components/ui/count-up";
 import { SpotlightCard } from "@/components/ui/spotlight-card";
 
@@ -98,15 +99,8 @@ export default async function HomePage() {
       {/* ============================ HERO ============================ */}
       <section
         id="top"
-        className="relative px-4 sm:px-8 lg:px-12 pt-36 pb-24 sm:pt-44 sm:pb-32"
+        className="relative overflow-hidden px-4 sm:px-8 lg:px-12 pt-36 pb-24 sm:pt-44 sm:pb-32"
       >
-        {/* No background of its own.
-            This hero used to stack a skewed Boxes plane on top of the site-wide
-            ambient layer and the constellation canvas — three backgrounds
-            competing, and the plane's own edge cutting a visible diagonal
-            across the section. It now shows the same backdrop as every other
-            page: light pools, a masked grid, and the drifting nodes. */}
-
         {/* The hero's own set piece: a deployment assembling itself behind the
             headline. Masked at the edges and held well under the text contrast
             so it reads as a backdrop, not a diagram competing to be read. */}
@@ -116,6 +110,12 @@ export default async function HomePage() {
         >
           <ArchitectureDiagram />
         </div>
+
+        {/* Interactive grid, square on, over the diagram. It is last so it
+            paints on top, and it is the only layer here that takes the cursor —
+            the diagram above is pointer-events-none, so hovering a cell lights
+            the cell rather than being swallowed by the backdrop. */}
+        <Boxes />
 
         <div className="relative max-w-3xl mx-auto text-center space-y-7">
           <h1 className="text-5xl sm:text-7xl font-display font-bold tracking-tight leading-[1.02]">
