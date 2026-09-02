@@ -22,6 +22,7 @@ import { db } from "@/lib/db";
 import { ScrollProgress } from "@/components/ui/scroll-progress";
 import { Reveal, RevealGroup } from "@/components/ui/reveal";
 import { ScrollSection } from "@/components/ui/scroll-section";
+import { ArchitectureDiagram } from "@/components/ui/architecture-diagram";
 
 export const metadata = {
   title: "SXC AWS Group — Build. Deploy. Scale. | St. Xavier's College",
@@ -103,6 +104,16 @@ export default async function HomePage() {
             competing, and the plane's own edge cutting a visible diagonal
             across the section. It now shows the same backdrop as every other
             page: light pools, a masked grid, and the drifting nodes. */}
+
+        {/* The hero's own set piece: a deployment assembling itself behind the
+            headline. Masked at the edges and held well under the text contrast
+            so it reads as a backdrop, not a diagram competing to be read. */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 overflow-hidden opacity-[0.55] [mask-image:radial-gradient(ellipse_75%_60%_at_50%_45%,black,transparent_100%)]"
+        >
+          <ArchitectureDiagram />
+        </div>
 
         <div className="relative max-w-3xl mx-auto text-center space-y-7">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/[0.04] border border-white/10 text-xs font-mono font-semibold text-zinc-300 backdrop-blur-sm">

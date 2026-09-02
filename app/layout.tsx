@@ -3,6 +3,8 @@ import { Inter, Outfit, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { Navbar } from "@/components/navbar/Navbar";
 import { Footer } from "@/components/footer/Footer";
+import { Grain } from "@/components/ui/grain";
+import { PageTransition } from "@/components/ui/page-transition";
 import { SiteChrome } from "@/components/layout/SiteChrome";
 import { CloudGridBackground } from "@/components/animations/CloudGridBackground";
 import { NetworkNodesCanvas } from "@/components/animations/NetworkNodesCanvas";
@@ -95,8 +97,13 @@ export default function RootLayout({
 
         {/* Page Content */}
         <main className="relative z-10 min-h-[calc(100vh-200px)]">
-          {children}
+          <PageTransition>{children}</PageTransition>
         </main>
+
+        {/* Over everything, including the fixed navbar and footer, so the whole
+            surface shares one texture rather than the chrome looking cleaner
+            than the page. */}
+        <Grain />
 
         <SiteChrome>
           <Footer />
