@@ -29,10 +29,25 @@ interface HoverSliderContextValue {
   changeSlide: (index: number) => void;
 }
 
-function splitText(text: string) {
-  const words = text.split(" ").map((word) => word.concat(" "));
-  const characters = words.map((word) => word.split("")).flat(1);
-  return { words, characters };
+/**
+ * Splits into words, each carrying its characters and the index that character
+ * has in the whole string.
+ *
+ * Animating per character means every letter is its own inline-block, and the
+ * browser will happily break a line between any two of them — titles came out
+ * as "SOMEWH / ERE". Keeping each word in one nowrap box moves the break
+ * opportunities back to the spaces, while the flat index keeps the stagger
+ * running left to right across the whole title rather than restarting per word.
+ */
+function splitIntoWords(text: string) {
+  let cursor = 0;
+  return text.split(" ").map((word) => {
+    const characters = word.split("").map((char) => ({ char, index: cursor++ }));
+    // The space that followed this word occupies an index too, so the stagger
+    // stays in step with the original per-character timing.
+    cursor += 1;
+    return characters;
+  });
 }
 
 const HoverSliderContext = React.createContext<HoverSliderContextValue | undefined>(undefined);
@@ -71,7 +86,7 @@ export const TextStaggerHover = React.forwardRef<
   Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, "type"> & TextStaggerHoverProps
 >(({ text, index, className, ...props }, ref) => {
   const { activeSlide, changeSlide } = useHoverSliderContext();
-  const { characters } = splitText(text);
+  const words = splitIntoWords(text);
   const isActive = activeSlide === index;
   const select = () => changeSlide(index);
 
@@ -92,34 +107,39 @@ export const TextStaggerHover = React.forwardRef<
       )}
       {...props}
     >
-      {characters.map((char, i) => (
-        <span key={`${char}-${i}`} className="relative inline-block overflow-hidden">
-          <MotionConfig
-            transition={{
-              delay: i * 0.025,
-              duration: 0.3,
-              ease: [0.25, 0.46, 0.45, 0.94],
-            }}
-          >
-            <motion.span
-              className="inline-block opacity-20"
-              initial={{ y: "0%" }}
-              animate={isActive ? { y: "-110%" } : { y: "0%" }}
-            >
-              {char}
-              {char === " " && i < characters.length - 1 && <>&nbsp;</>}
-            </motion.span>
+      {words.map((characters, wordIndex) => (
+        <React.Fragment key={wordIndex}>
+          {wordIndex > 0 && " "}
+          <span className="inline-block whitespace-nowrap">
+            {characters.map(({ char, index: i }) => (
+              <span key={i} className="relative inline-block overflow-hidden">
+                <MotionConfig
+                  transition={{
+                    delay: i * 0.025,
+                    duration: 0.3,
+                    ease: [0.25, 0.46, 0.45, 0.94],
+                  }}
+                >
+                  <motion.span
+                    className="inline-block opacity-20"
+                    initial={{ y: "0%" }}
+                    animate={isActive ? { y: "-110%" } : { y: "0%" }}
+                  >
+                    {char}
+                  </motion.span>
 
-            <motion.span
-              className="absolute left-0 top-0 inline-block opacity-100"
-              initial={{ y: "110%" }}
-              animate={isActive ? { y: "0%" } : { y: "110%" }}
-            >
-              {char}
-              {char === " " && i < characters.length - 1 && <>&nbsp;</>}
-            </motion.span>
-          </MotionConfig>
-        </span>
+                  <motion.span
+                    className="absolute left-0 top-0 inline-block opacity-100"
+                    initial={{ y: "110%" }}
+                    animate={isActive ? { y: "0%" } : { y: "110%" }}
+                  >
+                    {char}
+                  </motion.span>
+                </MotionConfig>
+              </span>
+            ))}
+          </span>
+        </React.Fragment>
       ))}
     </button>
   );
