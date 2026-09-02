@@ -105,7 +105,7 @@ export default async function HomePage() {
             words behind words. */}
         <Boxes />
 
-        <div className="relative max-w-3xl mx-auto text-center space-y-7">
+        <div className="relative pointer-events-none max-w-3xl mx-auto text-center space-y-7">
           <h1 className="text-5xl sm:text-7xl font-display font-bold tracking-tight leading-[1.02]">
             <span className="text-white">Build. Deploy.</span>
             <br />
@@ -123,14 +123,14 @@ export default async function HomePage() {
               href={siteConfig.links.meetup}
               target="_blank"
               rel="noopener noreferrer"
-              className="px-6 py-3 rounded-xl bg-aws-orange hover:bg-aws-orange-light text-black font-bold text-sm transition-all hover:scale-[1.03] active:scale-95 flex items-center gap-2"
+              className="pointer-events-auto px-6 py-3 rounded-xl bg-aws-orange hover:bg-aws-orange-light text-black font-bold text-sm transition-all hover:scale-[1.03] active:scale-95 flex items-center gap-2"
             >
               <span>Join the Group</span>
               <ArrowUpRight className="w-4 h-4" />
             </a>
             <a
               href="#about"
-              className="px-6 py-3 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] text-zinc-200 border border-white/10 hover:border-white/20 text-sm font-semibold transition-all backdrop-blur-sm flex items-center gap-2"
+              className="pointer-events-auto px-6 py-3 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] text-zinc-200 border border-white/10 hover:border-white/20 text-sm font-semibold transition-all backdrop-blur-sm flex items-center gap-2"
             >
               <span>About Us</span>
             </a>
