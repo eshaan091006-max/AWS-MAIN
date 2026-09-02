@@ -25,7 +25,7 @@ export default function TeamsPage() {
           <div className="text-[11px] font-mono uppercase tracking-[0.2em] text-aws-orange mb-4">
             Team
           </div>
-          <h1 className="text-4xl sm:text-6xl font-display font-black text-white tracking-tight leading-[1.05]">
+          <h1 className="text-4xl sm:text-6xl font-display font-bold text-white tracking-tight leading-[1.05]">
             {count} <span className="text-gradient-orange">departments</span>
           </h1>
           <p className="text-sm sm:text-base text-zinc-400 mt-4 leading-relaxed">

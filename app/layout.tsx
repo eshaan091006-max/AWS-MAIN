@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, Outfit, JetBrains_Mono } from "next/font/google";
+import { Inter, Space_Grotesk, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { Navbar } from "@/components/navbar/Navbar";
 import { Footer } from "@/components/footer/Footer";
@@ -16,9 +16,17 @@ const inter = Inter({
   display: "swap",
 });
 
-const outfit = Outfit({
+// Space Grotesk for headings. It shares the grotesk skeleton and the quirks
+// — the single-storey a, the flat-topped g — with JetBrains Mono below, so
+// headings and labels read as one family rather than two unrelated choices.
+//
+// It stops at 700, which is why nothing here asks for black: a browser handed
+// weight 900 for a face that has none synthesises it by smearing the outline,
+// and at 72px that is very visible.
+const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
-  variable: "--font-outfit",
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-display",
   display: "swap",
 });
 
@@ -84,7 +92,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`dark ${inter.variable} ${outfit.variable} ${jetbrainsMono.variable}`}>
+    <html lang="en" className={`dark ${inter.variable} ${spaceGrotesk.variable} ${jetbrainsMono.variable}`}>
       {/* Inter for prose, JetBrains Mono where it is declared explicitly —
           eyebrows, stat labels, counts, metadata. Mono set everything, which
           reads as a terminal rather than a document and measurably slows

@@ -81,7 +81,7 @@ export function ScrollSection({
           {index !== undefined && (
             <span
               aria-hidden="true"
-              className="pointer-events-none absolute -top-10 -left-2 select-none text-[7rem] font-display font-black leading-none text-white/[0.03]"
+              className="pointer-events-none absolute -top-10 -left-2 select-none text-[7rem] font-display font-bold leading-none text-white/[0.03]"
             >
               {String(index).padStart(2, "0")}
             </span>
@@ -91,7 +91,7 @@ export function ScrollSection({
             <div className="text-[11px] font-mono uppercase tracking-[0.2em] text-aws-orange mb-4">
               {eyebrow}
             </div>
-            <h2 className="text-3xl sm:text-4xl font-display font-black text-white tracking-tight leading-[1.08]">
+            <h2 className="text-3xl sm:text-4xl font-display font-bold text-white tracking-tight leading-[1.08]">
               {title} <span className="text-gradient-orange">{highlight}</span>
             </h2>
             {sub && (

@@ -118,12 +118,7 @@ export default async function HomePage() {
         </div>
 
         <div className="relative max-w-3xl mx-auto text-center space-y-7">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/[0.04] border border-white/10 text-xs font-mono font-semibold text-zinc-300 backdrop-blur-sm">
-            <span className="w-1.5 h-1.5 rounded-full bg-aws-orange" />
-            <span>Official AWS Student Community · SXC</span>
-          </div>
-
-          <h1 className="text-5xl sm:text-7xl font-display font-black tracking-tight leading-[1.02]">
+          <h1 className="text-5xl sm:text-7xl font-display font-bold tracking-tight leading-[1.02]">
             <span className="text-white">Build. Deploy.</span>
             <br />
             <span className="text-gradient-orange">Scale.</span>
@@ -158,7 +153,7 @@ export default async function HomePage() {
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-px bg-white/[0.06] rounded-xl overflow-hidden border border-white/10">
               {stats.map((s) => (
                 <div key={s.label} className="bg-navy-950/80 px-4 py-5 backdrop-blur-sm">
-                  <div className="text-2xl sm:text-3xl font-display font-black text-white tabular-nums">
+                  <div className="text-2xl sm:text-3xl font-display font-bold text-white tabular-nums">
                     <CountUp value={s.value} />
                   </div>
                   <div className="text-[11px] font-mono uppercase tracking-wider text-zinc-500 mt-1">
@@ -362,7 +357,7 @@ export default async function HomePage() {
                 Start your journey
               </div>
 
-              <h2 className="text-3xl sm:text-5xl font-display font-black text-white tracking-tight leading-[1.08]">
+              <h2 className="text-3xl sm:text-5xl font-display font-bold text-white tracking-tight leading-[1.08]">
                 Ready to start your{" "}
                 <span className="text-gradient-orange">cloud journey?</span>
               </h2>

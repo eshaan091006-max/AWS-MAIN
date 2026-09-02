@@ -59,7 +59,7 @@ export function PersonAvatar({ name, photo, index = 0, size = "sm", className }:
             TINTS[index % TINTS.length]
           )}
         >
-          <span className="font-display font-black text-white/85 tracking-tight">{initials}</span>
+          <span className="font-display font-bold text-white/85 tracking-tight">{initials}</span>
         </div>
       )}
     </div>

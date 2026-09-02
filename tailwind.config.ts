@@ -81,7 +81,7 @@ const config: Config = {
       },
       fontFamily: {
         sans: ["var(--font-inter)", "Inter", "sans-serif"],
-        display: ["var(--font-outfit)", "Outfit", "sans-serif"],
+        display: ["var(--font-display)", "Space Grotesk", "sans-serif"],
         mono: ["var(--font-mono)", "JetBrains Mono", "monospace"],
       },
       backgroundImage: {

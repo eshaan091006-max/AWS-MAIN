@@ -273,7 +273,7 @@ export function WalkInTab({ events }: Props) {
             <div className="adm-eyebrow">Registered</div>
             <div className="flex items-baseline gap-2 mt-2">
               <span
-                className="adm-num font-display font-extrabold leading-none"
+                className="adm-num font-display font-bold leading-none"
                 style={{
                   fontSize: 30,
                   color: atCapacity ? "var(--adm-warn)" : "var(--adm-text)",

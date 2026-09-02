@@ -72,7 +72,7 @@ export function DepartmentGrid({ departments }: Props) {
                 aria-hidden="true"
                 animate={{ opacity: isActive ? 0.09 : 0.035, scale: isActive ? 1.08 : 1 }}
                 transition={{ type: "spring", stiffness: 200, damping: 22 }}
-                className="pointer-events-none absolute -bottom-8 -right-2 font-display font-black leading-none text-[9rem] text-white select-none"
+                className="pointer-events-none absolute -bottom-8 -right-2 font-display font-bold leading-none text-[9rem] text-white select-none"
               >
                 {String(i + 1).padStart(2, "0")}
               </motion.span>

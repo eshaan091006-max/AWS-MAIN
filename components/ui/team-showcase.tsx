@@ -342,7 +342,7 @@ function Tile({
           >
             <span
               className={cn(
-                "font-display font-black tracking-tight transition-colors duration-500",
+                "font-display font-bold tracking-tight transition-colors duration-500",
                 isCentre ? "text-4xl md:text-5xl" : "text-2xl md:text-3xl",
                 isActive || isCentre ? "text-white" : "text-white/40"
               )}
