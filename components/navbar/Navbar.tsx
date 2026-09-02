@@ -168,7 +168,7 @@ export function Navbar() {
                 className="w-full h-full"
               />
             </span>
-            <span className="font-display font-black text-lg text-white tracking-tight leading-none transition-colors group-hover:text-aws-orange">
+            <span className="font-display font-bold text-lg text-white tracking-tight leading-none transition-colors group-hover:text-aws-orange">
               SXC AWS <span className="text-aws-orange">Group</span>
             </span>
           </Link>

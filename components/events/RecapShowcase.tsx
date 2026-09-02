@@ -38,7 +38,7 @@ export function RecapShowcase({ recap }: { recap: EventRecap }) {
                 <TextStaggerHover
                   index={index}
                   text={slide.title}
-                  className="cursor-pointer text-lg sm:text-xl md:text-2xl font-display font-black uppercase tracking-tight text-white"
+                  className="cursor-pointer text-lg sm:text-xl md:text-2xl font-display font-bold uppercase tracking-tight text-white"
                 />
               </div>
             ))}
@@ -96,7 +96,7 @@ function TextOnlySlide({ slide }: { slide: RecapSlide }) {
     );
   }
   return (
-    <p className="text-base sm:text-2xl font-display font-black text-white text-center text-balance leading-snug max-w-lg">
+    <p className="text-base sm:text-2xl font-display font-bold text-white text-center text-balance leading-snug max-w-lg">
       {slide.quote}
     </p>
   );

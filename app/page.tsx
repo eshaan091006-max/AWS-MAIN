@@ -106,7 +106,7 @@ export default async function HomePage() {
         <Boxes />
 
         <div className="relative pointer-events-none max-w-3xl mx-auto text-center space-y-7">
-          <h1 className="text-5xl sm:text-7xl font-display font-black tracking-tight leading-[1.02]">
+          <h1 className="text-5xl sm:text-7xl font-display font-bold tracking-tight leading-[1.02]">
             <span className="text-white">Build. Deploy.</span>
             <br />
             <span className="text-gradient-orange">Scale.</span>
@@ -141,7 +141,7 @@ export default async function HomePage() {
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-px bg-white/[0.06] rounded-xl overflow-hidden border border-white/10">
               {stats.map((s) => (
                 <div key={s.label} className="bg-navy-950/80 px-4 py-5 backdrop-blur-sm">
-                  <div className="text-2xl sm:text-3xl font-display font-black text-white tabular-nums">
+                  <div className="text-2xl sm:text-3xl font-display font-bold text-white tabular-nums">
                     <CountUp value={s.value} />
                   </div>
                   <div className="text-[11px] font-mono uppercase tracking-wider text-zinc-500 mt-1">
@@ -301,7 +301,7 @@ export default async function HomePage() {
                   <div className="text-[10px] font-mono uppercase tracking-[0.18em] text-zinc-600">
                     {f.designation}
                   </div>
-                  <div className="text-lg font-display font-black text-white leading-snug mt-2">
+                  <div className="text-lg font-display font-bold text-white leading-snug mt-2">
                     {f.name}
                   </div>
                 </div>
@@ -313,7 +313,7 @@ export default async function HomePage() {
               <div className="text-[10px] font-mono uppercase tracking-[0.18em] text-aws-orange">
                 {teamHierarchy.chairperson.role}
               </div>
-              <div className="text-2xl font-display font-black text-white leading-snug mt-2">
+              <div className="text-2xl font-display font-bold text-white leading-snug mt-2">
                 {teamHierarchy.chairperson.name}
               </div>
             </div>
@@ -345,7 +345,7 @@ export default async function HomePage() {
                 Start your journey
               </div>
 
-              <h2 className="text-3xl sm:text-5xl font-display font-black text-white tracking-tight leading-[1.08]">
+              <h2 className="text-3xl sm:text-5xl font-display font-bold text-white tracking-tight leading-[1.08]">
                 Ready to start your{" "}
                 <span className="text-gradient-orange">cloud journey?</span>
               </h2>

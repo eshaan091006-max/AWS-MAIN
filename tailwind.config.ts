@@ -81,8 +81,8 @@ const config: Config = {
       },
       fontFamily: {
         sans: ["var(--font-inter)", "Inter", "sans-serif"],
-        display: ["var(--font-display)", "Amazon Ember Display", "sans-serif"],
-        mono: ["var(--font-mono)", "Amazon Ember Mono", "monospace"],
+        display: ["var(--font-display)", "Space Grotesk", "sans-serif"],
+        mono: ["var(--font-mono)", "JetBrains Mono", "monospace"],
       },
       backgroundImage: {
         "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",

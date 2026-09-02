@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
-import localFont from "next/font/local";
+import { Inter, Space_Grotesk, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { Navbar } from "@/components/navbar/Navbar";
 import { Footer } from "@/components/footer/Footer";
@@ -17,34 +16,25 @@ const inter = Inter({
   display: "swap",
 });
 
-// The programme's own typefaces, from the official AWS Student Builder Group
-// brand kit, rather than the nearest lookalike from Google Fonts.
+// Space Grotesk for headings. It shares the grotesk skeleton and the quirks
+// — the single-storey a, the flat-topped g — with JetBrains Mono below, so
+// headings and labels read as one family rather than two unrelated choices.
 //
-// Served through next/font/local: the files are subsetted and fingerprinted at
-// build time and shipped as woff2 from the app's own asset path. Dropping the
-// raw .ttf into public/ instead would publish licensed font files at a
-// guessable URL, which is closer to redistributing them than using them.
-const emberDisplay = localFont({
-  src: [
-    { path: "./fonts/AmazonEmberDisplay_Rg.ttf", weight: "400", style: "normal" },
-    { path: "./fonts/AmazonEmberDisplay_Md.ttf", weight: "500", style: "normal" },
-    { path: "./fonts/AmazonEmberDisplay_Bd.ttf", weight: "700", style: "normal" },
-    // Heavy. The headline weight the site lost when Outfit went.
-    { path: "./fonts/AmazonEmberDisplay_He.ttf", weight: "900", style: "normal" },
-  ],
+// It stops at 700, which is why nothing here asks for black: a browser handed
+// weight 900 for a face that has none synthesises it by smearing the outline,
+// and at 72px that is very visible.
+const spaceGrotesk = Space_Grotesk({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
   variable: "--font-display",
   display: "swap",
 });
 
-const emberMono = localFont({
-  src: [
-    { path: "./fonts/AmazonEmberMono_Rg.ttf", weight: "400", style: "normal" },
-    { path: "./fonts/AmazonEmberMono_Bd.ttf", weight: "700", style: "normal" },
-  ],
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ["latin"],
   variable: "--font-mono",
   display: "swap",
 });
-
 
 export const metadata: Metadata = {
   title: {
@@ -102,7 +92,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`dark ${inter.variable} ${emberDisplay.variable} ${emberMono.variable}`}>
+    <html lang="en" className={`dark ${inter.variable} ${spaceGrotesk.variable} ${jetbrainsMono.variable}`}>
       {/* Inter for prose, JetBrains Mono where it is declared explicitly —
           eyebrows, stat labels, counts, metadata. Mono set everything, which
           reads as a terminal rather than a document and measurably slows

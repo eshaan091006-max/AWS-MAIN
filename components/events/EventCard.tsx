@@ -62,7 +62,7 @@ export function EventCard({ event, featured }: EventCardProps) {
 
           {/* Date, as a stamp rather than another line of text. */}
           <div className="absolute top-4 left-4 flex flex-col items-center justify-center w-12 h-12 rounded-xl bg-navy-950/85 backdrop-blur-sm border border-white/10">
-            <span className="text-base font-display font-black text-white leading-none">{day}</span>
+            <span className="text-base font-display font-bold text-white leading-none">{day}</span>
             <span className="text-[9px] font-mono text-zinc-500 mt-0.5">{month}</span>
           </div>
 
@@ -83,7 +83,7 @@ export function EventCard({ event, featured }: EventCardProps) {
           <Link href={`/events/${event.slug}`} className="mt-2">
             <h3
               className={cn(
-                "font-display font-black text-white leading-snug transition-colors group-hover:text-aws-orange",
+                "font-display font-bold text-white leading-snug transition-colors group-hover:text-aws-orange",
                 featured ? "text-2xl lg:text-3xl" : "text-base line-clamp-2"
               )}
             >

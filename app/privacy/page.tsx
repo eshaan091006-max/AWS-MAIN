@@ -28,7 +28,7 @@ function Section({
 }) {
   return (
     <section className="mt-12">
-      <h2 className="text-lg sm:text-xl font-display font-black text-white tracking-tight">
+      <h2 className="text-lg sm:text-xl font-display font-bold text-white tracking-tight">
         <span className="text-aws-orange font-mono text-sm mr-3">
           {String(n).padStart(2, "0")}
         </span>
@@ -64,7 +64,7 @@ export default function PrivacyPage() {
           <div className="text-[11px] font-mono uppercase tracking-[0.2em] text-aws-orange mb-4">
             Legal
           </div>
-          <h1 className="text-4xl sm:text-6xl font-display font-black text-white tracking-tight leading-[1.05]">
+          <h1 className="text-4xl sm:text-6xl font-display font-bold text-white tracking-tight leading-[1.05]">
             Privacy Policy
           </h1>
           <p className="text-xs font-mono uppercase tracking-[0.15em] text-zinc-500 mt-5">
