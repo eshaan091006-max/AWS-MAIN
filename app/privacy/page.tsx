@@ -71,10 +71,10 @@ export default function PrivacyPage() {
             Last updated: {LAST_UPDATED}
           </p>
           <p className="text-sm sm:text-base text-zinc-400 mt-6 leading-relaxed">
-            This policy explains how the SXC AWS Student Builder Group (&ldquo;we&rdquo;,
-            &ldquo;us&rdquo;, &ldquo;our&rdquo;) — the AWS student community at St.
-            Xavier&rsquo;s College, Mumbai — collects, uses and protects your information
-            when you browse this site or register for one of our sessions.
+            This policy explains how the SXC AWS Student Builder Group — the AWS student
+            community at St. Xavier&rsquo;s College, Mumbai — collects, uses and protects
+            your information when you browse this site or register for one of our
+            sessions.
           </p>
           <p className="text-sm sm:text-base text-zinc-400 mt-4 leading-relaxed">
             Our sessions are free and run for students and members of the college
