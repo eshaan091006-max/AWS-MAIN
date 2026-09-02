@@ -413,7 +413,11 @@ export function CinematicFooter({
                           key={item.href + item.title}
                           as="a"
                           href={item.href}
-                          className="footer-glass-pill px-4 py-2 rounded-full text-muted-foreground font-medium text-[11px] md:text-xs"
+                          // A pill sizes to its label; letting the label wrap
+                          // inside it gives a three-line lozenge as soon as a
+                          // column is narrow. The row above already wraps, so
+                          // pills move to the next line instead of breaking.
+                          className="footer-glass-pill px-4 py-2 rounded-full text-muted-foreground font-medium text-[11px] md:text-xs whitespace-nowrap"
                         >
                           {item.title}
                         </MagneticButton>

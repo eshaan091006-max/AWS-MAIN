@@ -66,6 +66,21 @@ export function RandomLetterSwap({
 
   const Tag = as;
 
+  // Grouped into words, keeping each letter's index in the whole string so the
+  // shuffled delays still line up.
+  //
+  // The letters are flex items, and a flex row does not wrap by default — a
+  // label wider than its container simply overflowed, which is what cut off
+  // "Digital & Creative Department" on the team cards. Wrapping is allowed
+  // between words and forbidden inside one, so a long name breaks at a space
+  // rather than mid-word.
+  let cursor = 0;
+  const words = label.split(" ").map((word) => {
+    const letters = word.split("").map((char) => ({ char, index: cursor++ }));
+    cursor += 1; // the space that followed this word
+    return letters;
+  });
+
   return (
     <Tag
       className={cn("relative inline-block", className)}
@@ -77,28 +92,38 @@ export function RandomLetterSwap({
     >
       <span className="sr-only">{label}</span>
 
-      <span aria-hidden="true" className="inline-flex">
-        {label.split("").map((char, i) => (
-          <span
-            key={`${char}-${i}`}
-            className="relative inline-block overflow-hidden"
-            style={{ height: LETTER_HEIGHT, lineHeight: LETTER_HEIGHT }}
-          >
-            <motion.span
-              className="flex flex-col"
-              animate={{ y: hovered ? "-50%" : "0%" }}
-              transition={{ ...transition, delay: hovered ? delays.current[i] ?? 0 : 0 }}
-            >
-              {/* Two copies: the column is 2x a letter tall, so -50% lands the
-                  second exactly where the first was. */}
-              <span style={{ height: LETTER_HEIGHT, lineHeight: LETTER_HEIGHT }}>
-                {char === " " ? " " : char}
+      <span aria-hidden="true" className="inline-flex flex-wrap">
+        {words.map((letters, wordIndex) => (
+          <React.Fragment key={wordIndex}>
+            {wordIndex > 0 && (
+              <span
+                className="inline-block"
+                style={{ height: LETTER_HEIGHT, lineHeight: LETTER_HEIGHT }}
+              >
+                &nbsp;
               </span>
-              <span style={{ height: LETTER_HEIGHT, lineHeight: LETTER_HEIGHT }}>
-                {char === " " ? " " : char}
-              </span>
-            </motion.span>
-          </span>
+            )}
+            <span className="inline-flex">
+              {letters.map(({ char, index: i }) => (
+                <span
+                  key={`${char}-${i}`}
+                  className="relative inline-block overflow-hidden"
+                  style={{ height: LETTER_HEIGHT, lineHeight: LETTER_HEIGHT }}
+                >
+                  <motion.span
+                    className="flex flex-col"
+                    animate={{ y: hovered ? "-50%" : "0%" }}
+                    transition={{ ...transition, delay: hovered ? delays.current[i] ?? 0 : 0 }}
+                  >
+                    {/* Two copies: the column is 2x a letter tall, so -50% lands
+                        the second exactly where the first was. */}
+                    <span style={{ height: LETTER_HEIGHT, lineHeight: LETTER_HEIGHT }}>{char}</span>
+                    <span style={{ height: LETTER_HEIGHT, lineHeight: LETTER_HEIGHT }}>{char}</span>
+                  </motion.span>
+                </span>
+              ))}
+            </span>
+          </React.Fragment>
         ))}
       </span>
     </Tag>
