@@ -257,7 +257,7 @@ export function OrbitingIcons() {
                   >
                     {tile.label ? (
                       <span
-                        className="font-display font-bold leading-none tracking-tight text-center whitespace-nowrap px-1"
+                        className="font-display font-black leading-none tracking-tight text-center whitespace-nowrap px-1"
                         style={{
                           color: tile.color,
                           // Sized from the name's length rather than a two-step

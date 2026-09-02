@@ -67,7 +67,7 @@ export default async function DepartmentPage({ params }: PageProps) {
           <div className="text-[11px] font-mono uppercase tracking-[0.2em] text-aws-orange mb-4">
             {dept.code}
           </div>
-          <h1 className="text-4xl sm:text-6xl font-display font-bold text-white tracking-tight leading-[1.05]">
+          <h1 className="text-4xl sm:text-6xl font-display font-black text-white tracking-tight leading-[1.05]">
             {dept.name}
           </h1>
           <p className="text-sm sm:text-base text-zinc-500 mt-4">{dept.shortName}</p>

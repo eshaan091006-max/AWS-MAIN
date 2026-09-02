@@ -18,7 +18,9 @@ export const siteConfig = {
     process.env.NEXT_PUBLIC_SITE_URL ||
     "https://sxcawsclub.vercel.app"
   ).replace(/\/+$/, ""),
-  ogImage: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=1200&auto=format&fit=crop",
+  // The programme's own mark, not a stock photograph. Relative so it resolves
+  // against whatever host the site is deployed to.
+  ogImage: "/brand/og-card.png",
   creator: "SXC AWS Student Community",
   links: {
     github: "https://github.com/sxc-aws-club",

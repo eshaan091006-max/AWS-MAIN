@@ -64,7 +64,7 @@ export default function AdminLoginPage() {
             Operator Console
           </div>
           <h1
-            className="font-display font-bold leading-[0.95] tracking-[-0.03em]"
+            className="font-display font-black leading-[0.95] tracking-[-0.03em]"
             style={{ fontSize: "clamp(2.75rem, 5vw, 4.25rem)" }}
           >
             EVENTS.

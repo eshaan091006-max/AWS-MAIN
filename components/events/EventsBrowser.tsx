@@ -66,7 +66,7 @@ export function EventsBrowser({ events }: Props) {
           <div className="text-[11px] font-mono uppercase tracking-[0.2em] text-aws-orange mb-4">
             Events
           </div>
-          <h1 className="text-4xl sm:text-6xl font-display font-bold text-white tracking-tight leading-[1.05]">
+          <h1 className="text-4xl sm:text-6xl font-display font-black text-white tracking-tight leading-[1.05]">
             Learn through <span className="text-gradient-orange">experience</span>
           </h1>
           <p className="text-sm sm:text-base text-zinc-400 mt-4 leading-relaxed">

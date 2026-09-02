@@ -211,7 +211,7 @@ export default function ContactPage() {
       <section className="max-w-6xl mx-auto px-4 sm:px-8 lg:px-12 pt-28">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16">
           <div className="lg:col-span-4">
-            <h2 className="text-4xl sm:text-5xl font-display font-bold text-white tracking-tight">
+            <h2 className="text-4xl sm:text-5xl font-display font-black text-white tracking-tight">
               FAQs
             </h2>
             <p className="text-base text-zinc-400 mt-3">Your questions answered</p>

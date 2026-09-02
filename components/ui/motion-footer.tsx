@@ -378,7 +378,7 @@ export function CinematicFooter({
           <div className="relative z-10 flex flex-1 flex-col items-center justify-center px-6 mt-36 md:mt-24 w-full max-w-5xl mx-auto">
             <h2
               ref={headingRef}
-              className="text-3xl sm:text-4xl md:text-7xl font-display font-bold footer-text-glow tracking-tighter mb-6 md:mb-10 text-center"
+              className="text-3xl sm:text-4xl md:text-7xl font-display font-black footer-text-glow tracking-tighter mb-6 md:mb-10 text-center"
             >
               {heading}
             </h2>

@@ -33,3 +33,8 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# The full AWS Student Builder Group brand kit (59MB of source assets).
+# What the site uses is copied into public/brand and app/fonts; the rest
+# stays local rather than being committed and served on every deploy.
+brand-kit/

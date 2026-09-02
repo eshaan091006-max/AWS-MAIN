@@ -69,7 +69,7 @@ export function ContactHero({ onStart }: ContactHeroProps) {
           <FaAws className="w-10 h-10 text-black" />
         </div>
 
-        <h1 className="text-5xl md:text-6xl font-display font-bold tracking-tight text-white leading-[1.05]">
+        <h1 className="text-5xl md:text-6xl font-display font-black tracking-tight text-white leading-[1.05]">
           Let&apos;s build together.
         </h1>
 

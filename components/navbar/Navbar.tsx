@@ -4,7 +4,6 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ArrowUpRight } from "lucide-react";
-import { FaAws } from "react-icons/fa6";
 import { RandomLetterSwap } from "@/components/ui/random-letter-swap";
 import { MobileMenu } from "@/components/navbar/MobileMenu";
 import { scrollToSection, scrollToHashOnLoad } from "@/lib/scrollToSection";
@@ -156,12 +155,20 @@ export function Navbar() {
           }`}
       >
         <div className="max-w-[1750px] mx-auto px-4 sm:px-8 lg:px-12 xl:px-16 flex items-center justify-between">
-          {/* Logo: AWS mark and the wordmark, nothing else. */}
+          {/* Logo: the programme icon and the wordmark, nothing else.
+              The mark is the official Student Builder Group icon from the brand
+              kit rather than the generic AWS smile from react-icons — this is a
+              Builder Group, and the programme has its own. */}
           <Link href="/" className="flex items-center gap-3 group shrink-0">
-            <span className="w-9 h-9 rounded-xl bg-aws-orange flex items-center justify-center transition-transform group-hover:scale-105">
-              <FaAws className="w-5 h-5 text-black" />
+            <span className="w-9 h-9 rounded-xl bg-aws-orange flex items-center justify-center p-[7px] transition-transform group-hover:scale-105">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/brand/program-icon-dark.svg"
+                alt=""
+                className="w-full h-full"
+              />
             </span>
-            <span className="font-display font-bold text-lg text-white tracking-tight leading-none transition-colors group-hover:text-aws-orange">
+            <span className="font-display font-black text-lg text-white tracking-tight leading-none transition-colors group-hover:text-aws-orange">
               SXC AWS <span className="text-aws-orange">Group</span>
             </span>
           </Link>
