@@ -27,7 +27,6 @@ import { CountUp } from "@/components/ui/count-up";
 import { SpotlightCard } from "@/components/ui/spotlight-card";
 import { MagneticButton } from "@/components/ui/magnetic-button";
 import { StackingCards } from "@/components/ui/stacking-cards";
-import { InfiniteSlider } from "@/components/ui/infinite-slider";
 
 export const metadata = {
   title: "SXC AWS Group — Build. Deploy. Scale. | St. Xavier's College",
@@ -47,16 +46,15 @@ export const revalidate = 60;
  */
 export default async function HomePage() {
   const events = await db.listEvents();
-  const upcoming = events.filter((e) => e.status === "UPCOMING");
-  const featured = events.filter((e) => e.isFeatured);
-  // Upcoming first, then anything flagged featured, then simply the most
-  // recent. The last step matters: with one completed, unfeatured event on the
-  // books both earlier rules matched nothing and the section rendered its
-  // "nothing scheduled" state while a real event sat one click away on
-  // /events. Past sessions are still worth showing — they carry a recap.
-  const featuredEvents = (
-    upcoming.length > 0 ? upcoming : featured.length > 0 ? featured : events
-  ).slice(0, 4);
+  // One event on the home page: the next one if something is scheduled,
+  // otherwise the most recent to have happened. The section is a pointer to
+  // /events, not a second copy of it, and a single card says "here is what is
+  // on" more clearly than a row of two.
+  const upcoming = events
+    .filter((e) => e.status === "UPCOMING")
+    .sort((a, b) => +new Date(a.date) - +new Date(b.date));
+  const past = [...events].sort((a, b) => +new Date(b.date) - +new Date(a.date));
+  const featuredEvents = (upcoming.length > 0 ? upcoming : past).slice(0, 1);
 
   const departments = teamHierarchy.departments;
 
@@ -273,16 +271,11 @@ export default async function HomePage() {
         sub="Workshops, hackathons and speaker sessions — every one built around doing rather than watching."
       >
           {featuredEvents.length > 0 ? (
-            /* Same rail as the departments. It only travels once there are
-               enough events to overflow the frame — with one on the calendar
-               it renders as a single card rather than cycling past itself. */
-            <InfiniteSlider>
+            <RevealGroup className="grid grid-cols-1">
               {featuredEvents.map((event) => (
-                <div key={event.id} className="w-[80vw] sm:w-[30rem]">
-                  <EventCard event={event} featured />
-                </div>
+                <EventCard key={event.id} event={event} featured />
               ))}
-            </InfiniteSlider>
+            </RevealGroup>
           ) : (
             <div className="p-10 rounded-xl bg-navy-900/50 border border-white/10 text-center">
               <Calendar className="w-8 h-8 text-zinc-600 mx-auto mb-3" />

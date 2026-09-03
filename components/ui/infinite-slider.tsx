@@ -29,6 +29,12 @@ import { cn } from "@/lib/utils";
  * The duplicated half is aria-hidden and inert. aria-hidden alone leaves its
  * links focusable, landing a keyboard user on elements screen readers have been
  * told do not exist.
+ *
+ * It can also be scrolled by hand. The frame is a real scroll container, so a
+ * trackpad, a wheel or a drag moves along the row — and since hovering already
+ * pauses the animation, taking hold of it stops the drift rather than fighting
+ * it. overscroll-x-contain keeps that gesture from chaining out to the page
+ * once the end is reached.
  */
 export function InfiniteSlider({
   children,
@@ -81,7 +87,11 @@ export function InfiniteSlider({
     <div
       ref={frameRef}
       className={cn(
-        "group/slider relative w-full overflow-hidden",
+        "group/slider relative w-full",
+        // A scroll container, not a clipped box: the row can be dragged or
+        // wheeled through as well as left to drift. The bar itself is hidden —
+        // the motion already says the row continues.
+        "overflow-x-auto overscroll-x-contain [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
         // Fades the row into the page at both ends rather than cutting it
         // against a hard edge — only meaningful once it actually moves.
         overflows &&
