@@ -17,11 +17,15 @@ export function DepartmentGrid({ departments }: Props) {
   const [hovered, setHovered] = useState<string | null>(null);
 
   return (
+    // No variant orchestration here.
+    //
+    // The slider mounts a duplicate copy of these cards only once it has
+    // measured that the row overflows, which is after the parent has already
+    // settled on its target variant. framer propagates variant *changes*, so
+    // nothing ever told those late children to leave "hidden" — the second
+    // copy stayed at y: 28 and sat 28px below the first wherever the two met.
+    // The cards carry their own state instead, which cannot go stale.
     <motion.div
-      initial="hidden"
-      whileInView="shown"
-      viewport={{ once: true, amount: 0.1 }}
-      variants={{ shown: { transition: { staggerChildren: 0.08 } } }}
       onMouseLeave={() => setHovered(null)}
       className="mt-14"
     >
@@ -40,14 +44,6 @@ export function DepartmentGrid({ departments }: Props) {
         return (
           <motion.div
             key={dept.id}
-            variants={{
-              hidden: { opacity: 0, y: 28 },
-              shown: {
-                opacity: 1,
-                y: 0,
-                transition: { type: "spring", stiffness: 240, damping: 24 },
-              },
-            }}
             animate={{ opacity: isDimmed ? 0.45 : 1 }}
             transition={{ duration: 0.3 }}
             onMouseEnter={() => setHovered(dept.id)}
