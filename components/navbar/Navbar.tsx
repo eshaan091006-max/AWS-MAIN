@@ -27,9 +27,20 @@ export function Navbar() {
    * Resolves a nav item to a real href. On the home page an anchor is enough;
    * anywhere else it has to be "/#section", or the browser looks for the anchor
    * on the current page and does nothing.
+   *
+   * Embedded, section anchors are swapped for the full page each one
+   * summarises. An anchor only arrives anywhere by scrolling the window it
+   * lives in, and inside someone else's frame that is not reliably the window
+   * the reader is looking at: the host decides the frame's height, whether it
+   * scrolls internally, and whether an internal navigation survives at all —
+   * and none of it can be read or driven across origins. A real route needs
+   * none of that, because the frame simply loads a different page.
    */
-  const hrefFor = (item: { href: string; section?: string }) =>
-    item.section ? (onHome ? `#${item.section}` : `/#${item.section}`) : item.href;
+  const hrefFor = (item: { href: string; section?: string; owns?: string[] }) => {
+    if (!item.section) return item.href;
+    if (isEmbedded && item.owns?.[0]) return item.owns[0];
+    return onHome ? `#${item.section}` : `/#${item.section}`;
+  };
 
   /**
    * Section links scroll rather than jump.
@@ -42,7 +53,8 @@ export function Navbar() {
     e: React.MouseEvent<HTMLAnchorElement>,
     item: { section?: string }
   ) => {
-    if (!item.section || !onHome) return;
+    // Embedded, these are ordinary page links, so the click must fall through.
+    if (!item.section || !onHome || isEmbedded) return;
     // Leave modified clicks alone: ctrl/cmd/middle-click means "open elsewhere".
     if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
     if (!scrollToSection(item.section)) return;
