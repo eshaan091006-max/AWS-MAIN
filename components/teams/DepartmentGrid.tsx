@@ -6,7 +6,6 @@ import { motion } from "framer-motion";
 import { ArrowUpRight } from "lucide-react";
 import type { DepartmentNode } from "@/config/teamHierarchy";
 import { RandomLetterSwap } from "@/components/ui/random-letter-swap";
-import { InfiniteSlider } from "@/components/ui/infinite-slider";
 import { cn } from "@/lib/utils";
 
 interface Props {
@@ -17,19 +16,10 @@ export function DepartmentGrid({ departments }: Props) {
   const [hovered, setHovered] = useState<string | null>(null);
 
   return (
-    // No variant orchestration here.
-    //
-    // The slider mounts a duplicate copy of these cards only once it has
-    // measured that the row overflows, which is after the parent has already
-    // settled on its target variant. framer propagates variant *changes*, so
-    // nothing ever told those late children to leave "hidden" — the second
-    // copy stayed at y: 28 and sat 28px below the first wherever the two met.
-    // The cards carry their own state instead, which cannot go stale.
     <motion.div
       onMouseLeave={() => setHovered(null)}
-      className="mt-14"
+      className="mt-14 grid grid-cols-1 sm:grid-cols-2 gap-px bg-white/[0.08] rounded-xl overflow-hidden border border-white/10"
     >
-      <InfiniteSlider>
       {departments.map((dept, i) => {
         const leads = dept.vcps.length;
         // De-duplicated across both sources so this matches the tile count on
@@ -47,11 +37,11 @@ export function DepartmentGrid({ departments }: Props) {
             animate={{ opacity: isDimmed ? 0.45 : 1 }}
             transition={{ duration: 0.3 }}
             onMouseEnter={() => setHovered(dept.id)}
-            className="relative w-[78vw] sm:w-[24rem]"
+            className="relative h-full"
           >
             <Link
               href={`/teams/${dept.slug}`}
-              className="group relative flex h-full min-h-[19rem] flex-col rounded-xl border border-white/10 bg-navy-950 p-8 overflow-hidden transition-colors hover:border-aws-orange/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-aws-orange/60 focus-visible:ring-inset"
+              className="group relative flex h-full flex-col bg-navy-950 p-8 sm:p-10 overflow-hidden transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-aws-orange/60 focus-visible:ring-inset"
             >
               {/* The department's own colour, only while it is the one being
                   looked at. */}
@@ -115,7 +105,6 @@ export function DepartmentGrid({ departments }: Props) {
           </motion.div>
         );
       })}
-      </InfiniteSlider>
     </motion.div>
   );
 }

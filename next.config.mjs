@@ -46,10 +46,24 @@ const cspDirectives = [
 // frame-ancestors 'none'. What remains is that someone could frame the public
 // pages — the worst case is tricking a visitor into submitting a registration,
 // not taking over an account.
-const PUBLIC_ANCESTORS = "https:";
+// null: public pages send no frame-ancestors directive at all.
+//
+// "https:" was already broad and still did not work. An embed host that probes
+// the URL treats the presence of the directive as "framing is restricted" and
+// falls back to offering a static link preview rather than a live page — and
+// the sandboxed iframe it would have used has an opaque origin, which matches
+// no source expression anyway, not a host, a scheme, or a wildcard. The
+// directive blocked the embed it was written to permit.
+//
+// The trade is the one already accepted above and stays bounded the same way:
+// /admin and /api keep frame-ancestors 'none'.
+const PUBLIC_ANCESTORS = null;
 
+// null omits the directive; anything else is emitted as a source list.
 const buildCsp = (frameAncestors) =>
-  [...cspDirectives, `frame-ancestors ${frameAncestors}`].join("; ");
+  frameAncestors === null
+    ? cspDirectives.join("; ")
+    : [...cspDirectives, `frame-ancestors ${frameAncestors}`].join("; ");
 
 // Headers common to every response, with no framing directive of their own —
 // framing is decided per-path below.
@@ -76,12 +90,11 @@ const adminHeaders = [
   ...baseSecurityHeaders,
 ];
 
-// X-Frame-Options is deliberately omitted here. It has no allowlist form that
-// any current browser honours, so sending DENY would override frame-ancestors
-// and block the embed, and SAMEORIGIN would do the same. frame-ancestors is the
-// directive that actually expresses this policy.
+// X-Frame-Options is deliberately omitted here, as is frame-ancestors. Either
+// one present is enough for an embed host to decide the page cannot be framed
+// and offer a link preview instead of the live page.
 const publicHeaders = [
-  { key: "Content-Security-Policy", value: buildCsp(`'self' ${PUBLIC_ANCESTORS}`) },
+  { key: "Content-Security-Policy", value: buildCsp(PUBLIC_ANCESTORS) },
   ...baseSecurityHeaders,
 ];
 
