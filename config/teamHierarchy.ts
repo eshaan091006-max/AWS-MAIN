@@ -58,7 +58,7 @@ export const teamHierarchy: TeamHierarchy = {
     {
       id: "dept-events",
       slug: "events",
-      name: "Department of Events & Hackathons",
+      name: "Department of Events",
       shortName: "Workshops, meetups & competitions",
       code: "EVT",
       color: "from-amber-500/20 to-aws-orange/10",

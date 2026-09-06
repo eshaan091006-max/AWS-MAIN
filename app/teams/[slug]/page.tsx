@@ -80,7 +80,8 @@ export default async function DepartmentPage({ params }: PageProps) {
         <section className="mt-16">
           <div className="flex items-center gap-4 mb-10">
             <span className="text-[11px] font-mono uppercase tracking-[0.2em] text-zinc-600">
-              {leads.length} {leads.length === 1 ? "lead" : "leads"}
+              {leads.length}{" "}
+              {leads.length === 1 ? "core committee member" : "core committee members"}
               {members.length > 0 &&
                 ` · ${members.length} ${members.length === 1 ? "coordinator" : "coordinators"}`}
             </span>

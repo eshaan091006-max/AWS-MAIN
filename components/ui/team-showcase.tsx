@@ -368,7 +368,7 @@ function Tile({
               : "bg-navy-950/80 text-zinc-300 border border-white/10"
           )}
         >
-          {isLead ? "Lead" : "Coordinator"}
+          {isLead ? "Core Committee" : "Coordinator"}
         </motion.span>
 
         <motion.span
