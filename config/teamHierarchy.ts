@@ -76,10 +76,10 @@ export const teamHierarchy: TeamHierarchy = {
       vcps: [
         {
           name: "Raphael Wol",
-          role: "Events Lead",
+          role: "Events Core Committee Member",
           coordinators: ["Praneet Singh", "Harsh Arkal"],
         },
-        { name: "Karan Singh", role: "Hackathon Lead" },
+        { name: "Karan Singh", role: "Hackathon Core Committee Member" },
       ],
     },
     {
@@ -104,17 +104,17 @@ export const teamHierarchy: TeamHierarchy = {
       vcps: [
         {
           name: "Michael Fernandes",
-          role: "Digital and Creative Lead",
+          role: "Digital and Creative Core Committee Member",
           // Eshaan moved up from this department's members to co-lead it.
           coordinators: ["Ricco Marcelino"],
         },
-        { name: "Eshaan Sinha", role: "Digital and Creative Lead" },
+        { name: "Eshaan Sinha", role: "Digital and Creative Core Committee Member" },
       ],
     },
     {
       id: "dept-marketing",
       slug: "marketing",
-      name: "Department of Marketing",
+      name: "Department of Marketing, Sponsorships and Finance",
       shortName: "Promotion & audience",
       code: "MKT",
       color: "from-violet-500/20 to-fuchsia-500/10",
@@ -130,8 +130,8 @@ export const teamHierarchy: TeamHierarchy = {
       ],
       currentInitiatives: ["Cloud Day campaign", "Member spotlight series"],
       vcps: [
-        { name: "Nicole Dsouza", role: "Marketing Lead" },
-        { name: "Vimal Kansotia", role: "Marketing Lead" },
+        { name: "Vimal Kansotia", role: "Marketing Core Committee Member" },
+        { name: "Nicole Dsouza", role: "Marketing Core Committee Member" },
       ],
       // Department-level rather than under one lead: Marketing has two, and
       // these members work to both.
@@ -139,10 +139,10 @@ export const teamHierarchy: TeamHierarchy = {
     },
     {
       id: "dept-pr",
-      slug: "pr",
-      name: "Department of PR",
+      slug: "admin",
+      name: "Department of Admin",
       shortName: "Communication & relations",
-      code: "PR",
+      code: "ADM",
       color: "from-blue-500/20 to-cyan-500/10",
       badgeColor: "text-blue-400 bg-blue-950/60 border-blue-500/30",
       description:
@@ -157,7 +157,7 @@ export const teamHierarchy: TeamHierarchy = {
       vcps: [
         {
           name: "Anubhav Barik",
-          role: "PR Lead",
+          role: "Admin Core Committee Member",
           coordinators: ["Nyneishia Naik", "Deveshi Saha", "Bhumika Hasalkar"],
         },
       ],

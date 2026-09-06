@@ -10,13 +10,13 @@ export interface TeamMember {
   id: string;
   name: string;
   /**
-   * Whether this person leads. An explicit flag rather than matching the role
-   * text: roles read "Events Lead", "PR Lead" and so on, so a check for the
-   * exact word "lead" would quietly demote every one of them to a member and
-   * leave the cluster with no centre.
+   * Whether this person leads. An explicit flag rather than something inferred
+   * from the role text, which has already been reworded once — from "Events
+   * Lead" to "Events Core Committee Member" — and would have taken the
+   * cluster's centre with it if the distinction had been a string match.
    */
   kind: "lead" | "member";
-  /** Display label, e.g. "Events Lead". */
+  /** Display label, e.g. "Events Core Committee Member". */
   role: string;
   /**
    * Optional. Without one, a monogram is drawn instead.
