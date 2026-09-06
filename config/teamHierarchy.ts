@@ -79,7 +79,7 @@ export const teamHierarchy: TeamHierarchy = {
           role: "Events Core Committee Member",
           coordinators: ["Praneet Singh", "Harsh Arkal"],
         },
-        { name: "Karan Singh", role: "Hackathon Core Committee Member" },
+        { name: "Karan Singh", role: "Events Core Committee Member" },
       ],
     },
     {
@@ -141,19 +141,19 @@ export const teamHierarchy: TeamHierarchy = {
       id: "dept-pr",
       slug: "admin",
       name: "Department of Admin",
-      shortName: "Communication & relations",
+      shortName: "Registration, permissions & coordination",
       code: "ADM",
       color: "from-blue-500/20 to-cyan-500/10",
       badgeColor: "text-blue-400 bg-blue-950/60 border-blue-500/30",
       description:
-        "Handles how the club speaks to everyone outside it. That means inviting and briefing guests and speakers, keeping the college and its faculty informed, and maintaining the relationships with other institutions and communities the club works alongside. When someone outside the club forms an impression of it, this department shaped it.",
+        "The permissions and paperwork that let everything else happen. Registrations are collected and checked here, approvals for rooms and events are taken through the college's own processes, and the group's dealings with departments and faculty run through this desk. It is invisible when it works, and the reason a session cannot go ahead when it does not.",
       responsibilities: [
-        "External communication",
-        "Guest & speaker coordination",
-        "Institutional communication",
-        "Community relations",
+        "Registration",
+        "Permissions",
+        "Institutional coordination",
+        "Administration",
       ],
-      currentInitiatives: ["Sponsor outreach", "Cross-college collaborations"],
+      currentInitiatives: ["Venue and permission approvals", "Registration records"],
       vcps: [
         {
           name: "Anubhav Barik",
