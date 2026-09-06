@@ -27,7 +27,7 @@ export default async function DepartmentPage({ params }: PageProps) {
   const dept = teamHierarchy.departments.find((d) => d.slug === slug);
   if (!dept) notFound();
 
-  // VCPs are Leads and coordinators are Members now. Coordinators are stored
+  // VCPs are Leads; everyone under them is a Coordinator. They are stored
   // per-VCP, or on the department itself where it has co-leads and a member
   // answers to both. Both sources are flattened and de-duplicated — the same
   // person can be listed under two leads in the source data.
@@ -44,7 +44,7 @@ export default async function DepartmentPage({ params }: PageProps) {
   const addMember = (name: string) => {
     if (seen.has(name)) return;
     seen.add(name);
-    members.push({ id: `member-${seen.size}`, name, kind: "member", role: "Member" });
+    members.push({ id: `member-${seen.size}`, name, kind: "member", role: "Coordinator" });
   };
   dept.vcps.forEach((vcp) => (vcp.coordinators ?? []).forEach(addMember));
   (dept.coordinators ?? []).forEach(addMember);
@@ -82,7 +82,7 @@ export default async function DepartmentPage({ params }: PageProps) {
             <span className="text-[11px] font-mono uppercase tracking-[0.2em] text-zinc-600">
               {leads.length} {leads.length === 1 ? "lead" : "leads"}
               {members.length > 0 &&
-                ` · ${members.length} ${members.length === 1 ? "member" : "members"}`}
+                ` · ${members.length} ${members.length === 1 ? "coordinator" : "coordinators"}`}
             </span>
             <span className="h-px flex-1 bg-white/[0.07]" />
           </div>

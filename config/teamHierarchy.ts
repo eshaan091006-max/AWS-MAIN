@@ -58,26 +58,28 @@ export const teamHierarchy: TeamHierarchy = {
     {
       id: "dept-events",
       slug: "events",
-      name: "Department of Events",
-      shortName: "Workshops, talks & meetups",
+      name: "Department of Events & Hackathons",
+      shortName: "Workshops, meetups & competitions",
       code: "EVT",
       color: "from-amber-500/20 to-aws-orange/10",
       badgeColor: "text-amber-400 bg-amber-950/60 border-amber-500/30",
       description:
-        "Plans and runs everything the club puts on — hands-on workshops, speaker talks, meetups and the smaller community sessions in between. Most of the work happens before anyone arrives: fixing the calendar, securing rooms, briefing speakers and building a running order. The rest is holding the day together once it starts.",
+        "Everything the group puts on, from an hour-long workshop to a weekend-long build. The same work sits behind both: fixing a date, securing a room, briefing whoever is speaking or judging, and writing a running order that survives contact with the day. Hackathons add the problem statements and the teams to keep moving, and take the department from running a session to running a competition.",
       responsibilities: [
-        "Workshops",
-        "Talks",
-        "Meetups",
-        "Community activities",
+        "Workshops and hands-on sessions",
+        "Speaker talks and meetups",
+        "Hackathons and competitions",
+        "Problem statements and judging",
+        "Venues, scheduling and running order",
       ],
-      currentInitiatives: ["AWS Cloud Day 2026 Summit planning"],
+      currentInitiatives: ["AWS Cloud Day 2026 Summit planning", "CloudHacks 36-hour hackathon"],
       vcps: [
         {
           name: "Raphael Wol",
           role: "Events Lead",
           coordinators: ["Praneet Singh", "Harsh Arkal"],
         },
+        { name: "Karan Singh", role: "Hackathon Lead" },
       ],
     },
     {
@@ -159,26 +161,6 @@ export const teamHierarchy: TeamHierarchy = {
           coordinators: ["Nyneishia Naik", "Deveshi Saha", "Bhumika Hasalkar"],
         },
       ],
-    },
-    {
-      id: "dept-hackathon",
-      slug: "hackathon",
-      name: "Department of Hackathons",
-      shortName: "Competitions",
-      code: "HACK",
-      color: "from-rose-500/20 to-orange-500/10",
-      badgeColor: "text-rose-400 bg-rose-950/60 border-rose-500/30",
-      description:
-        "Designs and runs the club's competitions from end to end. That means writing the problem statements and technical challenges, helping teams form and keeping them moving, arranging judges and the criteria they score against, and running the event itself — along with any other competitions the club hosts or enters.",
-      responsibilities: [
-        "Hackathon planning",
-        "Technical challenges",
-        "Team coordination",
-        "Judging",
-        "Related competitions",
-      ],
-      currentInitiatives: ["CloudHacks 36-hour hackathon"],
-      vcps: [{ name: "Karan Singh", role: "Hackathon Lead" }],
     },
   ],
 };

@@ -91,7 +91,7 @@ export function DepartmentGrid({ departments }: Props) {
                 <div className="mt-8 flex items-center gap-3">
                   <span className="text-[11px] font-mono text-zinc-500">
                     {leads} {leads === 1 ? "lead" : "leads"}
-                    {members > 0 && ` · ${members} ${members === 1 ? "member" : "members"}`}
+                    {members > 0 && ` · ${members} ${members === 1 ? "coordinator" : "coordinators"}`}
                   </span>
                   <motion.span
                     aria-hidden="true"
