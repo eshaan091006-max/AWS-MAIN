@@ -1,16 +1,11 @@
-"use client";
-
 import React from "react";
-import Image from "next/image";
+import type { Metadata } from "next";
 import Link from "next/link";
 import {
-  Cloud,
   Target,
   Eye,
-  Award,
   CheckCircle,
   ArrowRight,
-  Sparkles,
   Terminal,
   Code2,
   GraduationCap,
@@ -18,175 +13,223 @@ import {
   Briefcase,
   Rocket,
 } from "lucide-react";
-import { siteConfig } from "@/config/site";
+import { ScrollSection } from "@/components/ui/scroll-section";
+import { SpotlightCard } from "@/components/ui/spotlight-card";
+import { Reveal, RevealGroup } from "@/components/ui/reveal";
+import { DecodeText } from "@/components/ui/decode-text";
+import { MagneticButton } from "@/components/ui/magnetic-button";
+
+// A server component now. It was "use client" without using a single hook,
+// which meant it could not export metadata — so the page had no title or
+// description of its own and fell back to the site-wide template.
+export const metadata: Metadata = {
+  title: "About",
+  description:
+    "The SXC AWS Student Builder Group at St. Xavier's College — what we do, what we believe, and what members get.",
+};
+
+const MEMBER_PERKS = [
+  {
+    title: "Access to AWS Console",
+    desc: "Guided access to the official AWS Management Console to build, deploy and experiment with production cloud services in real time.",
+    icon: Terminal,
+  },
+  {
+    title: "Technical Workshops",
+    desc: "Hands-on code-alongs and deep-dive masterclasses on compute, databases, serverless, containers and AI.",
+    icon: Code2,
+  },
+  {
+    title: "For Tech and Non-Tech Alike",
+    desc: "Foundational learning tailored for students across IT, Science, Commerce and Arts, to build confident cloud literacy.",
+    icon: GraduationCap,
+  },
+  {
+    title: "Skill Builder Certifications",
+    desc: "Official digital training, resources and video guides for AWS services, free to members.",
+    icon: ShieldCheck,
+  },
+  {
+    title: "AWS in Industry",
+    desc: "Real enterprise architectures, cloud migration case studies, and how global industries scale with high availability.",
+    icon: Briefcase,
+  },
+  {
+    title: "Hands-on Projects",
+    desc: "Build cloud applications and GenAI prototypes that carry real weight on a technical resume.",
+    icon: Rocket,
+  },
+];
+
+const MISSION_POINTS = [
+  "Hands-on practice over passive theory",
+  "Free access to AWS Skill Builder certification",
+  "An inclusive community welcoming all skill levels",
+];
+
+const VISION_POINTS = [
+  "Introduce every student to AWS and cloud computing",
+  "Make cloud learning accessible to non-technical backgrounds",
+  "Turn curiosity into deployed, working projects",
+];
 
 export default function AboutPage() {
-  const memberPerks = [
-    {
-      title: "Access to AWS Console",
-      desc: "Gain guided access to the official AWS Management Console to build, deploy, and experiment with production cloud services in real-time.",
-      icon: Terminal,
-      color: "text-amber-400 border-amber-500/30",
-    },
-    {
-      title: "Technical Workshops",
-      desc: "Participate in hands-on code-alongs and deep-dive technical masterclasses on compute, databases, serverless, containers, and AI.",
-      icon: Code2,
-      color: "text-blue-400 border-blue-500/30",
-    },
-    {
-      title: "Upskilling for Tech & Non-Tech Backgrounds",
-      desc: "Inclusive foundational learning tailored for all students across IT, Science, Commerce, and Arts to build confident digital cloud literacy.",
-      icon: GraduationCap,
-      color: "text-emerald-400 border-emerald-500/30",
-    },
-    {
-      title: "Access to AWS Skill Builder Certifications",
-      desc: "Unlock official digital training, Resources and Video Guides for AWS Servies",
-      icon: ShieldCheck,
-      color: "text-aws-orange border-aws-orange/40",
-    },
-    {
-      title: "Hands-on Applications of AWS in Industry",
-      desc: "Explore real-world enterprise architectures, cloud migration case studies, and how global industries scale with high availability.",
-      icon: Briefcase,
-      color: "text-purple-400 border-purple-500/30",
-    },
-    {
-      title: "Learn Through Hands-on Projects",
-      desc: "Build cloud applications, GenAI prototypes and Projects that elevate your technical resume.",
-      icon: Rocket,
-      color: "text-pink-400 border-pink-500/30",
-    },
-  ];
-
   return (
-    <div className="relative pt-28 pb-20 overflow-hidden">
-      {/* Header */}
-      <section className="max-w-[1750px] mx-auto px-4 sm:px-8 lg:px-12 xl:px-16 pt-8 pb-16">
-        <div className="text-center max-w-3xl mx-auto space-y-4">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-mono font-bold bg-aws-orange/15 text-aws-orange border border-aws-orange/30">
-            <Cloud className="w-3.5 h-3.5" />
-            <span>WHO WE ARE</span>
-          </div>
+    <div className="relative pb-28">
+      <div className="pt-32 px-4 sm:px-8 lg:px-12">
+        <header className="relative max-w-6xl mx-auto">
+          {/* Ghost numeral and left-aligned heading, as on the department
+              pages and the home sections. The old page centred everything,
+              which is the one layout the rest of the site never uses. */}
+          <span
+            aria-hidden="true"
+            className="pointer-events-none absolute -top-16 -left-3 select-none text-[9rem] sm:text-[12rem] font-display font-bold leading-none text-white/[0.035]"
+          >
+            00
+          </span>
 
-          <h1 className="text-4xl sm:text-5xl font-extrabold text-white tracking-tight">
-            Building the Next Generation of <span className="text-gradient-orange">Cloud Leaders</span>
-          </h1>
-
-          <p className="text-base text-slate-300 leading-relaxed">
-            SXC AWS Group is a premier student-driven technology community at St. Xavier&apos;s College dedicated to cloud architecture, distributed systems, DevOps engineering, and modern artificial intelligence.
-          </p>
-        </div>
-      </section>
-
-      {/* Mission & Vision Split */}
-      <section className="max-w-[1750px] mx-auto px-4 sm:px-8 lg:px-12 xl:px-16 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {/* Mission Card */}
-          <div className="p-8 rounded-xl bg-navy-900/80 border border-aws-orange/30 backdrop-blur-xl shadow-2xl space-y-4 relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-48 h-48 bg-aws-orange/10 rounded-full blur-3xl pointer-events-none" />
-            <div className="w-12 h-12 rounded-xl bg-aws-orange/20 border border-aws-orange/40 flex items-center justify-center text-aws-orange">
-              <Target className="w-6 h-6 stroke-[2.2]" />
+          <div className="relative max-w-3xl">
+            <div className="text-[11px] font-mono uppercase tracking-[0.2em] text-aws-orange mb-4">
+              <DecodeText text="WHO WE ARE" />
             </div>
-            <h2 className="text-2xl font-bold text-white">Our Mission</h2>
-            <p className="text-sm text-slate-300 leading-relaxed">
-              To democratize access to advanced cloud computing education and foster a collaborative environment where students learn by building production-grade distributed architectures. We bridge the gap between theoretical computer science and modern cloud industry practice.
+            <h1 className="text-4xl sm:text-6xl font-display font-bold text-white tracking-tight leading-[1.05]">
+              Building the next generation of{" "}
+              <span className="text-gradient-orange">cloud leaders</span>
+            </h1>
+            <p className="text-base sm:text-lg text-zinc-300 mt-6 leading-relaxed">
+              A student-driven technology community at St. Xavier&apos;s College, built
+              around cloud architecture, distributed systems, DevOps and modern
+              artificial intelligence.
             </p>
-            <ul className="space-y-2 pt-2 text-xs font-mono text-slate-300">
-              <li className="flex items-center gap-2">
-                <CheckCircle className="w-4 h-4 text-aws-orange" />
-                <span>Hands-on practice over passive theory</span>
-              </li>
-              <li className="flex items-center gap-2">
-                <CheckCircle className="w-4 h-4 text-aws-orange" />
-                <span>Providing Access to Free AWS Skill Builder Certification</span>
-              </li>
-              <li className="flex items-center gap-2">
-                <CheckCircle className="w-4 h-4 text-aws-orange" />
-                <span>Inclusive community welcoming all skill tiers</span>
-              </li>
-            </ul>
           </div>
+        </header>
+      </div>
 
-          {/* Vision Card */}
-          <div className="p-8 rounded-xl bg-navy-900/80 border border-blue-500/30 backdrop-blur-xl shadow-2xl space-y-4 relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-48 h-48 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
-            <div className="w-12 h-12 rounded-xl bg-blue-500/20 border border-blue-500/40 flex items-center justify-center text-blue-400">
-              <Eye className="w-6 h-6 stroke-[2.2]" />
+      <ScrollSection
+        id="beliefs"
+        index={1}
+        eyebrow="What drives us"
+        title="Why the group"
+        highlight="exists"
+        sub="Two statements the committee works to, and the commitments underneath each."
+      >
+        <RevealGroup className="grid grid-cols-1 md:grid-cols-2 gap-4" step={0.08}>
+          <SpotlightCard
+            as="article"
+            className="h-full rounded-xl border border-white/10 bg-navy-950 p-7 transition-colors duration-300 hover:border-aws-orange/30"
+          >
+            <div className="relative">
+              <div className="w-11 h-11 rounded-xl bg-aws-orange/10 border border-aws-orange/25 flex items-center justify-center text-aws-orange">
+                <Target className="w-5 h-5 stroke-[2.2]" />
+              </div>
+              <h3 className="text-xl font-display font-bold text-white mt-5">Our mission</h3>
+              <p className="text-sm text-zinc-400 leading-relaxed mt-3">
+                To make advanced cloud education available to every student, and to build
+                a place where people learn by shipping production-grade architectures —
+                bridging the gap between coursework and how the cloud industry actually
+                works.
+              </p>
+              <ul className="mt-5 space-y-2">
+                {MISSION_POINTS.map((point) => (
+                  <li key={point} className="flex items-start gap-2.5 text-xs text-zinc-400">
+                    <CheckCircle className="w-3.5 h-3.5 text-aws-orange mt-0.5 shrink-0" />
+                    <span>{point}</span>
+                  </li>
+                ))}
+              </ul>
             </div>
-            <h2 className="text-2xl font-bold text-white">Our Vision</h2>
-            <p className="text-sm text-slate-300 leading-relaxed">
-              To empower students to build, innovate, and lead with cloud technology.
-            </p>
-            <ul className="space-y-2 pt-2 text-xs font-mono text-slate-300">
-              <li className="flex items-center gap-2">
-                <CheckCircle className="w-4 h-4 text-blue-400" />
-                <span>Introduce students to AWS and cloud computing</span>
-              </li>
-              <li className="flex items-center gap-2">
-                <CheckCircle className="w-4 h-4 text-blue-400" />
-                <span>Make cloud learning accessible to non-technical backgrounds</span>
-              </li>
-              <li className="flex items-center gap-2">
-                <CheckCircle className="w-4 h-4 text-blue-400" />
-                <span>Encourage students to learn through practical projects</span>
-              </li>
-            </ul>
-          </div>
-        </div>
-      </section>
+          </SpotlightCard>
 
-      {/* What Members Get */}
-      <section className="max-w-[1750px] mx-auto px-4 sm:px-8 lg:px-12 xl:px-16 py-16">
-        <div className="text-center max-w-2xl mx-auto mb-14">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-mono font-bold bg-purple-500/15 text-purple-400 border border-purple-500/30 mb-2">
-            <Award className="w-3.5 h-3.5" />
-            <span>MEMBER ADVANTAGES</span>
-          </div>
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
-            What You Get as a Member
-          </h2>
-          <p className="text-sm text-slate-300 mt-2">
-            Everything you need to accelerate your technical skills, build a stellar portfolio, and break into the top tier of cloud computing.
-          </p>
-        </div>
+          <SpotlightCard
+            as="article"
+            className="h-full rounded-xl border border-white/10 bg-navy-950 p-7 transition-colors duration-300 hover:border-ambient-violet/40"
+          >
+            <div className="relative">
+              {/* The one place a second colour appears, and it is the ambient
+                  violet the rest of the site already uses for atmosphere —
+                  not a seventh accent invented for this card. */}
+              <div className="w-11 h-11 rounded-xl bg-ambient-indigo/10 border border-ambient-indigo/25 flex items-center justify-center text-ambient-violet">
+                <Eye className="w-5 h-5 stroke-[2.2]" />
+              </div>
+              <h3 className="text-xl font-display font-bold text-white mt-5">Our vision</h3>
+              <p className="text-sm text-zinc-400 leading-relaxed mt-3">
+                To empower students to build, innovate and lead with cloud technology — so
+                that leaving college with real deployed systems behind you is the norm,
+                not the exception.
+              </p>
+              <ul className="mt-5 space-y-2">
+                {VISION_POINTS.map((point) => (
+                  <li key={point} className="flex items-start gap-2.5 text-xs text-zinc-400">
+                    <CheckCircle className="w-3.5 h-3.5 text-ambient-violet mt-0.5 shrink-0" />
+                    <span>{point}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </SpotlightCard>
+        </RevealGroup>
+      </ScrollSection>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {memberPerks.map((perk) => {
+      <ScrollSection
+        id="membership"
+        index={2}
+        eyebrow="Member advantages"
+        title="What you get as a"
+        highlight="member"
+        sub="Six things every member gets, from their first login to their first deployed architecture."
+      >
+        <RevealGroup className="grid grid-cols-1 sm:grid-cols-2 gap-px bg-white/[0.08] rounded-xl overflow-hidden border border-white/10">
+          {MEMBER_PERKS.map((perk, i) => {
             const Icon = perk.icon;
             return (
-              <div
+              <SpotlightCard
+                as="article"
                 key={perk.title}
-                className={`p-6 sm:p-7 rounded-xl bg-navy-900/70 border ${perk.color} backdrop-blur-md hover:bg-navy-900 transition-all hover:scale-[1.02] flex flex-col justify-between shadow-xl`}
+                className="group h-full bg-navy-950 p-6 transition-colors duration-300 hover:bg-navy-900"
               >
-                <div>
-                  <div className="w-12 h-12 rounded-xl bg-navy-950 flex items-center justify-center mb-4 border border-white/10 shadow-inner">
-                    <Icon className="w-6 h-6" />
+                <div className="relative">
+                  <div className="flex items-start justify-between mb-5">
+                    {/* One accent, not six. The old page gave each card its own
+                        colour — amber, blue, emerald, orange, purple, pink —
+                        which is the palette fight the config warns about: with
+                        everything accented, nothing reads as the action. */}
+                    <div className="w-11 h-11 rounded-xl bg-white/[0.04] border border-white/10 flex items-center justify-center text-aws-orange group-hover:border-aws-orange/40 transition-colors">
+                      <Icon className="w-5 h-5" />
+                    </div>
+                    <span className="text-xs font-mono text-zinc-500 tabular-nums">
+                      {String(i + 1).padStart(2, "0")}
+                    </span>
                   </div>
-                  <h3 className="text-lg font-bold text-white tracking-tight">{perk.title}</h3>
-                  <p className="text-xs sm:text-sm text-slate-300 mt-2.5 leading-relaxed">{perk.desc}</p>
+                  <h3 className="text-base font-bold text-white mb-2">{perk.title}</h3>
+                  <p className="text-sm text-zinc-400 leading-relaxed">{perk.desc}</p>
                 </div>
-              </div>
+              </SpotlightCard>
             );
           })}
-        </div>
-      </section>
+        </RevealGroup>
+      </ScrollSection>
 
-      {/* CTA */}
-      <section className="max-w-[1750px] mx-auto px-4 sm:px-8 lg:px-12 xl:px-16 pt-8">
-        <div className="p-8 rounded-xl bg-gradient-to-r from-navy-900 to-navy-950 border border-aws-orange/30 flex flex-col md:flex-row items-center justify-between gap-6 text-center md:text-left shadow-2xl">
-          <div>
-            <h3 className="text-2xl font-bold text-white">Want to be part of our next milestone?</h3>
-            <p className="text-xs text-slate-300 mt-1">Join SXC AWS Group as a member, speaker, or community partner.</p>
+      <section className="relative px-4 sm:px-8 lg:px-12 pt-4">
+        <Reveal>
+          <div className="max-w-6xl mx-auto rounded-xl border border-aws-orange/25 bg-gradient-to-br from-navy-900 to-navy-950 p-8 sm:p-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div>
+              <h2 className="text-2xl sm:text-3xl font-display font-bold text-white tracking-tight">
+                Want to be part of the next one?
+              </h2>
+              <p className="text-sm text-zinc-400 mt-2">
+                Join as a member, a speaker, or a community partner.
+              </p>
+            </div>
+            <MagneticButton
+              as={Link}
+              href="/contact"
+              className="shrink-0 inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-aws-orange hover:bg-aws-orange-light text-black font-bold text-sm"
+            >
+              <span>Get in touch</span>
+              <ArrowRight className="w-4 h-4" />
+            </MagneticButton>
           </div>
-          <Link
-            href="/contact"
-            className="px-6 py-3 rounded-xl bg-aws-orange hover:bg-aws-orange-light text-black font-bold text-xs font-mono shadow-lg transition-all shrink-0"
-          >
-            Apply to Join Today →
-          </Link>
-        </div>
+        </Reveal>
       </section>
     </div>
   );
