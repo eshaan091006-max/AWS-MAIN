@@ -6,6 +6,7 @@ import { EventData } from "@/lib/data/initialData";
 import { EventCard } from "@/components/events/EventCard";
 import { LiquidButtonStyles } from "@/components/ui/liquid-button";
 import { cn } from "@/lib/utils";
+import { DecodeText } from "@/components/ui/decode-text";
 
 interface Props {
   events: EventData[];
@@ -62,14 +63,20 @@ export function EventsBrowser({ events }: Props) {
         {/* Header. One eyebrow, one headline, one line of context — the old
             version also carried a badge, a two-clause title and a sentence of
             marketing copy that said the same thing three times. */}
-        <header className="max-w-2xl">
-          <div className="text-[11px] font-mono uppercase tracking-[0.2em] text-aws-orange mb-4">
-            Events
+        <header className="relative max-w-2xl">
+          <span
+            aria-hidden="true"
+            className="pointer-events-none absolute -top-16 -left-3 select-none text-[9rem] sm:text-[12rem] font-display font-bold leading-none text-white/[0.035]"
+          >
+            00
+          </span>
+          <div className="relative text-[11px] font-mono uppercase tracking-[0.2em] text-aws-orange mb-4">
+            <DecodeText text="EVENTS" />
           </div>
-          <h1 className="text-4xl sm:text-6xl font-display font-bold text-white tracking-tight leading-[1.05]">
+          <h1 className="relative text-4xl sm:text-6xl font-display font-bold text-white tracking-tight leading-[1.05]">
             Learn through <span className="text-gradient-orange">experience</span>
           </h1>
-          <p className="text-sm sm:text-base text-zinc-400 mt-4 leading-relaxed">
+          <p className="relative text-sm sm:text-base text-zinc-400 mt-4 leading-relaxed">
             Workshops, hackathons and speaker sessions — every one built around doing.
           </p>
         </header>

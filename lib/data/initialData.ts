@@ -324,81 +324,24 @@ export const INITIAL_EVENTS: EventData[] = [
   }
 ];
 
-export const INITIAL_PROJECTS: ProjectData[] = [
-  {
-    id: "proj-1",
-    title: "CloudPulse: Multi-Region Distributed Observability",
-    slug: "cloudpulse-observability",
-    shortDesc: "Real-time automated telemetry and drift detection engine for multi-region AWS cloud infrastructures.",
-    problem: "Student and startup teams often suffer unexpected cloud bill spikes and unmonitored infrastructure downtime due to complex CloudWatch configurations.",
-    solution: "CloudPulse aggregates CloudWatch metrics, AWS Cost Explorer API, and VPC Flow Logs into a unified high-speed dashboard with Telegram & Discord alerting bots.",
-    technologies: ["Next.js", "TypeScript", "Python", "Tailwind CSS", "Terraform"],
-    awsServices: ["AWS Lambda", "Amazon DynamoDB", "Amazon CloudWatch", "Amazon SNS", "Amazon S3", "AWS EventBridge"],
-    imageUrl: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=1200&auto=format&fit=crop",
-    githubUrl: "https://github.com/sxc-aws-club/cloudpulse",
-    liveDemoUrl: "https://cloudpulse.sxcaws.club",
-    isFeatured: true,
-    members: [
-      { name: "Aarav Sharma", role: "Cloud Architect", avatarUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=200&auto=format&fit=crop" },
-      { name: "Vikramaditya Banerjee", role: "Backend Engineer", avatarUrl: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=200&auto=format&fit=crop" },
-      { name: "Ishita Bose", role: "UI/UX Designer", avatarUrl: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=200&auto=format&fit=crop" },
-    ],
-  },
-  {
-    id: "proj-2",
-    title: "AutoScalerX: Smart EKS Kubernetes Auto-Tuner",
-    slug: "autoscaler-x-eks",
-    shortDesc: "Reinforcement-learning driven predictive pod autoscaler that cuts AWS EC2 cluster compute costs by 42%.",
-    problem: "Standard Kubernetes HPA (Horizontal Pod Autoscaler) relies on reactive CPU metrics, resulting in slow scale-ups during sudden traffic surges and wasted compute idle time.",
-    solution: "AutoScalerX uses machine learning time-series forecasting on historical traffic to pre-provision EC2 spot instances 3 minutes ahead of demand bursts.",
-    technologies: ["Python", "PySpark", "Docker", "FastAPI", "Kubernetes", "Prometheus"],
-    awsServices: ["Amazon EKS", "Amazon EC2 Spot", "Amazon Athena", "Amazon S3", "AWS Glue"],
-    imageUrl: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?q=80&w=1200&auto=format&fit=crop",
-    githubUrl: "https://github.com/sxc-aws-club/autoscaler-x",
-    liveDemoUrl: "https://autoscalerx.sxcaws.club",
-    isFeatured: true,
-    members: [
-      { name: "Devanshu Patel", role: "DevOps Lead", avatarUrl: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?q=80&w=200&auto=format&fit=crop" },
-      { name: "Rhea Sen", role: "Systems Engineer", avatarUrl: "https://images.unsplash.com/photo-1580489944761-15a19d654956?q=80&w=200&auto=format&fit=crop" },
-    ],
-  },
-  {
-    id: "proj-3",
-    title: "CloudDocs AI: Serverless Knowledge Intelligence Engine",
-    slug: "clouddocs-ai-knowledge-engine",
-    shortDesc: "Intelligent document retrieval and automated compliance auditor powered by Amazon Bedrock and Claude 3.5.",
-    problem: "Navigating thousands of pages of college syllabus, academic research, and AWS documentation manually takes hours of tedious searching.",
-    solution: "CloudDocs AI automatically parses PDFs using Amazon Textract, creates high-dimensional vector embeddings, and delivers instant, cited semantic answers.",
-    technologies: ["Next.js", "TypeScript", "LangChain", "Python", "Tailwind CSS"],
-    awsServices: ["Amazon Bedrock", "Amazon Textract", "Amazon Aurora PostgreSQL (pgvector)", "AWS Lambda", "Amazon S3"],
-    imageUrl: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1200&auto=format&fit=crop",
-    githubUrl: "https://github.com/sxc-aws-club/clouddocs-ai",
-    liveDemoUrl: "https://clouddocs.sxcaws.club",
-    isFeatured: true,
-    members: [
-      { name: "Sneha Mukherjee", role: "AI Lead", avatarUrl: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=200&auto=format&fit=crop" },
-      { name: "Aarav Sharma", role: "Full-Stack Dev", avatarUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=200&auto=format&fit=crop" },
-    ],
-  },
-  {
-    id: "proj-4",
-    title: "EduCloud: Instant Sandbox Labs for Students",
-    slug: "educloud-student-sandbox",
-    shortDesc: "Ephemeral, cost-governed cloud lab environments provisioned on-demand with automatic teardown.",
-    problem: "Students frequently incur accidental charges on personal cloud accounts while practicing for AWS certifications.",
-    solution: "EduCloud allocates isolated sandbox AWS accounts with pre-budgeted $5 limits, active IAM permission boundaries, and 2-hour auto-destruction triggers.",
-    technologies: ["Next.js", "Go", "AWS CDK", "PostgreSQL", "Docker"],
-    awsServices: ["AWS Organizations", "AWS IAM", "AWS Lambda", "Amazon DynamoDB", "Amazon API Gateway"],
-    imageUrl: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=1200&auto=format&fit=crop",
-    githubUrl: "https://github.com/sxc-aws-club/educloud",
-    liveDemoUrl: "https://educloud.sxcaws.club",
-    isFeatured: false,
-    members: [
-      { name: "Kabir Mehta", role: "Project Lead", avatarUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=200&auto=format&fit=crop" },
-      { name: "Ananya Roy", role: "FinOps & Security", avatarUrl: "https://images.unsplash.com/photo-1517841905240-472988babdf9?q=80&w=200&auto=format&fit=crop" },
-    ],
-  },
-];
+/**
+ * Deliberately empty.
+ *
+ * This held three invented projects — CloudPulse, AutoScalerX, CloudDocs AI —
+ * credited to eight people who do not exist, each with a stock photograph of a
+ * real stranger used as their portrait, and GitHub URLs that resolve to
+ * nothing.
+ *
+ * That was survivable while /projects was a hardcoded "coming soon" page that
+ * never read the database. It is not survivable now that the page renders this
+ * list: db.listProjects() falls back to it whenever Supabase is unreachable or
+ * the table is missing, so a single outage would have published fabricated
+ * student work under invented names on the college's site.
+ *
+ * The page's empty state covers this case properly. Add real projects through
+ * the admin console.
+ */
+export const INITIAL_PROJECTS: ProjectData[] = [];
 
 export const INITIAL_GALLERY: GalleryImageData[] = [
   {

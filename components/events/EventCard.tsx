@@ -40,7 +40,7 @@ export function EventCard({ event, featured }: EventCardProps) {
     <>
       <article
         className={cn(
-          "group relative flex bg-navy-950/85 backdrop-blur-sm",
+          "group relative flex bg-navy-950",
           featured ? "flex-col lg:flex-row" : "flex-col"
         )}
       >
