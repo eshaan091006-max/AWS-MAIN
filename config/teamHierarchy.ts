@@ -102,14 +102,13 @@ export const teamHierarchy: TeamHierarchy = {
       ],
       currentInitiatives: ["Club platform on AWS", "Event photo and film coverage"],
       vcps: [
-        {
-          name: "Michael Fernandes",
-          role: "Digital and Creative Core Committee Member",
-          // Eshaan moved up from this department's members to co-lead it.
-          coordinators: ["Ricco Marcelino", "Suhani Minocha", "Ian Reddy"],
-        },
+        { name: "Michael Fernandes", role: "Digital and Creative Core Committee Member" },
+        // Eshaan moved up from this department's coordinators to co-lead it.
         { name: "Eshaan Sinha", role: "Digital and Creative Core Committee Member" },
       ],
+      // Department-level rather than under one lead: there are two co-leads and
+      // these coordinators work to both.
+      coordinators: ["Ricco Marcelino", "Suhani Minocha", "Ian Reddy"],
     },
     {
       id: "dept-marketing",
