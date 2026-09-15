@@ -106,7 +106,7 @@ export const teamHierarchy: TeamHierarchy = {
           name: "Michael Fernandes",
           role: "Digital and Creative Core Committee Member",
           // Eshaan moved up from this department's members to co-lead it.
-          coordinators: ["Ricco Marcelino"],
+          coordinators: ["Ricco Marcelino", "Suhani Minocha", "Ian Reddy"],
         },
         { name: "Eshaan Sinha", role: "Digital and Creative Core Committee Member" },
       ],
