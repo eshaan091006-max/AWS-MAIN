@@ -103,12 +103,8 @@ export const teamHierarchy: TeamHierarchy = {
       currentInitiatives: ["Club platform on AWS", "Event photo and film coverage"],
       vcps: [
         { name: "Michael Fernandes", role: "Digital and Creative Core Committee Member" },
-        // Eshaan moved up from this department's coordinators to co-lead it.
-        { name: "Eshaan Sinha", role: "Digital and Creative Core Committee Member" },
       ],
-      // Department-level rather than under one lead: there are two co-leads and
-      // these coordinators work to both.
-      coordinators: ["Ricco Marcelino", "Suhani Minocha", "Ian Reddy"],
+      coordinators: ["Ricco Marcelino", "Suhani Minocha"],
     },
     {
       id: "dept-marketing",
@@ -175,10 +171,8 @@ export const teamPhotos: Record<string, string> = Object.fromEntries(
     "Karan Singh",
     "Praneet Singh",
     "Michael Fernandes",
-    "Eshaan Sinha",
     "Ricco Marcelino",
     "Suhani Minocha",
-    "Ian Reddy",
     "Vimal Kansotia",
     "Nicole Dsouza",
     "Athen Chettiar",
