@@ -140,35 +140,38 @@ alter table public.events
 
 create index if not exists events_date_idx on public.events (date desc);
 
--- Seed the one event that previously lived in initialData.ts, so the site has
--- content the moment this runs. ON CONFLICT DO NOTHING keeps re-runs safe and
--- never overwrites an edit made in the admin UI.
+-- The three events held so far, copied from their Meetup pages. Unlike the
+-- other seeds this one UPDATES on conflict: event-1 used to be a placeholder
+-- ("AWS Foundations Event") and must be replaced on projects that already ran
+-- the old seed. Re-running it resets these three rows to this text.
 insert into public.events (
   id, title, slug, description, full_details, date, time, venue,
   category, status, is_featured, image_url, banner_url,
   speaker_names, prerequisites, agenda, max_seats, ecc_points
-) values (
-  'event-1',
-  'AWS Foundations Event',
-  'aws-foundations',
-  'An introductory event to AWS and Cloud Computing.',
-  'Learn the basics of cloud computing and AWS services with hands-on labs and real-world examples.',
-  '2026-08-30T02:00:00Z',
-  '02:00 PM - 04:00 PM IST',
-  'Bonet Lab, St. Xavier''s College',
-  'BOOTCAMP', 'UPCOMING', true,
-  'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?q=80&w=1200&auto=format&fit=crop',
-  'https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=1600&auto=format&fit=crop',
-  ARRAY['Dr. Rajesh Kulkarni (AWS Principal Architect)','Aarav Sharma (SXC AWS Lead)','Sneha Mukherjee (AI Researcher)'],
-  ARRAY['Basic understanding of programming','Laptop with modern web browser','AWS Free Tier account (optional)'],
-  '[{"time":"09:30 AM","title":"Registration & Welcome Keynote","description":"Opening address on the state of global cloud infrastructure in 2026."},
-    {"time":"10:30 AM","title":"Hands-on: Serverless Microservices with AWS Lambda & CDK","description":"Live code-along: build and deploy an API from scratch."},
-    {"time":"01:00 PM","title":"Networking Lunch & AWS Architecture Showcase","description":"Explore student projects and chat with AWS certified mentors."},
-    {"time":"02:15 PM","title":"Generative AI on AWS: Building with Amazon Bedrock","description":"Deploying production LLM applications with Vector search on RDS Aurora."},
-    {"time":"04:30 PM","title":"AWS Cloud Jam Competition & Award Ceremony","description":"Speed troubleshooting challenge with AWS merchandise prizes."}]'::jsonb,
-  100,
-  2
-) on conflict (id) do nothing;
+) values
+  ('event-1', 'The Builder''s Launchpad', 'the-builders-launchpad', 'The first event of the AWS Student Builder Group at St. Xavier''s College, Mumbai, introducing students to cloud computing and AWS.', 'The Builder''s Launchpad marks the first event of the AWS Student Builder Group at St. Xavier''s College, Mumbai. It aims to introduce students to cloud computing and AWS while creating a platform where students from different streams can explore technology, develop practical skills, collaborate, and turn their ideas into real-world solutions.
+
+The event features an introductory session on "From On-Premise Limitations to the Cloud", covering the limitations of traditional infrastructure, scalability, availability, infrastructure costs, and how cloud computing and AWS can address real-world challenges.',
+   '2026-08-29T14:00:00+05:30', '02:00 PM - 04:00 PM IST', 'St. Xavier''s College, Mumbai', 'SEMINAR', 'COMPLETED', true,
+   '/events/the-builders-launchpad.jpeg', '/events/the-builders-launchpad.jpeg', ARRAY[]::text[], ARRAY[]::text[], '[]'::jsonb, 120, 0),
+  ('event-2', 'Building a Serverless Event-Driven System on AWS', 'serverless-event-driven-system', 'A hands-on AWS workshop using serverless services such as S3, Lambda and DynamoDB. No ECC points are awarded for this session.', 'A hands-on AWS workshop where serverless services like S3, Lambda and DynamoDB are used to build an event-driven system.
+
+Note: No ECC points will be given.',
+   '2026-09-09T12:00:00+05:30', '12:00 PM - 02:00 PM IST', 'St. Xavier''s College (Autonomous), Mumbai', 'WORKSHOP', 'COMPLETED', false,
+   '/events/serverless-event-driven-system.jpeg', '/events/serverless-event-driven-system.jpeg', ARRAY[]::text[], ARRAY[]::text[], '[]'::jsonb, 40, 0),
+  ('event-3', 'From Bucket to Server: AWS S3 & EC2', 'from-bucket-to-server', 'A beginner-friendly, hands-on introduction to AWS: create an S3 bucket and launch an EC2 instance.', 'Learn the fundamentals of Amazon Web Services through a hands-on introduction to S3 and EC2.
+
+Understand how cloud storage and computing work in real-world applications. Get practical experience creating an S3 bucket and launching an EC2 instance. Perfect for beginners looking to take their first step into AWS and cloud computing.',
+   '2026-09-23T08:00:00+05:30', '08:00 AM - 10:00 AM IST', 'St. Xavier''s College (Autonomous), Mumbai', 'WORKSHOP', 'COMPLETED', false,
+   '/events/from-bucket-to-server.jpeg', '/events/from-bucket-to-server.jpeg', ARRAY['Prof. Aaron Johns'], ARRAY[]::text[], '[]'::jsonb, 30, 0)
+on conflict (id) do update set
+  title = excluded.title, slug = excluded.slug, description = excluded.description,
+  full_details = excluded.full_details, date = excluded.date, time = excluded.time,
+  venue = excluded.venue, category = excluded.category, status = excluded.status,
+  is_featured = excluded.is_featured, image_url = excluded.image_url,
+  banner_url = excluded.banner_url, speaker_names = excluded.speaker_names,
+  prerequisites = excluded.prerequisites, agenda = excluded.agenda,
+  max_seats = excluded.max_seats, ecc_points = excluded.ecc_points;
 
 -- Carry over any capacity rows created by the earlier design, then retire it.
 --
@@ -218,16 +221,68 @@ create index if not exists gallery_date_idx on public.gallery (date desc);
 -- Seeded from lib/data/initialData.ts, generated rather than retyped so the
 -- two cannot drift. ON CONFLICT DO NOTHING keeps re-runs safe and never
 -- overwrites an edit made in the admin area.
+update public.gallery set title = 'From Bucket to Server: AWS S3 & EC2' where title = 'AWS Basics Workshop';
+update public.gallery set title = 'Building a Serverless Event-Driven System on AWS' where title = 'Building a Serverless Event-Driven System';
+
+delete from public.gallery where id in ('gal-1','gal-2','gal-3','gal-4','gal-5','gal-6','gal-7','gal-8');
+
 insert into public.gallery (id, title, description, category, image_url, date, featured)
 values
-  ('gal-1', 'AWS Cloud Day Inauguration Keynote', 'Over 350 students gathered at the Xavier auditorium for the annual cloud kickoff.', 'EVENTS', 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?q=80&w=1200&auto=format&fit=crop', '2026-03-12', true),
-  ('gal-2', 'Hands-on Serverless Lab Session', 'Students building live Lambda functions and API Gateway endpoints.', 'WORKSHOPS', 'https://images.unsplash.com/photo-1531482615713-2afd69097998?q=80&w=1200&auto=format&fit=crop', '2026-02-18', true),
-  ('gal-3', 'CloudHacks Grand Finale Judging', 'Jury evaluating architecture diagrams and high-availability setups.', 'HACKATHONS', 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=1200&auto=format&fit=crop', '2025-11-20', true),
-  ('gal-4', 'Core Executive Team Strategy Meeting', 'Planning upcoming certification study cohorts and industrial guest lectures.', 'TEAM', 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=1200&auto=format&fit=crop', '2026-01-10', false),
-  ('gal-5', 'AWS Community Mixer & Mentorship', 'Senior cloud engineers reviewing resumes and offering architecture tips.', 'COMMUNITY', 'https://images.unsplash.com/photo-1511632765486-a01980e01a18?q=80&w=1200&auto=format&fit=crop', '2025-12-05', false),
-  ('gal-6', 'Container & Kubernetes Bootcamp', 'Deep dive into Docker images, microservices, and cluster management.', 'WORKSHOPS', 'https://images.unsplash.com/photo-1515187029135-18ee286d815b?q=80&w=1200&auto=format&fit=crop', '2025-10-15', false),
-  ('gal-7', 'Hackathon Winning Team Celebration', 'Awarding AWS exam vouchers and prizes to the top 3 innovating teams.', 'HACKATHONS', 'https://images.unsplash.com/photo-1517048676732-d65bc937f952?q=80&w=1200&auto=format&fit=crop', '2025-11-21', false),
-  ('gal-8', 'Student Induction & Welcome Drive', 'Welcoming 150+ new cloud enthusiasts into the SXC AWS family.', 'COMMUNITY', 'https://images.unsplash.com/photo-1523240795612-9a054b0db644?q=80&w=1200&auto=format&fit=crop', '2025-08-25', false)
+  ('gal-event-2-01', 'Building a Serverless Event-Driven System on AWS', 'The workshop hall during the hands-on session, every seat at a workstation.', 'WORKSHOPS', '/gallery/event-2/124242.jpg', '2026-09-09', true),
+  ('gal-event-2-02', 'Building a Serverless Event-Driven System on AWS', 'The session lead walking the room through a step on the projector.', 'WORKSHOPS', '/gallery/event-2/124142.jpg', '2026-09-09', false),
+  ('gal-event-2-03', 'Building a Serverless Event-Driven System on AWS', 'Taking questions from the room mid-session.', 'WORKSHOPS', '/gallery/event-2/124908.jpg', '2026-09-09', false),
+  ('gal-event-2-04', 'Building a Serverless Event-Driven System on AWS', 'Presenting the next step to participants at their screens.', 'WORKSHOPS', '/gallery/event-2/123418.jpg', '2026-09-09', false),
+  ('gal-event-2-05', 'Building a Serverless Event-Driven System on AWS', 'A full room working through the lab.', 'WORKSHOPS', '/gallery/event-2/134201.jpg', '2026-09-09', false),
+  ('gal-event-2-06', 'Building a Serverless Event-Driven System on AWS', 'One-to-one help for a participant at their laptop.', 'WORKSHOPS', '/gallery/event-2/123435.jpg', '2026-09-09', false),
+  ('gal-event-2-07', 'Building a Serverless Event-Driven System on AWS', 'Wrapping up, with the AWS Builder Center QR code on screen.', 'WORKSHOPS', '/gallery/event-2/142500.jpg', '2026-09-09', false),
+  ('gal-event-2-08', 'Building a Serverless Event-Driven System on AWS', 'The room filling up as the session begins.', 'WORKSHOPS', '/gallery/event-2/122250.jpg', '2026-09-09', false),
+  ('gal-event-3-09', 'From Bucket to Server: AWS S3 & EC2', 'Presenters and participants together at the end of the workshop.', 'WORKSHOPS', '/gallery/event-3/095717.jpg', '2026-09-23', true),
+  ('gal-event-3-10', 'From Bucket to Server: AWS S3 & EC2', 'A group selfie to close the day.', 'WORKSHOPS', '/gallery/event-3/0957300.jpg', '2026-09-23', false),
+  ('gal-event-3-11', 'From Bucket to Server: AWS S3 & EC2', 'Explaining how to choose an EC2 instance type for a use case.', 'WORKSHOPS', '/gallery/event-3/085328.jpg', '2026-09-23', true),
+  ('gal-event-3-12', 'From Bucket to Server: AWS S3 & EC2', 'Walking through cloud storage concepts.', 'WORKSHOPS', '/gallery/event-3/083352.jpg', '2026-09-23', false),
+  ('gal-event-3-13', 'From Bucket to Server: AWS S3 & EC2', 'Opening with the building blocks of a cloud.', 'WORKSHOPS', '/gallery/event-3/083154.jpg', '2026-09-23', false),
+  ('gal-event-3-14', 'From Bucket to Server: AWS S3 & EC2', 'Comparing AWS with traditional IT infrastructure.', 'WORKSHOPS', '/gallery/event-3/084500.jpg', '2026-09-23', false),
+  ('gal-event-3-15', 'From Bucket to Server: AWS S3 & EC2', 'A live walkthrough in the AWS console.', 'WORKSHOPS', '/gallery/event-3/090121.jpg', '2026-09-23', false),
+  ('gal-event-3-16', 'From Bucket to Server: AWS S3 & EC2', 'Participants following along in the terminal.', 'WORKSHOPS', '/gallery/event-3/090448.jpg', '2026-09-23', false),
+  ('gal-event-3-17', 'From Bucket to Server: AWS S3 & EC2', 'The opening session, with the room ready to start.', 'WORKSHOPS', '/gallery/event-3/082644.jpg', '2026-09-23', false),
+  ('gal-event-3-18', 'From Bucket to Server: AWS S3 & EC2', 'Participants working through the hands-on exercises.', 'WORKSHOPS', '/gallery/event-3/093409.jpg', '2026-09-23', false),
+  ('gal-event-2-19', 'Building a Serverless Event-Driven System on AWS', 'Helping a participant with their setup.', 'WORKSHOPS', '/gallery/event-2/123944.jpg', '2026-09-09', false),
+  ('gal-event-2-20', 'Building a Serverless Event-Driven System on AWS', 'Checking in with participants at their desks.', 'WORKSHOPS', '/gallery/event-2/122312.jpg', '2026-09-09', false),
+  ('gal-event-2-21', 'Building a Serverless Event-Driven System on AWS', 'The session lead moving through the lab.', 'WORKSHOPS', '/gallery/event-2/122324.jpg', '2026-09-09', false),
+  ('gal-event-2-22', 'Building a Serverless Event-Driven System on AWS', 'The lab in progress, with the walkthrough on the projector.', 'WORKSHOPS', '/gallery/event-2/123546.jpg', '2026-09-09', false),
+  ('gal-event-2-23', 'Building a Serverless Event-Driven System on AWS', 'Answering a question from the front of the room.', 'WORKSHOPS', '/gallery/event-2/124905.jpg', '2026-09-09', false),
+  ('gal-event-2-24', 'Building a Serverless Event-Driven System on AWS', 'Participants working through the exercise.', 'WORKSHOPS', '/gallery/event-2/130526.jpg', '2026-09-09', false),
+  ('gal-event-2-25', 'Building a Serverless Event-Driven System on AWS', 'Participants'' screens mid-exercise.', 'WORKSHOPS', '/gallery/event-2/124251.jpg', '2026-09-09', false),
+  ('gal-event-2-26', 'Building a Serverless Event-Driven System on AWS', 'The hall from the back as the session gets going.', 'WORKSHOPS', '/gallery/event-2/122732.jpg', '2026-09-09', false),
+  ('gal-event-3-27', 'From Bucket to Server: AWS S3 & EC2', 'Participants following the cloud basics talk.', 'WORKSHOPS', '/gallery/event-3/083427.jpg', '2026-09-23', false),
+  ('gal-event-3-28', 'From Bucket to Server: AWS S3 & EC2', 'Students listening in during the opening talk.', 'WORKSHOPS', '/gallery/event-3/083405.jpg', '2026-09-23', false),
+  ('gal-event-3-29', 'From Bucket to Server: AWS S3 & EC2', 'Pointing out a detail in the console demo.', 'WORKSHOPS', '/gallery/event-3/090123.jpg', '2026-09-23', false),
+  ('gal-event-3-30', 'From Bucket to Server: AWS S3 & EC2', 'A console command running on the projector.', 'WORKSHOPS', '/gallery/event-3/090253.jpg', '2026-09-23', false),
+  ('gal-event-3-31', 'From Bucket to Server: AWS S3 & EC2', 'A participant working on the lab exercise.', 'WORKSHOPS', '/gallery/event-3/092213.jpg', '2026-09-23', false),
+  ('gal-event-3-32', 'From Bucket to Server: AWS S3 & EC2', 'Participants working at their workstations.', 'WORKSHOPS', '/gallery/event-3/093414.jpg', '2026-09-23', false),
+  ('gal-event-3-33', 'From Bucket to Server: AWS S3 & EC2', 'The presenter wrapping up the hands-on section.', 'WORKSHOPS', '/gallery/event-3/093843.jpg', '2026-09-23', false),
+  ('gal-event-3-34', 'From Bucket to Server: AWS S3 & EC2', 'Participants settling in before the first talk.', 'WORKSHOPS', '/gallery/event-3/083124.jpg', '2026-09-23', false),
+  ('gal-event-3-35', 'From Bucket to Server: AWS S3 & EC2', 'Covering cloud computing deployment models.', 'WORKSHOPS', '/gallery/event-3/083623.jpg', '2026-09-23', false),
+  ('gal-event-3-36', 'From Bucket to Server: AWS S3 & EC2', 'Walking through the categories of AWS services.', 'WORKSHOPS', '/gallery/event-3/084641.jpg', '2026-09-23', false),
+  ('gal-event-1-01', 'The Builder''s Launchpad', 'A packed auditorium for the first AWS Student Builder Group event.', 'WORKSHOPS', '/gallery/event-1/20260829_150016.jpg', '2026-08-29', true),
+  ('gal-event-1-02', 'The Builder''s Launchpad', 'Students filling the hall during the opening session.', 'WORKSHOPS', '/gallery/event-1/20260829_150040.jpg', '2026-08-29', false),
+  ('gal-event-1-03', 'The Builder''s Launchpad', 'The auditorium from the back, with the talk under way.', 'WORKSHOPS', '/gallery/event-1/20260829_150125.jpg', '2026-08-29', false),
+  ('gal-event-1-04', 'The Builder''s Launchpad', 'The speaker addressing the full hall.', 'WORKSHOPS', '/gallery/event-1/IMG-20260829-WA0104.jpg', '2026-08-29', false),
+  ('gal-event-1-05', 'The Builder''s Launchpad', 'Rows of students listening in.', 'WORKSHOPS', '/gallery/event-1/IMG-20260829-WA0103.jpg', '2026-08-29', false),
+  ('gal-event-1-06', 'The Builder''s Launchpad', 'The speaker introducing AWS to the audience.', 'WORKSHOPS', '/gallery/event-1/20260829_145809.jpg', '2026-08-29', false),
+  ('gal-event-1-07', 'The Builder''s Launchpad', 'Walking through what AWS offers.', 'WORKSHOPS', '/gallery/event-1/20260829_145847.jpg', '2026-08-29', false),
+  ('gal-event-1-08', 'The Builder''s Launchpad', 'Making a point to the room with a mic in hand.', 'WORKSHOPS', '/gallery/event-1/IMG-20260829-WA0132.jpg', '2026-08-29', true),
+  ('gal-event-1-09', 'The Builder''s Launchpad', 'The speaker addressing the hall from the front.', 'WORKSHOPS', '/gallery/event-1/IMG_20260829_143931.jpg', '2026-08-29', false),
+  ('gal-event-1-10', 'The Builder''s Launchpad', 'Presenting The Builder''s Journey.', 'WORKSHOPS', '/gallery/event-1/IMG_20260829_144720.jpg', '2026-08-29', true),
+  ('gal-event-1-11', 'The Builder''s Launchpad', 'Taking a question from students in the front row.', 'WORKSHOPS', '/gallery/event-1/IMG_20260829_144537.jpg', '2026-08-29', false),
+  ('gal-event-1-12', 'The Builder''s Launchpad', 'Speaking among the audience.', 'WORKSHOPS', '/gallery/event-1/IMG_20260829_150849.jpg', '2026-08-29', false),
+  ('gal-event-1-13', 'The Builder''s Launchpad', 'A speaker presenting from the podium.', 'WORKSHOPS', '/gallery/event-1/IMG-20260829-WA0102.jpg', '2026-08-29', false),
+  ('gal-event-1-14', 'The Builder''s Launchpad', 'Welcoming the audience from the podium.', 'WORKSHOPS', '/gallery/event-1/IMG_20260829_143407.jpg', '2026-08-29', false),
+  ('gal-event-1-15', 'The Builder''s Launchpad', 'Introducing the group''s coordinators.', 'WORKSHOPS', '/gallery/event-1/IMG_20260829_143010.jpg', '2026-08-29', false),
+  ('gal-event-1-16', 'The Builder''s Launchpad', 'The team at the front of the hall, with the sign-up QR code on screen.', 'WORKSHOPS', '/gallery/event-1/IMG-20260829-WA0053.jpg', '2026-08-29', false),
+  ('gal-event-1-17', 'The Builder''s Launchpad', 'A group activity, with questions up on the screen.', 'WORKSHOPS', '/gallery/event-1/IMG_20260829_152043.jpg', '2026-08-29', false),
+  ('gal-event-1-18', 'The Builder''s Launchpad', 'Students working through the group activity.', 'WORKSHOPS', '/gallery/event-1/IMG_20260829_152539.jpg', '2026-08-29', false),
+  ('gal-event-1-19', 'The Builder''s Launchpad', 'Closing the session, with the QR code on screen.', 'WORKSHOPS', '/gallery/event-1/IMG_20260829_154658.jpg', '2026-08-29', false)
 on conflict (id) do nothing;
 
 

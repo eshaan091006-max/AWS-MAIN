@@ -2,8 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
-import { ArrowUpRight, Award, Check, Lock } from "lucide-react";
+import { ArrowUpRight, Award, CalendarDays, Check, Lock } from "lucide-react";
 import { EventData } from "@/lib/data/initialData";
 import { RegistrationModal } from "@/components/events/RegistrationModal";
 import { LiquidButton } from "@/components/ui/liquid-button";
@@ -51,14 +50,35 @@ export function EventCard({ event, featured }: EventCardProps) {
             featured ? "h-56 lg:h-auto lg:w-[46%]" : "h-44"
           )}
         >
-          <Image
-            src={event.imageUrl}
-            alt=""
-            fill
-            className="object-cover transition-transform duration-700 group-hover:scale-[1.04]"
-            sizes={featured ? "(max-width: 1024px) 100vw, 46vw" : "(max-width: 768px) 100vw, 33vw"}
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-navy-950 via-navy-950/30 to-transparent" />
+          {/* A drawn thumbnail, in the same language as the gallery's event
+              cards: a tint, a faint grid and the month ghosted behind an icon. */}
+          <div className="absolute inset-0 bg-gradient-to-br from-amber-500/20 to-aws-orange/5">
+            <span
+              aria-hidden="true"
+              className="absolute inset-0 opacity-60"
+              style={{
+                backgroundSize: "32px 32px",
+                backgroundImage:
+                  "linear-gradient(to right, rgba(255,255,255,0.04) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.04) 1px, transparent 1px)",
+                maskImage: "radial-gradient(ellipse at center, black 30%, transparent 75%)",
+                WebkitMaskImage: "radial-gradient(ellipse at center, black 30%, transparent 75%)",
+              }}
+            />
+            <span
+              aria-hidden="true"
+              className="absolute -right-3 -bottom-6 font-display font-black leading-none text-[8rem] text-white/[0.06] select-none transition-transform duration-500 group-hover:-translate-y-1"
+            >
+              {month}
+            </span>
+            <div className="relative h-full flex flex-col items-center justify-center gap-3">
+              <div className="w-14 h-14 rounded-xl bg-navy-950/70 border border-aws-orange/30 flex items-center justify-center text-aws-orange shadow-lg shadow-aws-orange/10">
+                <CalendarDays className="w-6 h-6" />
+              </div>
+              <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-zinc-300">
+                {event.category}
+              </span>
+            </div>
+          </div>
 
           {/* Date, as a stamp rather than another line of text. */}
           <div className="absolute top-4 left-4 flex flex-col items-center justify-center w-12 h-12 rounded-xl bg-navy-950/85 backdrop-blur-sm border border-white/10">
@@ -104,22 +124,24 @@ export function EventCard({ event, featured }: EventCardProps) {
             {event.time} · {event.venue}
           </div>
 
-          {/* Seats. A hairline meter rather than a labelled bar with its own
-              caption; the number above it already says what it means. */}
-          <div className="mt-4">
-            <div className="flex items-center justify-between text-[11px] font-mono text-zinc-500 mb-1.5">
-              <span>
-                {registered}/{maxSeats} seats
-              </span>
-              {isFull && !registrationClosed && <span className="text-zinc-400">Full</span>}
+          {/* Seats, as a hairline meter. Hidden once an event is over:
+              attendance is not tracked here, so it would only ever read "0/N". */}
+          {!registrationClosed && (
+            <div className="mt-4">
+              <div className="flex items-center justify-between text-[11px] font-mono text-zinc-500 mb-1.5">
+                <span>
+                  {registered}/{maxSeats} seats
+                </span>
+                {isFull && !registrationClosed && <span className="text-zinc-400">Full</span>}
+              </div>
+              <div className="h-px w-full bg-white/[0.08]">
+                <div
+                  className={cn("h-px transition-all duration-500", isFull ? "bg-zinc-600" : "bg-aws-orange")}
+                  style={{ width: `${filled}%` }}
+                />
+              </div>
             </div>
-            <div className="h-px w-full bg-white/[0.08]">
-              <div
-                className={cn("h-px transition-all duration-500", isFull ? "bg-zinc-600" : "bg-aws-orange")}
-                style={{ width: `${filled}%` }}
-              />
-            </div>
-          </div>
+          )}
 
           {/* Actions */}
           <div className="mt-5 flex items-center gap-2">

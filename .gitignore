@@ -38,3 +38,8 @@ next-env.d.ts
 # What the site uses is copied into public/brand and app/fonts; the rest
 # stays local rather than being committed and served on every deploy.
 brand-kit/
+
+# source photos (large, full-resolution, may carry location metadata);
+# the resized copies the site uses live in public/team, public/gallery, public/events
+/Team_Photos
+/Event_Photos

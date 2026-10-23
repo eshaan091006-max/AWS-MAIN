@@ -133,7 +133,15 @@ export function EventsBrowser({ events }: Props) {
             the site — a border on every tile plus a gap between them reads as
             two frames around the same thing. */}
         {gridEvents.length > 0 ? (
-          <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-px bg-white/[0.06] rounded-xl overflow-hidden border border-white/10">
+          <div
+            className={cn(
+              "mt-6 grid grid-cols-1 sm:grid-cols-2 gap-px bg-white/[0.06] rounded-xl overflow-hidden border border-white/10",
+              // Three columns only when there are enough events to fill the
+              // row; two events in three columns leave a blank cell.
+              gridEvents.length !== 2 && gridEvents.length !== 1 && "lg:grid-cols-3",
+              gridEvents.length === 1 && "sm:grid-cols-1"
+            )}
+          >
             {gridEvents.map((event) => (
               <EventCard key={event.id} event={event} />
             ))}

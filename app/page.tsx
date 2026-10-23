@@ -8,6 +8,7 @@ import {
   CheckCircle,
   Code2,
   Eye,
+  Images,
   GraduationCap,
   Rocket,
   ShieldCheck,
@@ -27,6 +28,8 @@ import { CountUp } from "@/components/ui/count-up";
 import { SpotlightCard } from "@/components/ui/spotlight-card";
 import { MagneticButton } from "@/components/ui/magnetic-button";
 import { StackingCards } from "@/components/ui/stacking-cards";
+import { AlbumCards } from "@/components/gallery/AlbumCards";
+import { INITIAL_GALLERY } from "@/lib/data/initialData";
 
 export const metadata = {
   title: "SXC AWS Group — Build. Deploy. Scale. | St. Xavier's College",
@@ -46,6 +49,8 @@ export const revalidate = 60;
  */
 export default async function HomePage() {
   const events = await db.listEvents();
+  const storedGallery = await db.listGallery();
+  const galleryImages = storedGallery.length > 0 ? storedGallery : INITIAL_GALLERY;
   // One event on the home page: the next one if something is scheduled,
   // otherwise the most recent to have happened. The section is a pointer to
   // /events, not a second copy of it, and a single card says "here is what is
@@ -340,6 +345,29 @@ export default async function HomePage() {
             >
               <Users className="w-4 h-4 text-aws-orange" />
               <span>Full showcase</span>
+            </MagneticButton>
+          </div>
+      </ScrollSection>
+
+      {/* ============================ GALLERY ============================ */}
+      <ScrollSection
+        id="gallery"
+        index={5}
+        eyebrow="Gallery"
+        title="Moments from"
+        highlight="our events"
+        sub="Pick an event to see its photos."
+      >
+          <AlbumCards images={galleryImages} />
+
+          <div className="flex mt-10">
+            <MagneticButton
+              as={Link}
+              href="/gallery"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] text-zinc-200 border border-white/10 hover:border-aws-orange/40 text-sm font-semibold"
+            >
+              <Images className="w-4 h-4 text-aws-orange" />
+              <span>Open the gallery</span>
             </MagneticButton>
           </div>
       </ScrollSection>

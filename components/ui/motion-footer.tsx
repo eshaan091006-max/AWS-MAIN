@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { useEffect, useRef } from "react";
+import { usePathname } from "next/navigation";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { cn } from "@/lib/utils";
@@ -177,6 +178,29 @@ export function CinematicFooter({
   const giantTextRef = useRef<HTMLDivElement>(null);
   const headingRef = useRef<HTMLHeadingElement>(null);
   const linksRef = useRef<HTMLDivElement>(null);
+  const pathname = usePathname();
+
+  // The footer lives in the layout, so it is mounted once and its scroll
+  // triggers are measured against whichever page was showing at that moment.
+  // Navigate to a page of a different height and the start/end positions are
+  // stale: the scrubbed heading and links never reach full opacity and the
+  // footer shows as an empty screen. Re-measure whenever the route changes or
+  // the document's height does (images and fonts landing late).
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    let frame = 0;
+    const refresh = () => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => ScrollTrigger.refresh());
+    };
+    refresh();
+    const observer = new ResizeObserver(refresh);
+    observer.observe(document.body);
+    return () => {
+      cancelAnimationFrame(frame);
+      observer.disconnect();
+    };
+  }, [pathname]);
 
   useEffect(() => {
     if (typeof window === "undefined") return;

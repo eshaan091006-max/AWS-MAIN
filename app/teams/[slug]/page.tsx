@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
-import { teamHierarchy } from "@/config/teamHierarchy";
+import { teamHierarchy, teamPhotos } from "@/config/teamHierarchy";
 import { DecodeText } from "@/components/ui/decode-text";
 import { CountUp } from "@/components/ui/count-up";
 import { Reveal } from "@/components/ui/reveal";
@@ -43,6 +43,7 @@ export default async function DepartmentPage({ params }: PageProps) {
     name: vcp.name,
     role: vcp.role,
     kind: "lead",
+    photo: teamPhotos[vcp.name],
   }));
 
   const seen = new Set<string>();
@@ -50,7 +51,12 @@ export default async function DepartmentPage({ params }: PageProps) {
   const addCoordinator = (name: string) => {
     if (seen.has(name)) return;
     seen.add(name);
-    coordinators.push({ name, role: "Coordinator", kind: "coordinator" });
+    coordinators.push({
+      name,
+      role: "Coordinator",
+      kind: "coordinator",
+      photo: teamPhotos[name],
+    });
   };
   dept.vcps.forEach((vcp) => (vcp.coordinators ?? []).forEach(addCoordinator));
   (dept.coordinators ?? []).forEach(addCoordinator);

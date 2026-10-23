@@ -54,8 +54,7 @@ export function DepartmentPeople({
         <div
           className={cn(
             "grid grid-cols-1 gap-4",
-            // One lead takes the full width; two or more share the row.
-            leads.length === 1 ? "lg:grid-cols-1" : "sm:grid-cols-2"
+            "sm:grid-cols-2"
           )}
         >
           {leads.map((person, i) => (
@@ -64,8 +63,10 @@ export function DepartmentPeople({
         </div>
       )}
 
+      {/* Two across even on a phone: coordinators are the long tail of the page,
+          and one full-width portrait each is a lot of scrolling. */}
       {coordinators.length > 0 && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
           {coordinators.map((person, i) => (
             <PersonCard
               key={person.name}
@@ -98,8 +99,8 @@ function PersonCard({
         className={cn(
           "h-full rounded-xl border bg-navy-950 transition-colors duration-300",
           isLead
-            ? "border-white/15 hover:border-aws-orange/40 p-7"
-            : "border-white/10 hover:border-white/25 p-5"
+            ? "border-white/15 hover:border-aws-orange/40 p-3"
+            : "border-white/10 hover:border-white/25 p-2 sm:p-3"
         )}
       >
         {/* The department's colour, behind its leads only — it marks the top of
@@ -114,18 +115,19 @@ function PersonCard({
           />
         )}
 
-        <div className="relative flex items-center gap-4">
+        <div className="relative">
           <PersonAvatar
             name={person.name}
             photo={person.photo}
             index={index}
-            size={isLead ? "lg" : "sm"}
+            size="tile"
+            className={isLead ? "aspect-square" : undefined}
           />
-          <div className="min-w-0">
+          <div className="px-1 pt-3 sm:pt-4 pb-1">
             <div
               className={cn(
                 "font-display font-bold text-white tracking-tight leading-tight",
-                isLead ? "text-xl" : "text-base"
+                isLead ? "text-2xl" : "text-sm sm:text-lg"
               )}
             >
               {person.name}
@@ -133,7 +135,7 @@ function PersonCard({
             {/* zinc-400, not the zinc-500/600 this page used before: those
                 measure 4.12:1 and 2.57:1 against this background and both fail
                 WCAG AA at this size. */}
-            <div className="mt-1.5 text-[10px] font-mono uppercase tracking-[0.15em] text-zinc-400 leading-relaxed">
+            <div className="mt-1.5 text-[9px] sm:text-[10px] font-mono uppercase tracking-[0.15em] text-zinc-400 leading-relaxed">
               {person.role}
             </div>
           </div>

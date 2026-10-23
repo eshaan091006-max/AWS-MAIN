@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import Image from "next/image";
 import { X, ChevronLeft, ChevronRight, Calendar, Tag } from "lucide-react";
 import { GalleryImageData } from "@/lib/data/initialData";
@@ -13,6 +14,12 @@ interface LightboxModalProps {
 }
 
 export function LightboxModal({ images, currentIndex, onClose, onNavigate }: LightboxModalProps) {
+  // Rendered into <body> rather than where it is used. The page content sits in
+  // a stacking context (main is z-10), so a z-[9999] inside it still paints
+  // under the fixed navbar — which then swallowed clicks on the close button.
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+
   useEffect(() => {
     if (currentIndex === null) return;
 
@@ -42,11 +49,11 @@ export function LightboxModal({ images, currentIndex, onClose, onNavigate }: Lig
     };
   }, [currentIndex, images.length, onClose, onNavigate]);
 
-  if (currentIndex === null || !images[currentIndex]) return null;
+  if (!mounted || currentIndex === null || !images[currentIndex]) return null;
 
   const current = images[currentIndex];
 
-  return (
+  return createPortal(
     <div
       role="dialog"
       aria-modal="true"
@@ -138,6 +145,7 @@ export function LightboxModal({ images, currentIndex, onClose, onNavigate }: Lig
           </div>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

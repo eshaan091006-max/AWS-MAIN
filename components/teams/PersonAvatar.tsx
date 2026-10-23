@@ -51,7 +51,7 @@ export function PersonAvatar({ name, photo, index = 0, size = "sm", className }:
     >
       {photo ? (
         // eslint-disable-next-line @next/next/no-img-element
-        <img src={photo} alt="" className="w-full h-full object-cover" />
+        <img src={photo} alt="" className={cn("w-full h-full object-cover", size === "tile" && "object-[50%_25%]")} />
       ) : (
         <div
           className={cn(

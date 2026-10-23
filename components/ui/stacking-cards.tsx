@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
  * Cards that stack as you scroll, each settling behind the one after it.
  *
  * Every card sticks at its own offset so they come to rest on top of one
- * another, and the one underneath scales down and dims as the next arrives —
+ * another, and the one underneath scales down and darkens as the next arrives —
  * without that, the stack is just cards covering cards with no sense of depth.
  *
  * The scale is driven by the container's scroll progress, not each card's.
@@ -82,16 +82,21 @@ function StackingCard({
   const scale = useTransform(progress, [start, end], [1, isLast ? 1 : 0.9], {
     clamp: true,
   });
-  const opacity = useTransform(progress, [start, end], [1, isLast ? 1 : 0.45], {
-    clamp: true,
-  });
+  // Dimmed with brightness, not opacity: a see-through card lets the text of
+  // the card it is covering show through the one on top of it.
+  const filter = useTransform(
+    progress,
+    [start, end],
+    ["brightness(1)", isLast ? "brightness(1)" : "brightness(0.55)"],
+    { clamp: true }
+  );
 
   return (
     <div
       className="sticky"
       style={{ top: top + index * step, marginBottom: isLast ? 0 : 24 }}
     >
-      <motion.div style={{ scale, opacity }} className="origin-top will-change-transform">
+      <motion.div style={{ scale, filter }} className="origin-top will-change-transform">
         {children}
       </motion.div>
     </div>

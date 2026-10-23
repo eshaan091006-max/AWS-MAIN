@@ -163,3 +163,30 @@ export const teamHierarchy: TeamHierarchy = {
     },
   ],
 };
+
+/**
+ * Portraits for the department pages, keyed by the name used above. Files live
+ * in public/team, cropped square around the face. Anyone missing from this map
+ * gets an initials avatar.
+ */
+export const teamPhotos: Record<string, string> = Object.fromEntries(
+  [
+    "Raphael Wol",
+    "Karan Singh",
+    "Praneet Singh",
+    "Michael Fernandes",
+    "Eshaan Sinha",
+    "Ricco Marcelino",
+    "Suhani Minocha",
+    "Ian Reddy",
+    "Vimal Kansotia",
+    "Nicole Dsouza",
+    "Athen Chettiar",
+    "Ananya Shah",
+    "Naomi John",
+    "Anubhav Barik",
+    "Nyneishia Naik",
+    "Deveshi Saha",
+    "Bhumika Hasalkar",
+  ].map((name) => [name, `/team/${name.toLowerCase().replace(/\s+/g, "-")}.jpg`])
+);

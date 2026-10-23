@@ -2,6 +2,7 @@ import React from "react";
 import { INITIAL_GALLERY } from "@/lib/data/initialData";
 import { GalleryStage } from "@/components/gallery/GalleryStage";
 import { db } from "@/lib/db";
+import { AlbumCards } from "@/components/gallery/AlbumCards";
 
 export const metadata = {
   title: "Photo & Community Gallery — SXC AWS Club",
@@ -52,7 +53,8 @@ export default async function GalleryPage() {
                   of the section, where it was a line of text stranded in an
                   empty band with nothing above or below it. */}
               <p className="mt-6 font-mono uppercase text-[10px] md:text-[11px] tracking-widest text-zinc-400 drop-shadow-[0_2px_10px_rgba(0,0,0,0.95)]">
-                Scroll over the photos, drag, or use the arrow keys
+                <span className="hidden md:inline">Scroll over the photos, drag, or use the arrow keys</span>
+                <span className="md:hidden">Swipe the photos to browse</span>
               </p>
             </div>
           </div>
@@ -67,6 +69,18 @@ export default async function GalleryPage() {
         />
       </section>
 
+      {/* One card per event. The 3D stage above mixes every photo together;
+          this is how you get to a single event's pictures. */}
+      <section id="events" className="relative z-10 max-w-7xl mx-auto px-4 sm:px-8 lg:px-12 py-24">
+        <div className="text-[11px] font-mono uppercase tracking-[0.2em] text-aws-orange mb-4">
+          By event
+        </div>
+        <h2 className="text-3xl sm:text-5xl font-display font-bold text-white tracking-tight">
+          Browse each <span className="text-gradient-orange">event</span>
+        </h2>
+
+        <AlbumCards images={images} className="mt-12" />
+      </section>
     </div>
   );
 }

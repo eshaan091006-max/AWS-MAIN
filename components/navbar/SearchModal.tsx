@@ -80,11 +80,11 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
               </div>
               <div className="grid grid-cols-2 gap-2">
                 <button
-                  onClick={() => handleSelect("/events/aws-foundations")}
+                  onClick={() => handleSelect("/events/the-builders-launchpad")}
                   className="flex items-center gap-2 p-2.5 rounded-xl bg-navy-800/60 hover:bg-navy-700/80 border border-white/5 text-left text-xs text-slate-200 hover:text-aws-orange transition-colors"
                 >
                   <Calendar className="w-4 h-4 text-aws-orange" />
-                  <span>AWS Foundations Event</span>
+                  <span>The Builder&apos;s Launchpad</span>
                 </button>
                 <button
                   onClick={() => handleSelect("/teams")}
